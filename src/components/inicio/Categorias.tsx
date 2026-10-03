@@ -1,9 +1,25 @@
+import Image from "next/image";
 import Link from "next/link";
 
-// Fotos das categorias ainda não fornecidas: o cartão mostra um marcador.
-const categorias = [
+type Categoria = {
+  linha: string;
+  nome: string;
+  href: string;
+  foto?: { src: string; posicao: string };
+};
+
+// Só "Estampas da casa" tem foto própria; as outras mostram um marcador.
+const categorias: Categoria[] = [
   { linha: "Camisetas", nome: "Básicas", href: "/#produtos" },
-  { linha: "Estampas", nome: "Da Casa", href: "/#produtos" },
+  {
+    linha: "Estampas",
+    nome: "Da Casa",
+    href: "/#produtos",
+    foto: {
+      src: "/fotos/nao-me-envergonho-casal.jpg",
+      posicao: "object-[88%_40%]",
+    },
+  },
   { linha: "Com a sua arte", nome: "Personalizadas", href: "/#personalizacao" },
   { linha: "Em quantidade", nome: "Atacado", href: "/#atacado" },
 ];
@@ -22,12 +38,22 @@ export function Categorias() {
                 href={categoria.href}
                 className="group relative flex min-h-[380px] flex-col justify-end overflow-hidden rounded-[20px] bg-painel p-7 text-papel"
               >
-                <span className="absolute top-6 left-7 text-[12px] font-semibold tracking-[0.2em] text-secundario-escuro">
-                  [FOTO]
-                </span>
+                {categoria.foto ? (
+                  <Image
+                    src={categoria.foto.src}
+                    alt=""
+                    fill
+                    sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
+                    className={`object-cover transition duration-500 group-hover:scale-[1.03] ${categoria.foto.posicao}`}
+                  />
+                ) : (
+                  <span className="absolute top-6 left-7 text-[12px] font-semibold tracking-[0.2em] text-secundario-escuro">
+                    [FOTO DA CATEGORIA]
+                  </span>
+                )}
                 <span
                   aria-hidden="true"
-                  className="absolute inset-0 bg-gradient-to-t from-tinta/90 via-tinta/20 to-transparent"
+                  className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-tinta/90 to-transparent"
                 />
                 <span className="relative text-[14px] text-apoio-escuro">
                   {categoria.linha}

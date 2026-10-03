@@ -79,7 +79,7 @@ De cima para baixo:
 
 1. **Faixa de aviso** (fundo Tinta, texto branco de 12px): "ENVIAMOS PARA TODO O BRASIL · PIX, CARTÃO E BOLETO".
 2. **Cabeçalho** (fundo Papel, borda inferior): logo, menu (Início, Produtos, Personalização, Atacado) e ícones de conta e carrinho.
-3. **Hero** (fundo Tinta): sobretítulo "CARTA VIVA CAMISETAS", título "Vista o que você quer dizer.", parágrafo "Camisetas lisas, estampas da casa e peças personalizadas com a sua arte. Para usar, presentear ou vestir a sua equipe.", botões "VER PRODUTOS" (principal) e "PERSONALIZAR" (contorno). À direita, um painel escuro com a imagem de uma camiseta e a área de estampa marcada "SUA ARTE AQUI".
+3. **Hero** (fundo Tinta): sobretítulo "CARTA VIVA CAMISETAS", título "Vista o que você quer dizer.", parágrafo "Camisetas lisas, estampas da casa e peças personalizadas com a sua arte. Para usar, presentear ou vestir a sua equipe.", botões "VER PRODUTOS" (principal) e "PERSONALIZAR" (contorno). À direita, uma composição de duas fotos sobrepostas, descrita em "Composição do hero" abaixo.
 4. **Categorias** (4 cartões): Camisetas Básicas, Estampas da Casa, Personalizadas (com a sua arte), Atacado (em quantidade).
 5. **Produtos Carta Viva:** grade de produtos e botão "VER TODOS".
 6. **Personalização** (fundo Tinta): título "Sua arte, na sua camiseta.", texto "Envie a sua estampa ou conte a ideia. A gente prepara, aprova com você e produz.", três passos (01 Escolha a peça, 02 Envie a sua arte, 03 Aprove e receba) e botão "QUERO PERSONALIZAR".
@@ -89,6 +89,36 @@ De cima para baixo:
 10. **Rodapé** (fundo Fundo): marca, Atendimento, Políticas e Contato.
 
 No celular, as grades viram uma coluna, o menu vira um botão de menu e o hero empilha o texto acima da imagem.
+
+## Fotos disponíveis
+
+As fotos ficam em `public/fotos/`. A pasta `public/hero/` é de uma versão anterior e pode ser apagada.
+
+| Arquivo | O que mostra | Proporção |
+|---|---|---|
+| `nao-temas-creia-casal.jpg` | Casal com a camiseta azul-marinho "Não temas, creia": frente (estampa pequena no peito) e costas (estampa grande) | 6:5, horizontal |
+| `nao-temas-creia-dobrada.jpg` | A mesma camiseta dobrada sobre madeira, frente e costas lado a lado | 3:2, horizontal |
+| `nao-me-envergonho-casal.jpg` | Casal com a camiseta branca "Não me envergonho do evangelho": frente (Romanos 1:16) e costas (estampa grande) | quase quadrada |
+| `jesus-my-best-friend.jpg` | Mulher com a camiseta preta "Jesus, my best friend", de frente | 3:4, vertical |
+| `o-justo-vive-pela-fe.jpg` | Costas da camiseta clara "O justo vive pela fé" | 3:4, vertical |
+
+Onde cada foto entra na página inicial:
+
+- **Hero:** `nao-temas-creia-casal.jpg` (principal) e `jesus-my-best-friend.jpg` (secundária).
+- **Cartão de categoria "Estampas da casa":** `nao-me-envergonho-casal.jpg` como fundo, com `object-position: 88% 40%` para enquadrar a estampa das costas, e um degradê escuro só na base, atrás do rótulo.
+- **Grade de produtos:** uma foto por produto, em recorte quadrado: `nao-temas-creia-casal.jpg`, `nao-me-envergonho-casal.jpg`, `jesus-my-best-friend.jpg` (`object-position: 50% 45%`) e `o-justo-vive-pela-fe.jpg` (`object-position: 50% 42%`). A foto ocupa o cartão inteiro, sem margem interna, com a etiqueta preta sobre o canto superior esquerdo.
+- **Seção Personalização:** `nao-temas-creia-dobrada.jpg` ao lado do título, em cartão 3:2 com cantos de 20px. Ela mostra as duas posições de estampa: pequena no peito e grande nas costas.
+
+Os cartões de categoria "Básicas", "Personalizadas" e "Atacado" continuam com o marcador `[FOTO DA CATEGORIA]` até haver fotos próprias.
+
+## Composição do hero
+
+O lado direito do hero mostra duas fotos sobrepostas.
+
+- **Foto principal:** `nao-temas-creia-casal.jpg`. Cartão com 88% da largura da coluna, proporção 6:5, cantos de 28px, `object-fit: cover` com `object-position: 50% 35%`. No canto inferior esquerdo, uma etiqueta branca em pílula com o texto "ESTAMPA DA CASA" (11px, 700, maiúsculas).
+- **Foto secundária:** `jesus-my-best-friend.jpg`. Cartão quadrado com 34% da largura, cantos de 24px e borda de 6px na cor Tinta, no canto inferior direito. Ele fica quase todo abaixo da foto principal (a coluna tem 110px de espaço embaixo) e só encosta no canto dela, para não cobrir a estampa das costas. `object-position: 50% 52%` para enquadrar a estampa.
+- **Imagens:** carregadas com `next/image`, com `priority` na principal e texto alternativo descritivo.
+- **Sem caixa "SUA ARTE AQUI" sobre as fotos:** as camisetas já têm estampa. A caixa de seleção com alças fica reservada para a página de personalização, sobre a imagem de uma camiseta lisa.
 
 ## Conteúdo ainda não fornecido
 

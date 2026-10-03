@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 import { Botao } from "@/components/ui/Botao";
 
 export function Hero() {
@@ -21,56 +23,39 @@ export function Hero() {
           </div>
         </div>
 
-        <div className="flex aspect-[5/4] items-center justify-center rounded-[28px] bg-painel p-8">
-          <CamisetaIlustrada className="h-full max-h-[420px] w-auto" />
-        </div>
+        <ComposicaoDeFotos />
       </div>
     </section>
   );
 }
 
-function CamisetaIlustrada({ className }: { className?: string }) {
+/** Duas fotos sobrepostas (docs/identidade-visual.md, "Composição do hero"). */
+function ComposicaoDeFotos() {
   return (
-    <svg
-      viewBox="0 0 320 300"
-      role="img"
-      aria-label="Camiseta com a área de estampa marcada: sua arte aqui"
-      className={className}
-    >
-      <path
-        d="M112 20 C124 38 196 38 208 20 L268 46 L304 112 L262 132 L248 108 L248 282 L72 282 L72 108 L58 132 L16 112 L52 46 Z"
-        className="fill-produto"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M112 20 C124 38 196 38 208 20"
-        fill="none"
-        className="stroke-borda"
-        strokeWidth="6"
-        strokeLinecap="round"
-      />
-      <rect
-        x="110"
-        y="90"
-        width="100"
-        height="110"
-        rx="8"
-        fill="none"
-        className="stroke-secundario"
-        strokeWidth="2"
-        strokeDasharray="7 6"
-      />
-      <text
-        x="160"
-        y="140"
-        textAnchor="middle"
-        className="fill-secundario font-sans text-[11px] font-bold tracking-[0.2em]"
-      >
-        <tspan x="160">SUA ARTE</tspan>
-        <tspan x="160" dy="18">
-          AQUI
-        </tspan>
-      </text>
-    </svg>
+    <div className="relative pb-[110px]">
+      <div className="relative aspect-[6/5] w-[88%] overflow-hidden rounded-[28px] bg-painel">
+        <Image
+          src="/fotos/nao-temas-creia-casal.jpg"
+          alt="Casal com a camiseta azul-marinho “Não temas, creia”: ela mostra a estampa pequena no peito e ele, de costas, a estampa grande com Marcos 5:36"
+          fill
+          preload
+          sizes="(min-width: 1280px) 520px, (min-width: 1024px) 40vw, 88vw"
+          className="object-cover object-[50%_35%]"
+        />
+        <span className="absolute bottom-5 left-5 rounded-full bg-papel px-4 py-2 text-[11px] font-bold tracking-[0.16em] text-tinta uppercase">
+          Estampa da casa
+        </span>
+      </div>
+
+      <div className="absolute right-0 bottom-0 aspect-square w-[34%] overflow-hidden rounded-[24px] border-6 border-tinta bg-painel">
+        <Image
+          src="/fotos/jesus-my-best-friend.jpg"
+          alt="Mulher com a camiseta preta “Jesus, my best friend”"
+          fill
+          sizes="(min-width: 1280px) 200px, (min-width: 1024px) 16vw, 34vw"
+          className="object-cover object-[50%_52%]"
+        />
+      </div>
+    </div>
   );
 }
