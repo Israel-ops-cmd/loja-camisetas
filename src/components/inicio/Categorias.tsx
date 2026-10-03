@@ -10,11 +10,11 @@ type Categoria = {
 
 // Só "Estampas da casa" tem foto própria; as outras mostram um marcador.
 const categorias: Categoria[] = [
-  { linha: "Camisetas", nome: "Básicas", href: "/#produtos" },
+  { linha: "Camisetas", nome: "Básicas", href: "/produtos?categoria=basicas" },
   {
     linha: "Estampas",
     nome: "Da Casa",
-    href: "/#produtos",
+    href: "/produtos?categoria=estampas-da-casa",
     foto: {
       src: "/fotos/nao-me-envergonho-casal.jpg",
       posicao: "object-[88%_40%]",

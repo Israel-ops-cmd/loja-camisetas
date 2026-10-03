@@ -84,15 +84,18 @@ model Variacao {
 }
 
 model ProdutoImagem {
-  id        String  @id @default(uuid(7)) @db.Uuid
-  url       String
-  alt       String
-  ordem     Int     @default(0)
-  produtoId String  @db.Uuid
-  produto   Produto @relation(fields: [produtoId], references: [id], onDelete: Cascade)
+  id            String  @id @default(uuid(7)) @db.Uuid
+  url           String
+  alt           String
+  ordem         Int     @default(0)
+  /// Valor de `object-position` para enquadrar a estampa no recorte (ex.: "50% 45%").
+  /// Nulo: centralizado.
+  enquadramento String?
+  produtoId     String  @db.Uuid
+  produto       Produto @relation(fields: [produtoId], references: [id], onDelete: Cascade)
   /// Quando preenchida, a foto aparece ao escolher essa cor.
-  corId     String? @db.Uuid
-  cor       Cor?    @relation(fields: [corId], references: [id])
+  corId         String? @db.Uuid
+  cor           Cor?    @relation(fields: [corId], references: [id])
 
   @@index([produtoId])
   @@map("produto_imagens")
