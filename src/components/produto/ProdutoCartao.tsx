@@ -1,62 +1,68 @@
 import Image from "next/image";
+import Link from "next/link";
 
+import type { ProdutoResumo } from "@/lib/catalogo";
 import { formatarPreco } from "@/lib/formatacao";
 
-export type ProdutoCartaoProps = {
-  nome: string;
-  /** Em centavos. `null` enquanto o preço não foi definido. */
-  precoEmCentavos: number | null;
-  /** Cores disponíveis, em hexadecimal. */
-  cores: { nome: string; hex: string }[];
-  foto?: {
-    src: string;
-    alt: string;
-    /** Classe `object-[x_y]` para enquadrar a estampa no recorte quadrado. */
-    posicao?: string;
-  };
-  etiqueta?: string;
+type ProdutoCartaoProps = {
+  produto: ProdutoResumo;
+  /** Larguras para o `sizes` da foto, conforme a grade onde o cartão está. */
+  sizes: string;
 };
 
-export function ProdutoCartao({
-  nome,
-  precoEmCentavos,
-  cores,
-  foto,
-  etiqueta,
-}: ProdutoCartaoProps) {
+export function ProdutoCartao({ produto, sizes }: ProdutoCartaoProps) {
+  const { foto } = produto;
+
   return (
-    <article>
+    <article className="group relative">
       <div className="relative flex aspect-square items-center justify-center overflow-hidden rounded-xl bg-produto">
         {foto ? (
           <Image
-            src={foto.src}
+            src={foto.url}
             alt={foto.alt}
             fill
-            sizes="(min-width: 1280px) 300px, (min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
-            className={`object-cover ${foto.posicao ?? ""}`}
+            sizes={sizes}
+            className={`object-cover transition duration-500 group-hover:scale-[1.03] ${produto.esgotado ? "opacity-60" : ""}`}
+            style={
+              foto.enquadramento
+                ? { objectPosition: foto.enquadramento }
+                : undefined
+            }
           />
         ) : (
           <span className="text-[12px] font-semibold tracking-[0.2em] text-secundario">
             [FOTO]
           </span>
         )}
-        {etiqueta && (
-          <span className="absolute top-3 left-3 rounded-full bg-tinta px-3 py-1 text-[11px] font-bold tracking-[0.16em] text-papel">
-            {etiqueta}
+        {produto.esgotado && (
+          <span className="absolute top-3 left-3 rounded-full bg-tinta px-3 py-1 text-[11px] font-bold tracking-[0.16em] text-papel uppercase">
+            Esgotado
           </span>
         )}
       </div>
+
       <h3 className="mt-4 text-[13px] font-semibold tracking-[0.12em] uppercase">
-        {nome}
+        {/* O link cobre o cartão inteiro, mas o texto lido é só o nome. */}
+        <Link
+          href={`/produtos/${produto.slug}`}
+          className="after:absolute after:inset-0 after:rounded-xl focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-offset-4 focus-visible:after:outline-lacre"
+        >
+          {produto.nome}
+        </Link>
       </h3>
       <p className="mt-1 font-titulo text-[20px] font-extrabold">
-        {precoEmCentavos === null ? "[PREÇO]" : formatarPreco(precoEmCentavos)}
+        {produto.precoVaria && (
+          <span className="mr-1 font-sans text-[13px] font-semibold text-secundario">
+            A partir de
+          </span>
+        )}
+        {formatarPreco(produto.precoEmCentavos)}
       </p>
-      {cores.length > 0 ? (
+      {produto.cores.length > 0 && (
         <ul aria-label="Cores disponíveis" className="mt-3 flex gap-2">
-          {cores.map((cor) => (
+          {produto.cores.map((cor) => (
             <li
-              key={cor.hex}
+              key={cor.nome}
               title={cor.nome}
               className="size-[18px] rounded border border-borda"
               style={{ backgroundColor: cor.hex }}
@@ -65,8 +71,6 @@ export function ProdutoCartao({
             </li>
           ))}
         </ul>
-      ) : (
-        <p className="mt-3 text-[13px] text-secundario">[CORES]</p>
       )}
     </article>
   );

@@ -16,7 +16,7 @@ export function Hero() {
             arte. Para usar, presentear ou vestir a sua equipe.
           </p>
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-            <Botao href="/#produtos">Ver produtos</Botao>
+            <Botao href="/produtos">Ver produtos</Botao>
             <Botao href="/#personalizacao" variante="contorno">
               Personalizar
             </Botao>
