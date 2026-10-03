@@ -73,6 +73,7 @@ const produtos = [
       {
         url: "/fotos/jesus-my-best-friend.jpg",
         alt: "Mulher com a camiseta preta “Jesus, my best friend”",
+        enquadramento: "50% 45%",
       },
     ],
   },
@@ -85,6 +86,7 @@ const produtos = [
       {
         url: "/fotos/o-justo-vive-pela-fe.jpg",
         alt: "Costas da camiseta off-white “O justo vive pela fé”, com a ilustração de uma Bíblia",
+        enquadramento: "50% 42%",
       },
     ],
   },
@@ -137,6 +139,14 @@ async function main() {
         },
       },
     });
+
+    // Mantém o enquadramento em dia também nas imagens criadas por seeds anteriores.
+    for (const imagem of dados.imagens) {
+      await prisma.produtoImagem.updateMany({
+        where: { produtoId: produto.id, url: imagem.url },
+        data: { enquadramento: "enquadramento" in imagem ? imagem.enquadramento : null },
+      });
+    }
 
     for (const nomeTamanho of tamanhos) {
       const tamanho = await prisma.tamanho.findUniqueOrThrow({
