@@ -9,8 +9,9 @@
     "lint": "eslint",
     "postinstall": "prisma generate",
     "db:generate": "prisma generate",
-    "db:migrate": "prisma migrate dev",
-    "db:studio": "prisma studio"
+    "db:migrate": "prisma migrate dev && prisma generate",
+    "db:studio": "prisma studio",
+    "db:seed": "prisma db seed"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.0",
@@ -33,6 +34,7 @@
     "eslint-config-next": "16.3.8",
     "prisma": "^7.10.0",
     "tailwindcss": "^4",
+    "tsx": "^4.23.15",
     "typescript": "^5"
   }
 }
