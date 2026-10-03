@@ -1,0 +1,10 @@
+// Schema do banco. As tabelas entram na etapa 2 (feat/modelagem-banco).
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
