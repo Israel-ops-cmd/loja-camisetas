@@ -1,4 +1,5 @@
-// Schema do banco. As tabelas entram na etapa 2 (feat/modelagem-banco).
+// Schema do banco da Carta Viva Camisetas.
+// Preços sempre em centavos (Int). Estoque controlado por variação (produto + cor + tamanho).
 
 generator client {
   provider = "prisma-client"
@@ -7,4 +8,235 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+}
+
+// ---------------------------------------------------------------- Catálogo
+
+model Categoria {
+  id       String    @id @default(uuid(7)) @db.Uuid
+  nome     String
+  slug     String    @unique
+  ordem    Int       @default(0)
+  produtos Produto[]
+
+  @@map("categorias")
+}
+
+model Produto {
+  id                  String          @id @default(uuid(7)) @db.Uuid
+  nome                String
+  slug                String          @unique
+  descricao           String?
+  precoBaseEmCentavos Int
+  ativo               Boolean         @default(true)
+  destaque            Boolean         @default(false)
+  categoriaId         String          @db.Uuid
+  categoria           Categoria       @relation(fields: [categoriaId], references: [id])
+  variacoes           Variacao[]
+  imagens             ProdutoImagem[]
+  criadoEm            DateTime        @default(now())
+  atualizadoEm        DateTime        @updatedAt
+
+  @@index([categoriaId])
+  @@map("produtos")
+}
+
+model Cor {
+  id        String          @id @default(uuid(7)) @db.Uuid
+  nome      String          @unique
+  /// Hexadecimal, ex.: #141414
+  hex       String
+  variacoes Variacao[]
+  imagens   ProdutoImagem[]
+
+  @@map("cores")
+}
+
+model Tamanho {
+  id        String     @id @default(uuid(7)) @db.Uuid
+  nome      String     @unique
+  /// Ordem de exibição (P antes de M...)
+  ordem     Int
+  variacoes Variacao[]
+
+  @@map("tamanhos")
+}
+
+/// Uma combinação vendável de produto + cor + tamanho, com o seu estoque.
+model Variacao {
+  id              String                @id @default(uuid(7)) @db.Uuid
+  sku             String                @unique
+  estoque         Int                   @default(0)
+  /// Quando nulo, vale o preço base do produto.
+  precoEmCentavos Int?
+  ativo           Boolean               @default(true)
+  produtoId       String                @db.Uuid
+  produto         Produto               @relation(fields: [produtoId], references: [id], onDelete: Cascade)
+  corId           String                @db.Uuid
+  cor             Cor                   @relation(fields: [corId], references: [id])
+  tamanhoId       String                @db.Uuid
+  tamanho         Tamanho               @relation(fields: [tamanhoId], references: [id])
+  movimentacoes   MovimentacaoEstoque[]
+  itensPedido     ItemPedido[]
+
+  @@unique([produtoId, corId, tamanhoId])
+  @@map("variacoes")
+}
+
+model ProdutoImagem {
+  id        String  @id @default(uuid(7)) @db.Uuid
+  url       String
+  alt       String
+  ordem     Int     @default(0)
+  produtoId String  @db.Uuid
+  produto   Produto @relation(fields: [produtoId], references: [id], onDelete: Cascade)
+  /// Quando preenchida, a foto aparece ao escolher essa cor.
+  corId     String? @db.Uuid
+  cor       Cor?    @relation(fields: [corId], references: [id])
+
+  @@index([produtoId])
+  @@map("produto_imagens")
+}
+
+enum MotivoMovimentacao {
+  ENTRADA
+  VENDA
+  AJUSTE
+  CANCELAMENTO
+
+  @@map("motivo_movimentacao")
+}
+
+/// Histórico do estoque. A baixa por venda guarda o pedido, e a combinação
+/// (pedido, variação, motivo) é única: um webhook repetido não desconta duas vezes.
+model MovimentacaoEstoque {
+  id         String             @id @default(uuid(7)) @db.Uuid
+  /// Positiva para entrada, negativa para saída.
+  quantidade Int
+  motivo     MotivoMovimentacao
+  observacao String?
+  variacaoId String             @db.Uuid
+  variacao   Variacao           @relation(fields: [variacaoId], references: [id])
+  pedidoId   String?            @db.Uuid
+  pedido     Pedido?            @relation(fields: [pedidoId], references: [id])
+  criadoEm   DateTime           @default(now())
+
+  @@unique([pedidoId, variacaoId, motivo])
+  @@index([variacaoId])
+  @@map("movimentacoes_estoque")
+}
+
+// ---------------------------------------------------------------- Clientes
+
+model Cliente {
+  /// Mesmo id do usuário no Supabase Auth (auth.users.id).
+  id           String     @id @db.Uuid
+  nome         String
+  email        String     @unique
+  telefone     String?
+  /// Opcional no cadastro; exigido no checkout (boleto e etiqueta de envio).
+  cpf          String?
+  enderecos    Endereco[]
+  pedidos      Pedido[]
+  criadoEm     DateTime   @default(now())
+  atualizadoEm DateTime   @updatedAt
+
+  @@map("clientes")
+}
+
+model Endereco {
+  id           String   @id @default(uuid(7)) @db.Uuid
+  destinatario String
+  cep          String
+  logradouro   String
+  numero       String
+  complemento  String?
+  bairro       String
+  cidade       String
+  uf           String   @db.Char(2)
+  principal    Boolean  @default(false)
+  clienteId    String   @db.Uuid
+  cliente      Cliente  @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  criadoEm     DateTime @default(now())
+
+  @@index([clienteId])
+  @@map("enderecos")
+}
+
+// ---------------------------------------------------------------- Pedidos
+
+enum StatusPedido {
+  AGUARDANDO_PAGAMENTO
+  PAGO
+  EM_SEPARACAO
+  ENVIADO
+  ENTREGUE
+  CANCELADO
+
+  @@map("status_pedido")
+}
+
+model Pedido {
+  id     String       @id @default(uuid(7)) @db.Uuid
+  /// Número mostrado ao cliente (#1001, #1002...).
+  numero Int          @unique @default(autoincrement())
+  status StatusPedido @default(AGUARDANDO_PAGAMENTO)
+
+  clienteId String  @db.Uuid
+  cliente   Cliente @relation(fields: [clienteId], references: [id])
+
+  subtotalEmCentavos Int
+  freteEmCentavos    Int
+  descontoEmCentavos Int @default(0)
+  totalEmCentavos    Int
+
+  // Cópia do endereço no momento da compra.
+  entregaDestinatario String
+  entregaCep          String
+  entregaLogradouro   String
+  entregaNumero       String
+  entregaComplemento  String?
+  entregaBairro       String
+  entregaCidade       String
+  entregaUf           String  @db.Char(2)
+
+  // Frete (Melhor Envio)
+  freteServico          String?
+  fretePrazoDias        Int?
+  melhorEnvioEtiquetaId String?
+  codigoRastreio        String?
+
+  // Pagamento (Mercado Pago)
+  mercadoPagoPreferenciaId String?
+  mercadoPagoPagamentoId   String?   @unique
+  metodoPagamento          String?
+  pagoEm                   DateTime?
+
+  itens         ItemPedido[]
+  movimentacoes MovimentacaoEstoque[]
+  criadoEm      DateTime              @default(now())
+  atualizadoEm  DateTime              @updatedAt
+
+  @@index([clienteId])
+  @@index([status])
+  @@map("pedidos")
+}
+
+/// Guarda uma cópia de nome, cor, tamanho e preço: mudanças no catálogo
+/// não alteram pedidos antigos.
+model ItemPedido {
+  id                      String   @id @default(uuid(7)) @db.Uuid
+  quantidade              Int
+  precoUnitarioEmCentavos Int
+  nomeProduto             String
+  nomeCor                 String
+  nomeTamanho             String
+  sku                     String
+  pedidoId                String   @db.Uuid
+  pedido                  Pedido   @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+  variacaoId              String   @db.Uuid
+  variacao                Variacao @relation(fields: [variacaoId], references: [id])
+
+  @@index([pedidoId])
+  @@map("itens_pedido")
 }
