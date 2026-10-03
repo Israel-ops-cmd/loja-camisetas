@@ -67,7 +67,7 @@ git checkout -b feat/nome-da-funcionalidade
 Uma branch por etapa, nesta ordem. Marque com `[x]` ao concluir o merge em `dev`.
 
 - [x] 1. `feat/setup-base`: Prisma, conexão com o Supabase, variáveis de ambiente, estrutura de pastas, tema com a identidade visual, cabeçalho, rodapé e página inicial
-- [ ] 2. `feat/modelagem-banco`: tabelas de produtos, variações, estoque, clientes e pedidos, com dados de exemplo
+- [x] 2. `feat/modelagem-banco`: tabelas de produtos, variações, estoque, clientes e pedidos, com dados de exemplo
 - [ ] 3. `feat/catalogo`: página inicial e listagem de produtos com filtros
 - [ ] 4. `feat/pagina-produto`: fotos, escolha de cor e tamanho, disponibilidade em estoque
 - [ ] 5. `feat/carrinho`: adicionar, remover e alterar quantidades
