@@ -10,8 +10,15 @@ const variantes = {
   contorno: "border-[1.5px] border-papel text-papel hover:bg-papel hover:text-tinta",
 };
 
+export type VarianteBotao = keyof typeof variantes;
+
+/** Classes do botão, para usar também em `<button>`. */
+export function classesBotao(variante: VarianteBotao = "principal") {
+  return `texto-menu inline-flex min-h-11 items-center justify-center rounded-full px-9 py-4 text-center font-bold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lacre disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:brightness-100 ${variantes[variante]}`;
+}
+
 type BotaoProps = ComponentProps<typeof Link> & {
-  variante?: keyof typeof variantes;
+  variante?: VarianteBotao;
 };
 
 export function Botao({
@@ -20,9 +27,6 @@ export function Botao({
   ...props
 }: BotaoProps) {
   return (
-    <Link
-      className={`texto-menu inline-flex min-h-11 items-center justify-center rounded-full px-9 py-4 text-center font-bold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lacre ${variantes[variante]} ${className}`}
-      {...props}
-    />
+    <Link className={`${classesBotao(variante)} ${className}`} {...props} />
   );
 }

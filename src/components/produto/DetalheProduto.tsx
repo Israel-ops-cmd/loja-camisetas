@@ -1,8 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import { useState, type ReactNode } from "react";
+import Link from "next/link";
+import { CircleAlert } from "lucide-react";
+import { useState, useTransition, type ReactNode } from "react";
 
+import { adicionarAoCarrinho } from "@/app/carrinho/acoes";
+import { avisarCarrinhoAtualizado } from "@/components/carrinho/ContadorCarrinho";
+import { classesBotao } from "@/components/ui/Botao";
+import { SeletorQuantidade } from "@/components/ui/SeletorQuantidade";
 import { formatarPreco } from "@/lib/formatacao";
 import type { ProdutoDetalhe } from "@/lib/produto";
 
@@ -23,6 +29,11 @@ export function DetalheProduto({
   );
   const [tamanhoId, setTamanhoId] = useState<string | null>(null);
   const [fotoAtiva, setFotoAtiva] = useState(0);
+  const [quantidade, setQuantidade] = useState(1);
+  const [resultado, setResultado] = useState<
+    { tipo: "ok" | "erro"; mensagem: string } | null
+  >(null);
+  const [adicionando, iniciarAdicao] = useTransition();
 
   const variacoesDaCor = corId
     ? produto.variacoes.filter((v) => v.corId === corId)
@@ -58,8 +69,35 @@ export function DetalheProduto({
 
   const nomeDaCor = produto.cores.find((c) => c.id === corId)?.nome;
 
+  // A quantidade nunca passa do estoque da variação escolhida.
+  const quantidadeMaxima = Math.max(variacao?.estoque ?? 1, 1);
+  const quantidadeValida = Math.min(quantidade, quantidadeMaxima);
+  const podeAdicionar = !!variacao && variacao.estoque > 0 && !adicionando;
+
+  function adicionar() {
+    if (!variacao) return;
+    setResultado(null);
+    iniciarAdicao(async () => {
+      const resposta = await adicionarAoCarrinho(variacao.id, quantidadeValida);
+      if (resposta.ok) {
+        avisarCarrinhoAtualizado();
+        setQuantidade(1);
+        setResultado({
+          tipo: "ok",
+          mensagem:
+            quantidadeValida === 1
+              ? "Adicionado ao carrinho."
+              : `${quantidadeValida} peças adicionadas ao carrinho.`,
+        });
+      } else {
+        setResultado({ tipo: "erro", mensagem: resposta.erro });
+      }
+    });
+  }
+
   function escolherCor(id: string) {
     setCorId(id);
+    setResultado(null);
     setFotoAtiva(0);
     // Mantém o tamanho só se ele tiver estoque na nova cor.
     if (tamanhoId) {
@@ -185,7 +223,10 @@ export function DetalheProduto({
                   key={tamanho.id}
                   type="button"
                   disabled={!disponivel}
-                  onClick={() => setTamanhoId(ativo ? null : tamanho.id)}
+                  onClick={() => {
+                    setTamanhoId(ativo ? null : tamanho.id);
+                    setResultado(null);
+                  }}
                   aria-pressed={ativo}
                   aria-label={
                     disponivel ? tamanho.nome : `${tamanho.nome}, esgotado`
@@ -213,6 +254,50 @@ export function DetalheProduto({
             limite={limiteUltimasUnidades}
           />
         </p>
+
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+          <SeletorQuantidade
+            valor={quantidadeValida}
+            maximo={quantidadeMaxima}
+            aoMudar={(valor) => {
+              setQuantidade(valor);
+              setResultado(null);
+            }}
+            desativado={!variacao || variacao.estoque <= 0}
+          />
+          <button
+            type="button"
+            onClick={adicionar}
+            disabled={!podeAdicionar}
+            className={`${classesBotao("principal")} flex-1`}
+          >
+            {adicionando ? "Adicionando…" : "Adicionar ao carrinho"}
+          </button>
+        </div>
+
+        <div aria-live="polite" className="mt-3 min-h-6 text-[15px]">
+          {resultado?.tipo === "ok" && (
+            <p className="font-semibold">
+              {resultado.mensagem}{" "}
+              <Link
+                href="/carrinho"
+                className="underline underline-offset-4 hover:text-secundario"
+              >
+                Ver carrinho
+              </Link>
+            </p>
+          )}
+          {resultado?.tipo === "erro" && (
+            <p className="flex items-start gap-2 font-semibold">
+              <CircleAlert
+                aria-hidden="true"
+                className="mt-0.5 size-5 shrink-0"
+                strokeWidth={1.6}
+              />
+              {resultado.mensagem}
+            </p>
+          )}
+        </div>
 
         {children}
       </div>
