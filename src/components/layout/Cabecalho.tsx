@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ShoppingBag, User } from "lucide-react";
 
+import { ContadorCarrinho } from "@/components/carrinho/ContadorCarrinho";
 import { Logo } from "@/components/marca/Logo";
 import { menuPrincipal } from "@/lib/navegacao";
 
@@ -39,8 +40,14 @@ export function Cabecalho() {
           <Link href="/conta" aria-label="Minha conta" className={estiloIcone}>
             <User className="size-[22px]" strokeWidth={1.6} />
           </Link>
-          <Link href="/carrinho" aria-label="Carrinho" className={estiloIcone}>
-            <ShoppingBag className="size-[22px]" strokeWidth={1.6} />
+          <Link href="/carrinho" className={`relative ${estiloIcone}`}>
+            <ShoppingBag
+              aria-hidden="true"
+              className="size-[22px]"
+              strokeWidth={1.6}
+            />
+            <span className="sr-only">Carrinho</span>
+            <ContadorCarrinho />
           </Link>
         </div>
       </div>
