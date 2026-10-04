@@ -55,6 +55,13 @@ export type ItemDoCarrinho = {
   precoUnitarioEmCentavos: number;
   subtotalEmCentavos: number;
   produto: { nome: string; slug: string };
+  /** Pacote de uma unidade, para o frete. */
+  pacote: {
+    pesoEmGramas: number;
+    larguraCm: number;
+    alturaCm: number;
+    comprimentoCm: number;
+  };
   cor: { nome: string; hex: string };
   tamanho: string;
   foto: { url: string; alt: string } | null;
@@ -106,6 +113,10 @@ export async function obterCarrinho(): Promise<Carrinho> {
           nome: true,
           slug: true,
           precoBaseEmCentavos: true,
+          pesoEmGramas: true,
+          larguraCm: true,
+          alturaCm: true,
+          comprimentoCm: true,
           imagens: {
             orderBy: { ordem: "asc" },
             select: { url: true, alt: true, corId: true },
@@ -162,6 +173,12 @@ export async function obterCarrinho(): Promise<Carrinho> {
       precoUnitarioEmCentavos: preco,
       subtotalEmCentavos: esgotado ? 0 : preco * quantidadeFinal,
       produto: { nome: variacao.produto.nome, slug: variacao.produto.slug },
+      pacote: {
+        pesoEmGramas: variacao.produto.pesoEmGramas,
+        larguraCm: variacao.produto.larguraCm,
+        alturaCm: variacao.produto.alturaCm,
+        comprimentoCm: variacao.produto.comprimentoCm,
+      },
       cor: variacao.cor,
       tamanho: variacao.tamanho.nome,
       foto: foto && { url: foto.url, alt: foto.alt },

@@ -9,6 +9,13 @@ import {
   obterVariacaoVendavel,
 } from "@/lib/carrinho";
 import { ehIdDeVariacao, MAXIMO_DE_ITENS } from "@/lib/carrinho-cookie";
+import { normalizarCep } from "@/lib/cep";
+import {
+  apagarEscolhaDeFrete,
+  cotarFreteDoCarrinho,
+  gravarEscolhaDeFrete,
+  lerEscolhaDeFrete,
+} from "@/lib/frete";
 
 // Server Actions são endpoints públicos: tudo que chega do navegador é
 // validado aqui, e estoque e disponibilidade são conferidos no banco.
@@ -138,4 +145,50 @@ export async function sincronizarCarrinho(): Promise<void> {
       quantidade,
     })),
   );
+}
+
+// ---------------------------------------------------------------- Frete
+
+export type ResultadoFrete = { ok: true } | { ok: false; erro: string };
+
+/** Cota o frete para o CEP e guarda o CEP com a opção mais barata. */
+export async function calcularFrete(cep: unknown): Promise<ResultadoFrete> {
+  const cepNormalizado = normalizarCep(cep);
+  if (!cepNormalizado) {
+    return { ok: false, erro: "Digite um CEP com 8 números." };
+  }
+
+  const carrinho = await obterCarrinho();
+  const cotacao = await cotarFreteDoCarrinho(carrinho, cepNormalizado, null);
+  if (!cotacao.ok) return { ok: false, erro: cotacao.erro };
+
+  await gravarEscolhaDeFrete({
+    cep: cepNormalizado,
+    servicoId: cotacao.escolhida.servicoId,
+  });
+  refresh();
+  return { ok: true };
+}
+
+/** Troca a opção de entrega. O preço é recotado ao renderizar a página. */
+export async function escolherFrete(servicoId: unknown): Promise<ResultadoFrete> {
+  const escolha = await lerEscolhaDeFrete();
+  if (!escolha) return { ok: false, erro: "Calcule o frete primeiro." };
+  if (
+    typeof servicoId !== "number" ||
+    !Number.isInteger(servicoId) ||
+    servicoId <= 0
+  ) {
+    return { ok: false, erro: "Opção de entrega inválida." };
+  }
+
+  await gravarEscolhaDeFrete({ cep: escolha.cep, servicoId });
+  refresh();
+  return { ok: true };
+}
+
+/** "Trocar CEP": esquece o CEP guardado. */
+export async function limparFrete(): Promise<void> {
+  await apagarEscolhaDeFrete();
+  refresh();
 }

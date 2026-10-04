@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { CircleAlert } from "lucide-react";
 
+import { CalculoFrete } from "@/components/carrinho/CalculoFrete";
 import { ItemCarrinho } from "@/components/carrinho/ItemCarrinho";
 import { SincronizarCarrinho } from "@/components/carrinho/SincronizarCarrinho";
 import { Botao } from "@/components/ui/Botao";
 import { obterCarrinho } from "@/lib/carrinho";
 import { formatarPreco } from "@/lib/formatacao";
+import { cotarFreteDoCarrinho, lerEscolhaDeFrete } from "@/lib/frete";
 
 export const metadata: Metadata = {
   title: "Carrinho",
@@ -14,6 +16,15 @@ export const metadata: Metadata = {
 
 export default async function PaginaCarrinho() {
   const carrinho = await obterCarrinho();
+
+  // Com CEP guardado, a cotação é refeita a cada visita (com cache de 10 min):
+  // se o carrinho mudou, o frete acompanha. O preço nunca vem do cookie.
+  const escolha = await lerEscolhaDeFrete();
+  const cotacao =
+    escolha && carrinho.quantidadeDePecas > 0
+      ? await cotarFreteDoCarrinho(carrinho, escolha.cep, escolha.servicoId)
+      : null;
+  const frete = cotacao?.ok ? cotacao.escolhida.precoEmCentavos : null;
 
   return (
     <div className="secao">
@@ -85,14 +96,32 @@ export default async function PaginaCarrinho() {
                 </div>
                 <div className="flex justify-between gap-4">
                   <dt className="text-apoio">Frete</dt>
-                  <dd className="text-right text-secundario">
-                    Calculado na próxima etapa
+                  <dd
+                    className={
+                      frete === null
+                        ? "text-right text-secundario"
+                        : "font-semibold"
+                    }
+                  >
+                    {frete === null ? "Informe o CEP" : formatarPreco(frete)}
                   </dd>
                 </div>
+              </dl>
+
+              {carrinho.quantidadeDePecas > 0 && (
+                <div className="mt-5 border-t border-borda pt-5">
+                  {/* A chave recria o componente quando o CEP muda. */}
+                  <CalculoFrete key={cotacao?.cep ?? "sem-cep"} cotacao={cotacao} />
+                </div>
+              )}
+
+              <dl className="mt-5 text-[15px]">
                 <div className="flex items-baseline justify-between gap-4 border-t border-borda pt-4">
-                  <dt className="font-semibold">Total sem frete</dt>
+                  <dt className="font-semibold">
+                    {frete === null ? "Total sem frete" : "Total"}
+                  </dt>
                   <dd className="font-titulo text-[26px] font-extrabold">
-                    {formatarPreco(carrinho.subtotalEmCentavos)}
+                    {formatarPreco(carrinho.subtotalEmCentavos + (frete ?? 0))}
                   </dd>
                 </div>
               </dl>
