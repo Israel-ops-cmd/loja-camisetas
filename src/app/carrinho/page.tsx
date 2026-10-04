@@ -125,10 +125,19 @@ export default async function PaginaCarrinho() {
                   </dd>
                 </div>
               </dl>
+              {carrinho.itens.some((item) => item.esgotado) ? (
+                <p className="mt-6 rounded-xl border border-borda px-4 py-3 text-center text-[14px] font-semibold">
+                  Remova os itens esgotados para finalizar a compra.
+                </p>
+              ) : (
+                <Botao href="/checkout" className="mt-6 w-full">
+                  Finalizar compra
+                </Botao>
+              )}
               <Botao
                 href="/produtos"
                 variante="secundario"
-                className="mt-6 w-full"
+                className="mt-3 w-full"
               >
                 Continuar comprando
               </Botao>

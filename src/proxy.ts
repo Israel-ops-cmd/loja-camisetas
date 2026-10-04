@@ -4,7 +4,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { configuracaoSupabase } from "@/lib/supabase/config";
 
 /** Áreas que exigem login. A conferência definitiva fica nas páginas. */
-const AREAS_PROTEGIDAS = ["/conta", "/admin"];
+const AREAS_PROTEGIDAS = ["/conta", "/admin", "/checkout", "/pedidos"];
 
 export async function proxy(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl;

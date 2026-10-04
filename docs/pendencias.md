@@ -39,6 +39,12 @@ Lista do que ficou para depois durante o desenvolvimento. Marque com `[x]` o que
 - [ ] Criar a conta do Mercado Pago no CPF ou CNPJ do responsável pela loja.
 - [ ] Usar credenciais de teste no desenvolvimento e trocar pelas de produção antes de publicar.
 
+### Pedidos
+
+- [ ] Definir o que acontece quando o pagamento é confirmado e o estoque já acabou (etapa 9). Como o estoque só baixa no pagamento, dois clientes podem criar pedido para a mesma última unidade.
+- [ ] Prazo para cancelar automaticamente pedidos que ficarem sem pagamento (etapa 9).
+- [ ] E-mail de confirmação do pedido para o cliente (etapa 14). Hoje ele vê o pedido só na página do pedido e em "Minha conta".
+
 ### Conteúdo da loja
 
 - [ ] Preços reais de cada produto.
@@ -79,6 +85,8 @@ Lista do que ficou para depois durante o desenvolvimento. Marque com `[x]` o que
 - [ ] Cor e tamanho na URL da página de produto (`?cor=preta&tamanho=M`), para compartilhar o link já com a escolha feita.
 - [ ] Paginação na listagem de produtos, quando houver mais de 24.
 - [ ] Guardar o carrinho na conta do cliente, para continuar a compra em outro aparelho. Hoje ele fica num cookie do navegador.
+- [ ] Editar e apagar endereços salvos em "Minha conta". Hoje eles só são criados no checkout.
+- [ ] Compra sem conta (só com e-mail). Hoje o login é obrigatório para comprar.
 - [ ] Editor de estampa na tela para a personalização (hoje é formulário com envio de arte).
 - [ ] Avaliar se o texto do hero e do menu deve dizer que a loja é de camisetas cristãs.
 - [ ] Depoimentos de clientes, quando houver avaliações reais.
