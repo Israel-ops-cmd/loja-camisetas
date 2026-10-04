@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { Aviso } from "@/components/formulario/Aviso";
+import { BotaoPagar } from "@/components/pedido/BotaoPagar";
 import { Botao } from "@/components/ui/Botao";
 import { exigirUsuario } from "@/lib/auth";
 import { formatarPreco } from "@/lib/formatacao";
+import { conferirPagamentosDoPedido, prazoDePagamento } from "@/lib/pagamento";
 import {
   formatarData,
   formatarNumeroDoPedido,
@@ -30,19 +32,40 @@ export default async function PaginaPedido({
 }: PageProps<"/pedidos/[numero]">) {
   const { numero } = await params;
   const usuario = await exigirUsuario(`/pedidos/${numero}`);
-  const { novo } = await searchParams;
+  const { novo, retorno } = await searchParams;
 
   const numeroDoPedido = Number(numero);
   if (!Number.isInteger(numeroDoPedido) || numeroDoPedido <= 0) notFound();
 
   // Só o dono vê o pedido. Para qualquer outra pessoa, ele não existe.
-  const pedido = await prisma.pedido.findFirst({
-    where: { numero: numeroDoPedido, clienteId: usuario.id },
-    include: { itens: { orderBy: { nomeProduto: "asc" } } },
-  });
+  const buscar = () =>
+    prisma.pedido.findFirst({
+      where: { numero: numeroDoPedido, clienteId: usuario.id },
+      include: { itens: { orderBy: { nomeProduto: "asc" } } },
+    });
+  let pedido = await buscar();
   if (!pedido) notFound();
 
+  // Volta do Mercado Pago: confere o pagamento na hora, sem esperar o webhook.
+  // Os dados da URL não são usados; a situação vem da API do Mercado Pago.
+  if (retorno && pedido.status === "AGUARDANDO_PAGAMENTO") {
+    try {
+      await conferirPagamentosDoPedido(pedido.id);
+      pedido = (await buscar())!;
+    } catch (erro) {
+      console.error("[pedido] não foi possível conferir o pagamento:", erro);
+    }
+  }
+
   const prazoDoFrete = prazo(pedido.fretePrazoMinimoDias, pedido.fretePrazoDias);
+  const venceEm = prazoDePagamento(pedido.criadoEm);
+  const vencido = venceEm <= new Date();
+  const emAnalise = ["pending", "in_process", "authorized"].includes(
+    pedido.mercadoPagoStatus ?? "",
+  );
+  const recusado =
+    ["rejected", "cancelled"].includes(pedido.mercadoPagoStatus ?? "") ||
+    retorno === "recusado";
 
   return (
     <div className="secao">
@@ -61,12 +84,53 @@ export default async function PaginaPedido({
               Obrigado, {pedido.compradorNome.split(" ")[0]}!
             </Aviso>
           )}
-          {pedido.status === "AGUARDANDO_PAGAMENTO" && (
-            // O pagamento pelo Mercado Pago entra na etapa 9.
-            <Aviso tipo="info">
-              O pagamento será liberado em breve nesta página. O pedido só segue
-              para separação depois que o pagamento for confirmado.
+          {pedido.status === "PAGO" && (
+            <Aviso tipo="sucesso">
+              Pagamento aprovado
+              {pedido.metodoPagamento && ` (${pedido.metodoPagamento})`}. Seu
+              pedido vai para separação.
             </Aviso>
+          )}
+          {pedido.status === "CANCELADO" && (
+            <Aviso tipo="info">Este pedido foi cancelado.</Aviso>
+          )}
+          {pedido.status === "AGUARDANDO_PAGAMENTO" && vencido && (
+            <Aviso tipo="info">
+              O prazo para pagar terminou em {formatarData(venceEm)}. Para
+              comprar, monte o carrinho de novo.
+            </Aviso>
+          )}
+          {pedido.status === "AGUARDANDO_PAGAMENTO" && !vencido && (
+            <>
+              {emAnalise ? (
+                <Aviso tipo="info">
+                  Pagamento em análise ou aguardando o Pix ou o boleto. Assim que
+                  o Mercado Pago confirmar, o pedido segue para separação.
+                </Aviso>
+              ) : recusado ? (
+                <Aviso tipo="erro">
+                  O pagamento não foi aprovado. Tente de novo com outro cartão ou
+                  outra forma de pagamento.
+                </Aviso>
+              ) : (
+                <Aviso tipo="info">
+                  Pague até {formatarData(venceEm)}. O pedido só segue para
+                  separação depois que o pagamento for confirmado.
+                </Aviso>
+              )}
+              <div className="rounded-[20px] bg-papel p-6">
+                <BotaoPagar
+                  numero={pedido.numero}
+                  rotulo={
+                    emAnalise
+                      ? "Ver pagamento"
+                      : recusado
+                        ? "Tentar de novo"
+                        : "Pagar agora"
+                  }
+                />
+              </div>
+            </>
           )}
         </div>
 
