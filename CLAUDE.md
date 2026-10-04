@@ -70,7 +70,7 @@ Uma branch por etapa, nesta ordem. Marque com `[x]` ao concluir o merge em `dev`
 - [x] 2. `feat/modelagem-banco`: tabelas de produtos, variações, estoque, clientes e pedidos, com dados de exemplo
 - [x] 3. `feat/catalogo`: página inicial e listagem de produtos com filtros
 - [x] 4. `feat/pagina-produto`: fotos, escolha de cor e tamanho, disponibilidade em estoque
-- [ ] 5. `feat/carrinho`: adicionar, remover e alterar quantidades
+- [x] 5. `feat/carrinho`: adicionar, remover e alterar quantidades
 - [ ] 6. `feat/frete`: cálculo por CEP via Melhor Envio
 - [ ] 7. `feat/autenticacao`: conta do cliente e login do administrador
 - [ ] 8. `feat/checkout`: endereço, resumo e criação do pedido
