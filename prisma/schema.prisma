@@ -30,6 +30,12 @@ model Produto {
   precoBaseEmCentavos Int
   ativo               Boolean         @default(true)
   destaque            Boolean         @default(false)
+  // Pacote de uma unidade, para o cálculo de frete. Padrão PROVISÓRIO
+  // (camiseta embalada estimada): confirmar com a medida real.
+  pesoEmGramas        Int             @default(300)
+  larguraCm           Int             @default(22)
+  alturaCm            Int             @default(4)
+  comprimentoCm       Int             @default(28)
   categoriaId         String          @db.Uuid
   categoria           Categoria       @relation(fields: [categoriaId], references: [id])
   variacoes           Variacao[]
