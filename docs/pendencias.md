@@ -22,8 +22,10 @@ Lista do que ficou para depois durante o desenvolvimento. Marque com `[x]` o que
 ### Endereços e variáveis
 
 - [ ] No Supabase (Authentication > URL Configuration), trocar `http://localhost:3000` pelo endereço real do site em Site URL e Redirect URLs.
-- [ ] Confirmar que o repositório está conectado à Vercel.
-- [ ] Cadastrar na Vercel (Settings > Environment Variables) todas as variáveis do `.env.local`, com os valores de produção. A `DATABASE_URL` precisa estar lá antes do primeiro deploy: o build lê o banco para gerar a página inicial.
+- [x] Confirmar que o repositório está conectado à Vercel. As prévias estão funcionando.
+- [x] Cadastrar na Vercel (Settings > Environment Variables) as variáveis do `.env.local`.
+- [ ] Antes de publicar, trocar na Vercel os valores de teste pelos de produção (banco de produção, Melhor Envio e Mercado Pago). A `DATABASE_URL` precisa estar certa antes do deploy: o build lê o banco para gerar a página inicial.
+- [ ] A cada variável nova no `.env.example`, cadastrar também na Vercel.
 - [ ] Na Vercel, cadastrar a `NEXT_PUBLIC_SUPABASE_URL` só com o endereço base (`https://<projeto>.supabase.co`), sem `/rest/v1/`.
 - [ ] Configurar a região das funções na Vercel para São Paulo (`gru1`), perto do banco. Na região padrão (Estados Unidos), cada consulta fica mais lenta.
 
@@ -37,12 +39,18 @@ Lista do que ficou para depois durante o desenvolvimento. Marque com `[x]` o que
 ### Pagamento (Mercado Pago)
 
 - [ ] Criar a conta do Mercado Pago no CPF ou CNPJ do responsável pela loja.
-- [ ] Usar credenciais de teste no desenvolvimento e trocar pelas de produção antes de publicar.
+- [x] Usar credenciais de teste no desenvolvimento: conta vendedora de teste da aplicação ("Ativar credenciais").
+- [ ] Criar a aplicação (Checkout Pro) na conta do Mercado Pago do pai do Israel e trocar as credenciais de teste pelas de produção dele, no ambiente de produção e na Vercel (`MERCADO_PAGO_ACCESS_TOKEN` e `MERCADO_PAGO_WEBHOOK_SECRET`).
+- [ ] Cadastrar no painel do Mercado Pago (Webhooks > Configurar notificações, evento "Pagamentos") a URL definitiva do webhook: `https://<domínio>/api/mercado-pago/webhook`, e usar a assinatura secreta gerada lá.
+- [ ] Confirmar com o pai do Israel o número máximo de parcelas. Hoje: até 6x, com juros por conta do comprador (`MAXIMO_DE_PARCELAS` em `src/lib/pagamento.ts`).
+- [ ] Testar o pagamento de ponta a ponta no ambiente de teste, com a conta compradora de teste: pagar pelo Checkout Pro (cartão aprovado, recusado e pendente) e confirmar que o webhook real chega e baixa o estoque. A lógica de processamento já foi testada com respostas simuladas; falta o caminho real, que exige a conta compradora de teste.
+- [ ] Antes de publicar, fazer um pagamento real de valor baixo em produção e estornar, para conferir webhook, baixa de estoque e devolução.
 
 ### Pedidos
 
-- [ ] Definir o que acontece quando o pagamento é confirmado e o estoque já acabou (etapa 9). Como o estoque só baixa no pagamento, dois clientes podem criar pedido para a mesma última unidade.
-- [ ] Prazo para cancelar automaticamente pedidos que ficarem sem pagamento (etapa 9).
+- [x] Definir o que acontece quando o pagamento é confirmado e o estoque já acabou: o pedido fica PAGO com alerta para o administrador decidir entre produzir ou estornar (opção C). O estoque fica negativo, indicando quantas peças faltam.
+- [ ] Cancelamento automático de pedidos não pagos depois de 3 dias, com uma tarefa agendada (Vercel Cron). Hoje a cobrança vence em 3 dias e o pedido mostra que o prazo terminou, mas continua como "Aguardando pagamento".
+- [ ] Mostrar no painel os alertas dos pedidos (pago sem estoque, valor divergente, pagamento aprovado em pedido cancelado) e permitir estornar pelo painel (etapa 13).
 - [ ] E-mail de confirmação do pedido para o cliente (etapa 14). Hoje ele vê o pedido só na página do pedido e em "Minha conta".
 
 ### Conteúdo da loja

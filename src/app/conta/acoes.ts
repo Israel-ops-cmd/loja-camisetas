@@ -1,11 +1,12 @@
 "use server";
 
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
 import { caminhoSeguro, garantirCliente } from "@/lib/auth";
 import { traduzirErroDeAuth } from "@/lib/erros-auth";
+// Os links dos e-mails precisam estar nas Redirect URLs do Supabase.
+import { origemDoSite } from "@/lib/origem";
 import { criarClienteSupabase } from "@/lib/supabase/servidor";
 
 // Server Actions são endpoints públicos: toda entrada é validada aqui.
@@ -49,16 +50,6 @@ function errosPorCampo(erro: z.ZodError) {
     campos[campo] ??= problema.message;
   }
   return campos;
-}
-
-/** Endereço do site para os links dos e-mails (precisa estar nas Redirect URLs do Supabase). */
-async function origemDoSite() {
-  const cabecalhos = await headers();
-  const origem = cabecalhos.get("origin");
-  if (origem) return origem;
-  const host = cabecalhos.get("host");
-  const protocolo = cabecalhos.get("x-forwarded-proto") ?? "https";
-  return `${protocolo}://${host}`;
 }
 
 // ---------------------------------------------------------------- Cadastro
