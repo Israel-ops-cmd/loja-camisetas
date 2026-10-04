@@ -11,6 +11,9 @@ const TEMPO_LIMITE_MS = 10_000;
 
 export class ErroMercadoPago extends Error {}
 
+/** O recurso pedido não existe no Mercado Pago (HTTP 404). */
+export class NaoEncontradoNoMercadoPago extends ErroMercadoPago {}
+
 function token() {
   const valor = process.env.MERCADO_PAGO_ACCESS_TOKEN;
   if (!valor) throw new Error("Defina MERCADO_PAGO_ACCESS_TOKEN no .env.local.");
@@ -40,6 +43,9 @@ async function chamar<T>(caminho: string, opcoes: RequestInit = {}): Promise<T> 
       `[mercado-pago] ${opcoes.method ?? "GET"} ${caminho} respondeu ${resposta.status}:`,
       (await resposta.text()).slice(0, 800),
     );
+    if (resposta.status === 404) {
+      throw new NaoEncontradoNoMercadoPago("Não encontrado no Mercado Pago.");
+    }
     throw new ErroMercadoPago("Não conseguimos falar com o Mercado Pago agora. Tente de novo em instantes.");
   }
   return resposta.json() as Promise<T>;
@@ -54,7 +60,7 @@ export type DadosDaCobranca = {
   freteEmCentavos: number;
   comprador: { nome: string; email: string; cpf: string; telefone: string };
   expiraEm: Date;
-  /** Endereço do site (https://...), para o retorno e o webhook. */
+  /** Endereço do site (https://...), para o retorno à loja. */
   origem: string;
   /** Até quantas parcelas no cartão. */
   maximoDeParcelas: number;
@@ -111,11 +117,12 @@ export async function criarCobranca(dados: DadosDaCobranca) {
           pending: voltar("pendente"),
           failure: voltar("recusado"),
         },
-        // O Mercado Pago só aceita retorno automático e webhook em https.
-        ...(https && {
-          auto_return: "approved",
-          notification_url: `${dados.origem}/api/mercado-pago/webhook`,
-        }),
+        // O Mercado Pago só aceita retorno automático em https.
+        // Sem `notification_url` de propósito: os avisos enviados para ele
+        // chegam com assinatura que não confere com a chave secreta. O
+        // webhook fica cadastrado no painel (Webhooks > Configurar
+        // notificações), cujos avisos são assinados com essa chave.
+        ...(https && { auto_return: "approved" }),
         statement_descriptor: "CARTAVIVA",
         expires: true,
         expiration_date_from: new Date().toISOString(),

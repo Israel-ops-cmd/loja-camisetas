@@ -1,6 +1,10 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-import { assinaturaValida, ErroMercadoPago } from "@/lib/mercado-pago";
+import {
+  assinaturaValida,
+  ErroMercadoPago,
+  NaoEncontradoNoMercadoPago,
+} from "@/lib/mercado-pago";
 import { processarPagamento } from "@/lib/pagamento";
 
 /**
@@ -35,8 +39,15 @@ export async function POST(request: NextRequest) {
 
   try {
     await processarPagamento(idDoRecurso);
+    console.info(`[webhook] pagamento ${idDoRecurso} processado`);
     return NextResponse.json({ ok: true });
   } catch (erro) {
+    // Pagamento que não existe (ex.: "Simular notificação" do painel): não
+    // adianta reenviar, então confirma o recebimento e só registra.
+    if (erro instanceof NaoEncontradoNoMercadoPago) {
+      console.warn(`[webhook] pagamento ${idDoRecurso} não existe no Mercado Pago; aviso ignorado`);
+      return NextResponse.json({ ok: true, ignorado: "pagamento inexistente" });
+    }
     console.error(`[webhook] falha ao processar o pagamento ${idDoRecurso}:`, erro);
     // 500 faz o Mercado Pago reenviar mais tarde.
     const status = erro instanceof ErroMercadoPago ? 502 : 500;
