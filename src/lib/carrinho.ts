@@ -48,6 +48,7 @@ export async function obterVariacaoVendavel(variacaoId: string) {
 
 export type ItemDoCarrinho = {
   variacaoId: string;
+  sku: string;
   quantidade: number;
   /** Estoque atual da variação. */
   estoque: number;
@@ -103,6 +104,7 @@ export async function obterCarrinho(): Promise<Carrinho> {
     },
     select: {
       id: true,
+      sku: true,
       estoque: true,
       precoEmCentavos: true,
       corId: true,
@@ -167,6 +169,7 @@ export async function obterCarrinho(): Promise<Carrinho> {
 
     itens.push({
       variacaoId,
+      sku: variacao.sku,
       quantidade: quantidadeFinal,
       estoque,
       esgotado,
