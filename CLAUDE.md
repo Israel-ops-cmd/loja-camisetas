@@ -61,6 +61,7 @@ git checkout -b feat/nome-da-funcionalidade
 - Preços são guardados em centavos, como número inteiro.
 - Textos da interface em português do Brasil.
 - Mobile primeiro: a maioria dos clientes compra pelo celular.
+- Tudo o que for adiado, provisório ou depender de informação ou configuração externa entra em `docs/pendencias.md`, no mesmo commit da mudança que o gerou. Ao resolver um item, marque com `[x]`.
 
 ## Etapas
 
