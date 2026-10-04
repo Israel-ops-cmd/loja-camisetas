@@ -194,6 +194,18 @@ model Pedido {
   clienteId String  @db.Uuid
   cliente   Cliente @relation(fields: [clienteId], references: [id])
 
+  /// Gerada ao abrir o checkout. Um segundo envio com a mesma chave
+  /// (clique duplo, internet oscilando) devolve o pedido já criado.
+  chaveIdempotencia String? @unique @db.Uuid
+
+  // Cópia dos dados do comprador no momento da compra.
+  compradorNome     String
+  compradorEmail    String
+  /// Só os 11 dígitos.
+  compradorCpf      String
+  /// Só os dígitos, com DDD.
+  compradorTelefone String
+
   subtotalEmCentavos Int
   freteEmCentavos    Int
   descontoEmCentavos Int @default(0)
@@ -210,7 +222,12 @@ model Pedido {
   entregaUf           String  @db.Char(2)
 
   // Frete (Melhor Envio)
+  /// ID do serviço no Melhor Envio (1 = PAC, 2 = SEDEX...), para a etiqueta.
+  freteServicoId        Int?
   freteServico          String?
+  freteTransportadora   String?
+  fretePrazoMinimoDias  Int?
+  /// Prazo máximo em dias úteis.
   fretePrazoDias        Int?
   melhorEnvioEtiquetaId String?
   codigoRastreio        String?
