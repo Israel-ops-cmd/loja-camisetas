@@ -100,6 +100,21 @@ export async function listarDestaques(limite = 4) {
   return produtos.map(resumir);
 }
 
+/** Outros produtos da mesma categoria, para "Você também pode gostar". */
+export async function listarRelacionados(
+  produtoId: string,
+  categoriaId: string,
+  limite = 4,
+) {
+  const produtos = await prisma.produto.findMany({
+    where: { ativo: true, categoriaId, id: { not: produtoId } },
+    orderBy: [{ destaque: "desc" }, { criadoEm: "desc" }],
+    take: limite,
+    select: selecaoResumo,
+  });
+  return produtos.map(resumir);
+}
+
 export async function listarProdutos(
   filtros: FiltrosCatalogo,
   opcoes: OpcoesDeFiltro,
