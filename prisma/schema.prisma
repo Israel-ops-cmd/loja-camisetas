@@ -234,9 +234,18 @@ model Pedido {
 
   // Pagamento (Mercado Pago)
   mercadoPagoPreferenciaId String?
+  /// Link da cobrança (init_point), reaproveitado enquanto o prazo valer.
+  mercadoPagoLink          String?
+  /// Última situação informada pelo Mercado Pago (pending, rejected...).
+  mercadoPagoStatus        String?
+  /// Preenchido só no pagamento aprovado.
   mercadoPagoPagamentoId   String?   @unique
   metodoPagamento          String?
   pagoEm                   DateTime?
+
+  /// Algo para o administrador decidir (ex.: pago sem estoque, valor
+  /// divergente). Nulo quando está tudo certo.
+  alerta String?
 
   itens         ItemPedido[]
   movimentacoes MovimentacaoEstoque[]

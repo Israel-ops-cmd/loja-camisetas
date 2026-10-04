@@ -62,7 +62,8 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Tudo, menos arquivos do Next, imagens otimizadas, fotos e ícones.
-    "/((?!_next/static|_next/image|fotos/|icon.svg|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|avif|ico)$).*)",
+    // Tudo, menos arquivos do Next, imagens otimizadas, fotos, ícones e o
+    // webhook do Mercado Pago (não tem sessão e precisa responder rápido).
+    "/((?!_next/static|_next/image|fotos/|api/mercado-pago/|icon.svg|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|avif|ico)$).*)",
   ],
 };
