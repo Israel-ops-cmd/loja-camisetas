@@ -3,7 +3,11 @@
 import { redirect } from "next/navigation";
 
 import { obterUsuario } from "@/lib/auth";
-import { criarCobranca, ErroMercadoPago } from "@/lib/mercado-pago";
+import {
+  criarCobranca,
+  ErroMercadoPago,
+  valorDaCobranca,
+} from "@/lib/mercado-pago";
 import { origemDoSite } from "@/lib/origem";
 import { MAXIMO_DE_PARCELAS, prazoDePagamento } from "@/lib/pagamento";
 import { prisma } from "@/lib/prisma";
@@ -34,7 +38,21 @@ export async function pagarPedido(numero: unknown): Promise<ResultadoPagar> {
     };
   }
 
+  if (pedido.mercadoPagoStatus === "valor_divergente") {
+    return {
+      erro: "Recebemos um pagamento com valor diferente do pedido e estamos verificando. Fale com a gente antes de pagar de novo.",
+    };
+  }
+
+  // Só reaproveita a cobrança se ela cobrar exatamente o total do pedido.
   let link = pedido.mercadoPagoLink;
+  if (
+    link &&
+    pedido.mercadoPagoPreferenciaId &&
+    (await valorDaCobranca(pedido.mercadoPagoPreferenciaId)) !== pedido.totalEmCentavos
+  ) {
+    link = null;
+  }
   if (!link) {
     try {
       const cobranca = await criarCobranca({

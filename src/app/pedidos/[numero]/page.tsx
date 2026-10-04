@@ -66,6 +66,8 @@ export default async function PaginaPedido({
   const recusado =
     ["rejected", "cancelled"].includes(pedido.mercadoPagoStatus ?? "") ||
     retorno === "recusado";
+  // Pagamento aprovado com valor diferente do pedido: o administrador decide.
+  const emVerificacao = pedido.mercadoPagoStatus === "valor_divergente";
 
   return (
     <div className="secao">
@@ -100,7 +102,14 @@ export default async function PaginaPedido({
               comprar, monte o carrinho de novo.
             </Aviso>
           )}
-          {pedido.status === "AGUARDANDO_PAGAMENTO" && !vencido && (
+          {pedido.status === "AGUARDANDO_PAGAMENTO" && emVerificacao && (
+            <Aviso tipo="info">
+              Recebemos um pagamento com valor diferente do total do pedido e
+              estamos verificando. Não é preciso pagar de novo: vamos entrar em
+              contato.
+            </Aviso>
+          )}
+          {pedido.status === "AGUARDANDO_PAGAMENTO" && !vencido && !emVerificacao && (
             <>
               {emAnalise ? (
                 <Aviso tipo="info">
