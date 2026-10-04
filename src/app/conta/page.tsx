@@ -5,6 +5,13 @@ import { LayoutDashboard, LogOut } from "lucide-react";
 import { sair } from "@/app/conta/acoes";
 import { Aviso } from "@/components/formulario/Aviso";
 import { exigirUsuario } from "@/lib/auth";
+import { formatarPreco } from "@/lib/formatacao";
+import {
+  formatarData,
+  formatarNumeroDoPedido,
+  rotulosDeStatus,
+} from "@/lib/pedidos";
+import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
   title: "Minha conta",
@@ -16,6 +23,17 @@ export default async function PaginaConta({
 }: PageProps<"/conta">) {
   const usuario = await exigirUsuario("/conta");
   const parametros = await searchParams;
+  const pedidos = await prisma.pedido.findMany({
+    where: { clienteId: usuario.id },
+    orderBy: { criadoEm: "desc" },
+    take: 50,
+    select: {
+      numero: true,
+      status: true,
+      totalEmCentavos: true,
+      criadoEm: true,
+    },
+  });
 
   return (
     <div className="secao">
@@ -67,7 +85,33 @@ export default async function PaginaConta({
           <h2 id="titulo-pedidos" className="sobretitulo">
             Pedidos
           </h2>
-          <p className="mt-4 text-apoio">Você ainda não fez nenhum pedido.</p>
+          {pedidos.length === 0 ? (
+            <p className="mt-4 text-apoio">Você ainda não fez nenhum pedido.</p>
+          ) : (
+            <ul className="mt-4 divide-y divide-borda">
+              {pedidos.map((pedido) => (
+                <li key={pedido.numero}>
+                  <Link
+                    href={`/pedidos/${pedido.numero}`}
+                    className="flex min-h-16 flex-wrap items-center justify-between gap-x-4 gap-y-1 py-3 hover:text-secundario"
+                  >
+                    <span>
+                      <span className="font-semibold">
+                        Pedido {formatarNumeroDoPedido(pedido.numero)}
+                      </span>
+                      <span className="block text-[14px] text-secundario">
+                        {formatarData(pedido.criadoEm)} ·{" "}
+                        {rotulosDeStatus[pedido.status]}
+                      </span>
+                    </span>
+                    <span className="font-semibold">
+                      {formatarPreco(pedido.totalEmCentavos)}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
 
         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
