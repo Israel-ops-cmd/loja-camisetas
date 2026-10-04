@@ -72,14 +72,29 @@ export async function criarCobranca(dados: DadosDaCobranca) {
       method: "POST",
       body: JSON.stringify({
         external_reference: dados.pedidoId,
-        items: dados.itens.map((item) => ({
-          id: item.sku,
-          title: item.titulo,
-          quantity: item.quantidade,
-          unit_price: item.precoEmCentavos / 100,
-          currency_id: "BRL",
-        })),
-        shipments: { mode: "not_specified", cost: dados.freteEmCentavos / 100 },
+        // O frete entra como item. No campo `shipments.cost` o Mercado Pago
+        // só cobra com modos de envio próprios dele: com "not_specified" o
+        // custo é ignorado e o cliente pagaria só os produtos.
+        items: [
+          ...dados.itens.map((item) => ({
+            id: item.sku,
+            title: item.titulo,
+            quantity: item.quantidade,
+            unit_price: item.precoEmCentavos / 100,
+            currency_id: "BRL",
+          })),
+          ...(dados.freteEmCentavos > 0
+            ? [
+                {
+                  id: "frete",
+                  title: "Frete",
+                  quantity: 1,
+                  unit_price: dados.freteEmCentavos / 100,
+                  currency_id: "BRL",
+                },
+              ]
+            : []),
+        ],
         payer: {
           name: nome,
           surname: sobrenome.join(" "),
@@ -113,6 +128,22 @@ export async function criarCobranca(dados: DadosDaCobranca) {
   );
 
   return { preferenciaId: preferencia.id, link: preferencia.init_point };
+}
+
+/** Soma cobrada por uma cobrança já criada, em centavos (ou null se não der para ler). */
+export async function valorDaCobranca(preferenciaId: string) {
+  try {
+    const preferencia = await chamar<{
+      items?: { unit_price: number; quantity: number }[];
+    }>(`/checkout/preferences/${encodeURIComponent(preferenciaId)}`);
+    const soma = (preferencia.items ?? []).reduce(
+      (total, item) => total + item.unit_price * item.quantity,
+      0,
+    );
+    return Math.round(soma * 100);
+  } catch {
+    return null;
+  }
 }
 
 // ---------------------------------------------------------------- Pagamento
