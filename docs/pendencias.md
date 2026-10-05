@@ -78,7 +78,7 @@ Lista do que ficou para depois durante o desenvolvimento. Marque com `[x]` o que
 - [ ] Avisos por e-mail (etapa 14): para a loja quando chega um pedido de personalização ou um pedido de ajuste; para o cliente quando a prévia é enviada. Hoje ninguém é avisado: a loja precisa abrir o painel (o início do painel mostra quantos pedidos esperam prévia) e o cliente precisa abrir "Minha conta".
 - [ ] Revisar o texto da declaração de direito de uso da arte (`DECLARACAO_DE_DIREITOS` em `src/lib/personalizacao-regras.ts`) e ligá-lo aos termos de uso quando as páginas institucionais existirem (etapa 15). Hoje o site grava a data e a hora em que o cliente confirmou a declaração.
 - [ ] Confirmar com o pai do Israel se ele consegue abrir arquivos `.cdr` (CorelDRAW), `.ai` (Illustrator) e `.psd` (Photoshop). Se não conseguir, tirar esses formatos de `FORMATOS_DE_ARTE` em `src/lib/personalizacao-regras.ts`.
-- [ ] Confirmar com o pai do Israel quais outras peças podem ser personalizadas (baby look, infantil etc.). Elas entram pelo painel na etapa 12, como produtos da categoria "Camisetas Básicas", que é de onde a personalização tira as peças.
+- [ ] Confirmar com o pai do Israel quais outras peças podem ser personalizadas (baby look, infantil etc.). Depois da confirmação, basta cadastrá-las em Produtos (`/admin/produtos`) na categoria "Camisetas Básicas", que é de onde a personalização tira as peças.
 - [ ] O pedido de personalização não confere o estoque das camisetas lisas: o cliente pode pedir mais peças do que há em estoque. A baixa acontece no pagamento, e se faltar peça o pedido fica Pago com alerta (opção C). Avaliar se o orçamento deve conferir o estoque antes de enviar a prévia.
 - [ ] Limpeza de arquivos abandonados no Storage (pasta privada `personalizacao`): artes enviadas em formulários que não foram concluídos, e arquivos de pedidos cancelados. Só o administrador pode apagar (regra do Storage); fazer junto com as tarefas agendadas da etapa 13 ou por um botão no painel.
 
@@ -119,7 +119,7 @@ Desde a etapa 12, produtos, preços, cores, tamanhos, descrições e fotos são 
 
 - [ ] Testar uma compra completa de ponta a ponta: cadastro, carrinho, frete, pagamento, e-mail e baixa de estoque.
 - [ ] Testar no celular, de verdade, os fluxos que só foram testados pelo servidor: escolha de cor, tamanho e quantidade, carrinho, cálculo de frete, cadastro e login.
-- [ ] Ver o pai do Israel cadastrar um produto completo pelo celular (dados, cores e tamanhos, fotos) e ajustar textos e botões do painel conforme as dúvidas dele.
+- [ ] Ver o pai do Israel cadastrar um produto completo pelo celular (dados, cores e tamanhos, fotos), lançar o estoque dele ("Chegaram peças" e "Corrigir contagem") e ajustar textos e botões do painel conforme as dúvidas dele.
 - [ ] Fazer o merge de `dev` em `main`.
 
 ## Melhorias para depois

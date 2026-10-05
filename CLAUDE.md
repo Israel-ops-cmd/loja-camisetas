@@ -78,7 +78,7 @@ Uma branch por etapa, nesta ordem. Marque com `[x]` ao concluir o merge em `dev`
 - [x] 9. `feat/pagamento`: Mercado Pago, confirmação por webhook e baixa de estoque
 - [x] 10. `feat/personalizacao`: formulário em que o cliente escolhe a peça, envia a arte e os dados do pedido; o pedido chega ao painel para aprovação da prévia. Sem editor de estampa na tela nesta versão
 - [x] 11. `feat/atacado`: desconto progressivo por quantidade e formulário de orçamento
-- [ ] 12. `feat/admin-produtos`: painel para cadastrar produtos e controlar estoque
+- [x] 12. `feat/admin-produtos`: painel para cadastrar produtos e controlar estoque
 - [ ] 13. `feat/admin-pedidos`: lista de pedidos, pedidos de personalização e orçamentos, status e etiqueta de envio
 - [ ] 14. `feat/emails`: confirmação de pedido e aviso de envio
 - [ ] 15. `feat/paginas-institucionais`: política de troca, privacidade, contato e perguntas frequentes
