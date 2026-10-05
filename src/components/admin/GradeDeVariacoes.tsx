@@ -71,7 +71,7 @@ export function GradeDeVariacoes({
     <div className="space-y-4">
       <p className="text-[15px] text-apoio">
         Toque nos tamanhos que você vende em cada cor. Tamanho novo começa com estoque 0: ele só aparece como
-        disponível depois que o estoque for lançado.
+        disponível depois que você lançar as peças em “Lançar estoque deste produto”, no alto da página.
       </p>
 
       {cores.map((cor) => {
