@@ -83,9 +83,12 @@ Lista do que ficou para depois durante o desenvolvimento. Marque com `[x]` o que
 
 ### Conteúdo da loja
 
+Desde a etapa 12, produtos, preços, cores, tamanhos, descrições e fotos são cadastrados pelo painel (`/admin/produtos`). Os dados de exemplo são trocados à mão por ali antes de publicar (decisão: sem botão de apagar dados de exemplo; produtos e variações nunca são apagados, só escondidos).
+
 - [ ] Preços reais de cada produto.
-- [ ] Cores e tamanhos disponíveis de cada produto, com o estoque real.
+- [ ] Cores e tamanhos disponíveis de cada produto, com o estoque real. Combinação nova criada pelo painel começa com estoque 0; o lançamento de estoque entra na etapa 12b (`feat/admin-estoque`).
 - [ ] Descrição de cada produto. Hoje a página mostra o marcador `[DESCRIÇÃO DO PRODUTO]`.
+- [ ] Esconder pelo painel (desligar "Mostrar na loja") os produtos de exemplo que não forem vendidos de verdade.
 - [ ] Tabela de medidas por tamanho. Hoje a página mostra o marcador `[TABELA DE MEDIDAS]`.
 - [ ] Produtos reais da categoria "Camisetas Básicas". Hoje ela tem só a "Camiseta lisa" de exemplo (seed: branca, preta, azul-marinho e off-white, P a GG, preço de teste R$ 1,00), que também é a peça base da personalização.
 - [ ] **Confirmar com o pai do Israel a tabela de desconto do atacado.** Hoje está a tabela PROVISÓRIA: 10 a 19 peças, 5%; 20 a 49, 10%; 50 ou mais, 15% (total de peças do carrinho, produtos misturados). Os valores ficam na tabela `faixas_atacado` do banco (criada pelo seed em `prisma/seed.ts`, `FAIXAS_ATACADO_PROVISORIAS`) e vão ser editáveis pelo painel na etapa 12. Se mudar antes disso, alterar direto no banco: o seed não sobrescreve valores existentes.
@@ -100,6 +103,8 @@ Lista do que ficou para depois durante o desenvolvimento. Marque com `[x]` o que
 - [ ] Fotos para os cartões de categoria "Básicas", "Personalizadas" e "Atacado".
 - [ ] Pelo menos uma foto da peça real em cada página de produto. As fotos atuais são montagens digitais da estampa sobre modelos.
 - [ ] Fotos da "Camiseta lisa" (uma por cor). Hoje a página dela mostra o marcador `[FOTO]`.
+- [ ] Testar o envio de fotos pelo celular do pai do Israel. O painel aceita JPG, PNG e WebP até 10 MB. Fotos HEIC (formato do iPhone) são recusadas com uma mensagem; o Safari costuma converter para JPG ao escolher a foto, mas isso precisa ser confirmado no aparelho dele.
+- [ ] As fotos de exemplo ficam em `public/fotos`, não no Storage. Ao removê-las pelo painel, sai só o registro; apagar os arquivos de `public/fotos` que não forem mais usados.
 
 ### Acesso e segurança
 
@@ -113,6 +118,7 @@ Lista do que ficou para depois durante o desenvolvimento. Marque com `[x]` o que
 
 - [ ] Testar uma compra completa de ponta a ponta: cadastro, carrinho, frete, pagamento, e-mail e baixa de estoque.
 - [ ] Testar no celular, de verdade, os fluxos que só foram testados pelo servidor: escolha de cor, tamanho e quantidade, carrinho, cálculo de frete, cadastro e login.
+- [ ] Ver o pai do Israel cadastrar um produto completo pelo celular (dados, cores e tamanhos, fotos) e ajustar textos e botões do painel conforme as dúvidas dele.
 - [ ] Fazer o merge de `dev` em `main`.
 
 ## Melhorias para depois
@@ -127,6 +133,9 @@ Lista do que ficou para depois durante o desenvolvimento. Marque com `[x]` o que
 - [ ] Personalização: deixar o cliente enviar novos arquivos junto com o pedido de ajuste. Hoje o ajuste é só texto.
 - [ ] Personalização: o cliente cancelar o próprio pedido de personalização antes de aprovar. Hoje só o administrador cancela.
 - [ ] Editor de estampa na tela para a personalização (hoje é formulário com envio de arte).
+- [ ] Painel de produtos: reduzir as fotos no navegador antes de enviar. Hoje vão no tamanho original (até 10 MB); o site já mostra versões otimizadas, mas o original ocupa espaço no Storage (1 GB no plano gratuito do Supabase).
+- [ ] Painel de produtos: arrastar para reordenar fotos (hoje são botões "Subir" e "Descer") e editar ou esconder cores e tamanhos já criados (hoje só dá para criar).
+- [ ] Limpeza de fotos órfãs na pasta `produtos` do Storage: arquivo enviado sem chegar a ser registrado (por exemplo, internet caiu no meio). Fazer junto com a limpeza da pasta `personalizacao`.
 - [ ] Avaliar se o texto do hero e do menu deve dizer que a loja é de camisetas cristãs.
 - [ ] Depoimentos de clientes, quando houver avaliações reais.
 

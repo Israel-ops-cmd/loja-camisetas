@@ -62,10 +62,4 @@ export function formatarNumeroDaPersonalizacao(numero: number) {
   return `nº ${numero}`;
 }
 
-/** "25", "25,5", "R$ 1.250,00" → centavos. Nulo se não for um valor válido. */
-export function lerPrecoEmCentavos(texto: string) {
-  const limpo = texto.replace(/R\$|\s/g, "").replace(/\./g, "").replace(",", ".");
-  if (!/^\d+(\.\d{1,2})?$/.test(limpo)) return null;
-  const centavos = Math.round(Number(limpo) * 100);
-  return Number.isSafeInteger(centavos) ? centavos : null;
-}
+export { lerPrecoEmCentavos } from "@/lib/formatacao";

@@ -28,6 +28,10 @@ type Props = {
   erro?: string;
   /** Avisa o formulário enquanto há envio em andamento. */
   aoEnviar?: (enviando: boolean) => void;
+  /** Pasta do Storage (padrão: a privada da personalização). */
+  pasta?: string;
+  tamanhoMaximo?: number;
+  textoDoBotao?: string;
 };
 
 /**
@@ -45,6 +49,9 @@ export function EnvioDeArquivos({
   ajuda,
   erro,
   aoEnviar,
+  pasta = PASTA_DO_STORAGE,
+  tamanhoMaximo = TAMANHO_MAXIMO_BYTES,
+  textoDoBotao,
 }: Props) {
   const id = useId();
   const entrada = useRef<HTMLInputElement>(null);
@@ -65,11 +72,16 @@ export function EnvioDeArquivos({
 
     for (const arquivo of escolhidos) {
       if (!formatos.includes(extensaoDoArquivo(arquivo.name))) {
-        novosErros.push(`${arquivo.name}: formato não aceito.`);
+        novosErros.push(
+          `${arquivo.name}: formato não aceito. Use ${formatos
+            .filter((f) => f !== "jpeg")
+            .map((f) => f.toUpperCase())
+            .join(", ")}.`,
+        );
         continue;
       }
-      if (arquivo.size > TAMANHO_MAXIMO_BYTES) {
-        novosErros.push(`${arquivo.name}: passa de 20 MB.`);
+      if (arquivo.size > tamanhoMaximo) {
+        novosErros.push(`${arquivo.name}: passa de ${formatarTamanhoDoArquivo(tamanhoMaximo)}.`);
         continue;
       }
       const envio = await preparar({ nome: arquivo.name, tamanho: arquivo.size });
@@ -78,7 +90,7 @@ export function EnvioDeArquivos({
         continue;
       }
       const { error } = await criarClienteSupabaseNoNavegador()
-        .storage.from(PASTA_DO_STORAGE)
+        .storage.from(pasta)
         .uploadToSignedUrl(envio.caminho, envio.token, arquivo, {
           contentType: arquivo.type || "application/octet-stream",
         });
@@ -157,7 +169,7 @@ export function EnvioDeArquivos({
             className="mt-3 inline-flex min-h-12 cursor-pointer items-center gap-2 rounded-full border border-tinta px-6 text-[14px] font-semibold transition hover:bg-tinta hover:text-papel"
           >
             <Paperclip aria-hidden="true" className="size-4" strokeWidth={1.8} />
-            {arquivos.length === 0 ? "Escolher arquivo" : "Adicionar outro arquivo"}
+            {textoDoBotao ?? (arquivos.length === 0 ? "Escolher arquivo" : "Adicionar outro arquivo")}
           </label>
         </>
       )}
