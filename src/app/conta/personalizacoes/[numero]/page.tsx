@@ -74,6 +74,17 @@ export default async function PaginaMinhaPersonalizacao({
             <Aviso tipo="sucesso">Prévia aprovada! Agora é só escolher a entrega e pagar.</Aviso>
           )}
           {p.status === "CANCELADA" && <Aviso tipo="info">Este pedido de personalização foi cancelado.</Aviso>}
+          {p.status === "RECUSADA" && (
+            <Aviso tipo="info">
+              <strong>Não conseguimos produzir este pedido.</strong>
+              {p.motivoRecusa && (
+                <span className="mt-1 block whitespace-pre-line">{p.motivoRecusa}</span>
+              )}
+              <span className="mt-2 block text-[14px] text-apoio">
+                Se quiser, envie um novo pedido de personalização.
+              </span>
+            </Aviso>
+          )}
           {p.status === "CONVERTIDA" && p.pedido && (
             <Aviso tipo="sucesso">
               Este pedido virou o pedido de compra{" "}

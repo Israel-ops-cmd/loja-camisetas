@@ -119,7 +119,7 @@ export async function cancelarPersonalizacao(numero: unknown, motivo: unknown): 
 
   const cancelou = await prisma.$transaction(async (tx) => {
     const { count } = await tx.personalizacao.updateMany({
-      where: { id: personalizacao.id, status: { notIn: ["CONVERTIDA", "CANCELADA"] } },
+      where: { id: personalizacao.id, status: { notIn: ["CONVERTIDA", "CANCELADA", "RECUSADA"] } },
       data: { status: "CANCELADA" },
     });
     if (count === 0) return false;
@@ -130,7 +130,37 @@ export async function cancelarPersonalizacao(numero: unknown, motivo: unknown): 
     }
     return true;
   });
-  if (!cancelou) return { ok: false, erro: "Esse pedido já virou pedido de compra ou já foi cancelado." };
+  if (!cancelou) return { ok: false, erro: "Esse pedido já virou pedido de compra, foi cancelado ou foi recusado." };
+  refresh();
+  return { ok: true };
+}
+
+/**
+ * Recusa o pedido (ex.: arte sem direito de uso, conteúdo que a loja não
+ * produz). O motivo é obrigatório e aparece em destaque na conta do cliente.
+ */
+export async function recusarPersonalizacao(numero: unknown, motivo: unknown): Promise<Resultado> {
+  const personalizacao = await personalizacaoParaAdmin(numero);
+  if (!personalizacao) return { ok: false, erro: "Sem permissão ou pedido não encontrado." };
+
+  const texto = z
+    .string()
+    .trim()
+    .min(10, "Explique o motivo para o cliente (pelo menos 10 caracteres).")
+    .max(2000, "Texto longo demais.")
+    .safeParse(motivo);
+  if (!texto.success) return { ok: false, erro: texto.error.issues[0].message };
+
+  const { count } = await prisma.personalizacao.updateMany({
+    where: {
+      id: personalizacao.id,
+      status: { in: ["RECEBIDA", "AJUSTE_SOLICITADO", "PREVIA_ENVIADA", "APROVADA"] },
+    },
+    data: { status: "RECUSADA", motivoRecusa: texto.data },
+  });
+  if (count === 0) {
+    return { ok: false, erro: "Esse pedido já virou pedido de compra, foi cancelado ou foi recusado." };
+  }
   refresh();
   return { ok: true };
 }

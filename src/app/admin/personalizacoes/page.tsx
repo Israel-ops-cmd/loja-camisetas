@@ -17,6 +17,7 @@ const PRIORIDADE: StatusPersonalizacao[] = [
   "APROVADA",
   "CONVERTIDA",
   "CANCELADA",
+  "RECUSADA",
 ];
 
 export default async function PaginaAdminPersonalizacoes() {

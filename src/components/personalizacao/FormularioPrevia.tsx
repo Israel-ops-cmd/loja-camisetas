@@ -6,6 +6,7 @@ import {
   cancelarPersonalizacao,
   enviarPrevia,
   prepararEnvioDePrevia,
+  recusarPersonalizacao,
 } from "@/app/admin/personalizacoes/acoes";
 import { Aviso } from "@/components/formulario/Aviso";
 import { Campo } from "@/components/formulario/Campo";
@@ -99,11 +100,25 @@ export function FormularioPrevia({
   );
 }
 
-export function BotaoCancelarPersonalizacao({ numero }: { numero: number }) {
+/** Ação com confirmação e um texto que o cliente vê (cancelar ou recusar). */
+function AcaoComMotivo({
+  rotuloLink,
+  rotuloCampo,
+  rotuloConfirmar,
+  motivoObrigatorio,
+  executar,
+}: {
+  rotuloLink: string;
+  rotuloCampo: string;
+  rotuloConfirmar: string;
+  motivoObrigatorio: boolean;
+  executar: (motivo: string | undefined) => Promise<{ ok: true } | { ok: false; erro: string }>;
+}) {
   const [confirmando, setConfirmando] = useState(false);
   const [motivo, setMotivo] = useState("");
   const [erro, setErro] = useState<string | null>(null);
   const [pendente, iniciar] = useTransition();
+  const idCampo = `motivo-${rotuloLink.replace(/\W+/g, "-").toLowerCase()}`;
 
   if (!confirmando) {
     return (
@@ -112,22 +127,23 @@ export function BotaoCancelarPersonalizacao({ numero }: { numero: number }) {
         onClick={() => setConfirmando(true)}
         className="inline-flex min-h-11 items-center text-[14px] underline underline-offset-4 hover:text-secundario"
       >
-        Cancelar este pedido de personalização
+        {rotuloLink}
       </button>
     );
   }
 
   return (
-    <div className="space-y-3 rounded-xl border border-borda p-4">
-      <label htmlFor="motivo" className="block text-[14px] font-semibold">
-        Motivo (o cliente vê esta mensagem)
+    <div className="space-y-3 rounded-xl border border-borda bg-papel p-4">
+      <label htmlFor={idCampo} className="block text-[14px] font-semibold">
+        {rotuloCampo}
       </label>
       <textarea
-        id="motivo"
+        id={idCampo}
         value={motivo}
         onChange={(e) => setMotivo(e.target.value)}
-        rows={2}
+        rows={3}
         maxLength={2000}
+        required={motivoObrigatorio}
         className="w-full rounded-xl border border-borda bg-papel px-4 py-3 text-[16px] outline-none focus:border-tinta"
       />
       {erro && <Aviso tipo="erro">{erro}</Aviso>}
@@ -137,13 +153,13 @@ export function BotaoCancelarPersonalizacao({ numero }: { numero: number }) {
           disabled={pendente}
           onClick={() =>
             iniciar(async () => {
-              const r = await cancelarPersonalizacao(numero, motivo || undefined);
+              const r = await executar(motivo || undefined);
               if (!r.ok) setErro(r.erro);
             })
           }
           className={classesBotao("secundario")}
         >
-          {pendente ? "Cancelando…" : "Confirmar cancelamento"}
+          {pendente ? "Enviando…" : rotuloConfirmar}
         </button>
         <button
           type="button"
@@ -154,5 +170,30 @@ export function BotaoCancelarPersonalizacao({ numero }: { numero: number }) {
         </button>
       </div>
     </div>
+  );
+}
+
+export function BotaoCancelarPersonalizacao({ numero }: { numero: number }) {
+  return (
+    <AcaoComMotivo
+      rotuloLink="Cancelar este pedido de personalização"
+      rotuloCampo="Motivo (opcional; o cliente vê esta mensagem na conversa)"
+      rotuloConfirmar="Confirmar cancelamento"
+      motivoObrigatorio={false}
+      executar={(motivo) => cancelarPersonalizacao(numero, motivo)}
+    />
+  );
+}
+
+/** Recusa com motivo obrigatório, mostrado em destaque na conta do cliente. */
+export function BotaoRecusarPersonalizacao({ numero }: { numero: number }) {
+  return (
+    <AcaoComMotivo
+      rotuloLink="Recusar este pedido"
+      rotuloCampo="Motivo da recusa (obrigatório; o cliente vê em destaque na conta dele)"
+      rotuloConfirmar="Confirmar recusa"
+      motivoObrigatorio
+      executar={(motivo) => recusarPersonalizacao(numero, motivo ?? "")}
+    />
   );
 }

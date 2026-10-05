@@ -11,10 +11,11 @@ import {
 } from "@/components/personalizacao/Detalhes";
 import {
   BotaoCancelarPersonalizacao,
+  BotaoRecusarPersonalizacao,
   FormularioPrevia,
 } from "@/components/personalizacao/FormularioPrevia";
 import { exigirAdministrador } from "@/lib/auth";
-import { formatarNumeroDoPedido, rotulosDeStatus } from "@/lib/pedidos";
+import { formatarDataHora, formatarNumeroDoPedido, rotulosDeStatus } from "@/lib/pedidos";
 import { incluirDetalhes, linksDosArquivos } from "@/lib/personalizacao";
 import {
   formatarNumeroDaPersonalizacao,
@@ -72,8 +73,19 @@ export default async function PaginaAdminPersonalizacao({
             </p>
           </Painel>
 
+          {p.status === "RECUSADA" && p.motivoRecusa && (
+            <Aviso tipo="info">
+              <strong>Recusado.</strong> Motivo enviado ao cliente: {p.motivoRecusa}
+            </Aviso>
+          )}
+
           <Painel titulo="Pedido">
             <ResumoDaPersonalizacao p={p} />
+            <p className="mt-5 border-t border-borda pt-4 text-[14px] text-apoio">
+              {p.declaracaoDireitosEm
+                ? `O cliente declarou ter direito de uso da arte em ${formatarDataHora(p.declaracaoDireitosEm)}.`
+                : "Pedido anterior à declaração de direito de uso da arte."}
+            </p>
           </Painel>
 
           <Painel titulo="Arte enviada pelo cliente">
@@ -101,8 +113,11 @@ export default async function PaginaAdminPersonalizacao({
             </Painel>
           )}
 
-          {p.status !== "CONVERTIDA" && p.status !== "CANCELADA" && (
-            <BotaoCancelarPersonalizacao numero={p.numero} />
+          {!["CONVERTIDA", "CANCELADA", "RECUSADA"].includes(p.status) && (
+            <div className="flex flex-col gap-2">
+              <BotaoRecusarPersonalizacao numero={p.numero} />
+              <BotaoCancelarPersonalizacao numero={p.numero} />
+            </div>
           )}
         </div>
       </div>
