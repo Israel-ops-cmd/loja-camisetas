@@ -213,6 +213,9 @@ model Pedido {
   subtotalEmCentavos Int
   freteEmCentavos    Int
   descontoEmCentavos Int @default(0)
+  /// Percentual de desconto de atacado aplicado (0 = sem desconto). Cada peça
+  /// é cobrada com o preço já descontado e arredondado para baixo ao centavo.
+  descontoPercentual Int @default(0)
   totalEmCentavos    Int
 
   // Cópia do endereço no momento da compra.
@@ -408,4 +411,69 @@ model PersonalizacaoMensagem {
 
   @@index([personalizacaoId])
   @@map("personalizacao_mensagens")
+}
+
+// ---------------------------------------------------------------- Atacado
+
+/// Desconto progressivo por quantidade: vale o maior "minimoDePecas" que o
+/// total de peças do carrinho alcança. Editável pelo painel (etapa 12).
+model FaixaAtacado {
+  id            String   @id @default(uuid(7)) @db.Uuid
+  minimoDePecas Int      @unique
+  /// Percentual inteiro (10 = 10%).
+  percentual    Int
+  ativo         Boolean  @default(true)
+  criadoEm      DateTime @default(now())
+  atualizadoEm  DateTime @updatedAt
+
+  @@map("faixas_atacado")
+}
+
+enum StatusOrcamento {
+  NOVO
+  EM_CONTATO
+  FECHADO
+  SEM_RETORNO
+
+  @@map("status_orcamento")
+}
+
+enum TipoDePecaOrcamento {
+  LISA
+  ESTAMPA_DA_CASA
+  PERSONALIZADA
+  NAO_SEI
+
+  @@map("tipo_de_peca_orcamento")
+}
+
+/// Pedido de orçamento enviado pela página /atacado (sem login).
+model Orcamento {
+  id     String          @id @default(uuid(7)) @db.Uuid
+  numero Int             @unique @default(autoincrement())
+  status StatusOrcamento @default(NOVO)
+
+  nome          String
+  empresa       String?
+  email         String
+  /// Só os dígitos, com DDD.
+  telefone      String
+  cidade        String
+  uf            String              @db.Char(2)
+  tipoDePeca    TipoDePecaOrcamento
+  quantidade    Int
+  prazoDesejado DateTime?           @db.Date
+  mensagem      String?
+
+  /// Anotações da loja (não aparecem para o cliente).
+  anotacoes String?
+  /// Hash do IP de envio, só para limitar envios repetidos (não guarda o IP).
+  ipHash    String?
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  @@index([status])
+  @@index([ipHash, criadoEm])
+  @@map("orcamentos")
 }

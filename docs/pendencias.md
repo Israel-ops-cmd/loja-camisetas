@@ -65,6 +65,13 @@ Lista do que ficou para depois durante o desenvolvimento. Marque com `[x]` o que
 - [ ] Mostrar no painel os alertas dos pedidos (pago sem estoque, valor divergente, pagamento aprovado em pedido cancelado) e permitir estornar pelo painel (etapa 13).
 - [ ] E-mail de confirmação do pedido para o cliente (etapa 14). Hoje ele vê o pedido só na página do pedido e em "Minha conta".
 
+### Atacado e orçamentos
+
+- [ ] Editar a tabela de desconto do atacado pelo painel (etapa 12): faixas, percentuais e ligar/desligar.
+- [ ] Aviso por e-mail para a loja quando chega um pedido de orçamento (etapa 14). Hoje a loja precisa abrir o painel (o início mostra quantos orçamentos novos há).
+- [ ] Na política de privacidade (etapa 15), dizer por quanto tempo os dados dos orçamentos ficam guardados e como pedir a exclusão. O formulário avisa: "Usamos seus dados só para responder a este orçamento".
+- [ ] O limite de 3 orçamentos por hora usa o IP informado pela Vercel (`x-forwarded-for`). Conferir em produção que ele vem preenchido; no computador local, todos os envios contam como o mesmo IP.
+
 ### Personalização
 
 - [ ] Avisos por e-mail (etapa 14): para a loja quando chega um pedido de personalização ou um pedido de ajuste; para o cliente quando a prévia é enviada. Hoje ninguém é avisado: a loja precisa abrir o painel (o início do painel mostra quantos pedidos esperam prévia) e o cliente precisa abrir "Minha conta".
@@ -81,7 +88,7 @@ Lista do que ficou para depois durante o desenvolvimento. Marque com `[x]` o que
 - [ ] Descrição de cada produto. Hoje a página mostra o marcador `[DESCRIÇÃO DO PRODUTO]`.
 - [ ] Tabela de medidas por tamanho. Hoje a página mostra o marcador `[TABELA DE MEDIDAS]`.
 - [ ] Produtos reais da categoria "Camisetas Básicas". Hoje ela tem só a "Camiseta lisa" de exemplo (seed: branca, preta, azul-marinho e off-white, P a GG, preço de teste R$ 1,00), que também é a peça base da personalização.
-- [ ] Tabela de descontos do atacado.
+- [ ] **Confirmar com o pai do Israel a tabela de desconto do atacado.** Hoje está a tabela PROVISÓRIA: 10 a 19 peças, 5%; 20 a 49, 10%; 50 ou mais, 15% (total de peças do carrinho, produtos misturados). Os valores ficam na tabela `faixas_atacado` do banco (criada pelo seed em `prisma/seed.ts`, `FAIXAS_ATACADO_PROVISORIAS`) e vão ser editáveis pelo painel na etapa 12. Se mudar antes disso, alterar direto no banco: o seed não sobrescreve valores existentes.
 - [ ] CNPJ, cidade, WhatsApp, e-mail, horário de atendimento e Instagram para o rodapé.
 - [ ] Respostas das perguntas frequentes, prazos de produção e entrega.
 - [ ] Política de troca e devolução.
