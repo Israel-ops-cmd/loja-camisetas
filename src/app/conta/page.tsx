@@ -11,6 +11,10 @@ import {
   formatarNumeroDoPedido,
   rotulosDeStatus,
 } from "@/lib/pedidos";
+import {
+  formatarNumeroDaPersonalizacao,
+  rotulosDeStatusDaPersonalizacao,
+} from "@/lib/personalizacao-regras";
 import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
@@ -33,6 +37,12 @@ export default async function PaginaConta({
       totalEmCentavos: true,
       criadoEm: true,
     },
+  });
+  const personalizacoes = await prisma.personalizacao.findMany({
+    where: { clienteId: usuario.id },
+    orderBy: { criadoEm: "desc" },
+    take: 50,
+    select: { numero: true, status: true, criadoEm: true, produto: { select: { nome: true } } },
   });
 
   return (
@@ -113,6 +123,41 @@ export default async function PaginaConta({
             </ul>
           )}
         </section>
+
+        {personalizacoes.length > 0 && (
+          <section
+            aria-labelledby="titulo-personalizacoes"
+            className="mt-6 rounded-[20px] bg-papel p-6 sm:p-8"
+          >
+            <h2 id="titulo-personalizacoes" className="sobretitulo">
+              Personalizações
+            </h2>
+            <ul className="mt-4 divide-y divide-borda">
+              {personalizacoes.map((p) => (
+                <li key={p.numero}>
+                  <Link
+                    href={`/conta/personalizacoes/${p.numero}`}
+                    className="flex min-h-16 flex-wrap items-center justify-between gap-x-4 gap-y-1 py-3 hover:text-secundario"
+                  >
+                    <span>
+                      <span className="font-semibold">
+                        Personalização {formatarNumeroDaPersonalizacao(p.numero)}
+                      </span>
+                      <span className="block text-[14px] text-secundario">
+                        {p.produto.nome} · {formatarData(p.criadoEm)}
+                      </span>
+                    </span>
+                    <span
+                      className={`rounded-full px-3 py-1 text-[12px] font-bold tracking-[0.12em] uppercase ${p.status === "PREVIA_ENVIADA" || p.status === "APROVADA" ? "bg-tinta text-papel" : "border border-borda"}`}
+                    >
+                      {rotulosDeStatusDaPersonalizacao[p.status]}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
 
         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
           {usuario.administrador && (
