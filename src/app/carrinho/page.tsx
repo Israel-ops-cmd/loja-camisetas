@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { CircleAlert } from "lucide-react";
 
 import { CalculoFrete } from "@/components/carrinho/CalculoFrete";
@@ -94,6 +95,16 @@ export default async function PaginaCarrinho() {
                     {formatarPreco(carrinho.subtotalEmCentavos)}
                   </dd>
                 </div>
+                {carrinho.atacado.descontoEmCentavos > 0 && (
+                  <div className="flex justify-between gap-4">
+                    <dt className="text-apoio">
+                      Desconto de atacado ({carrinho.atacado.percentual}%)
+                    </dt>
+                    <dd className="font-semibold">
+                      −{formatarPreco(carrinho.atacado.descontoEmCentavos)}
+                    </dd>
+                  </div>
+                )}
                 <div className="flex justify-between gap-4">
                   <dt className="text-apoio">Frete</dt>
                   <dd
@@ -121,10 +132,26 @@ export default async function PaginaCarrinho() {
                     {frete === null ? "Total sem frete" : "Total"}
                   </dt>
                   <dd className="font-titulo text-[26px] font-extrabold">
-                    {formatarPreco(carrinho.subtotalEmCentavos + (frete ?? 0))}
+                    {formatarPreco(
+                      carrinho.subtotalEmCentavos -
+                        carrinho.atacado.descontoEmCentavos +
+                        (frete ?? 0),
+                    )}
                   </dd>
                 </div>
               </dl>
+              {carrinho.atacado.proxima && carrinho.quantidadeDePecas > 0 && (
+                <p className="mt-4 rounded-xl bg-fundo px-4 py-3 text-[14px]">
+                  {carrinho.atacado.proxima.faltam === 1
+                    ? "Falta 1 peça"
+                    : `Faltam ${carrinho.atacado.proxima.faltam} peças`}{" "}
+                  para <strong>{carrinho.atacado.proxima.percentual}% de desconto</strong>{" "}
+                  em todo o carrinho.{" "}
+                  <Link href="/atacado" className="underline underline-offset-4">
+                    Ver tabela
+                  </Link>
+                </p>
+              )}
               {carrinho.itens.some((item) => item.esgotado) ? (
                 <p className="mt-6 rounded-xl border border-borda px-4 py-3 text-center text-[14px] font-semibold">
                   Remova os itens esgotados para finalizar a compra.

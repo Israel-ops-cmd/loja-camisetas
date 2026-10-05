@@ -84,6 +84,10 @@ export default async function PaginaCheckout() {
             subtotalEmCentavos: item.subtotalEmCentavos,
           }))}
           subtotalEmCentavos={carrinho.subtotalEmCentavos}
+          desconto={{
+            percentual: carrinho.atacado.percentual,
+            emCentavos: carrinho.atacado.descontoEmCentavos,
+          }}
           cotacaoInicial={cotacaoInicial}
           servicoPreferido={escolhaDeFrete?.servicoId ?? null}
           cotar={cotarFreteDoCheckout}

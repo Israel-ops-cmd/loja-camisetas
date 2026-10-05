@@ -195,7 +195,11 @@ export default async function PaginaPedido({
             </div>
             {pedido.descontoEmCentavos > 0 && (
               <div className="flex justify-between">
-                <dt className="text-apoio">Desconto</dt>
+                <dt className="text-apoio">
+                  {pedido.descontoPercentual > 0
+                    ? `Desconto de atacado (${pedido.descontoPercentual}%)`
+                    : "Desconto"}
+                </dt>
                 <dd>−{formatarPreco(pedido.descontoEmCentavos)}</dd>
               </div>
             )}

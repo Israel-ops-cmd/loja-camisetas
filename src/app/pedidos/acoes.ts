@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 
+import { precoComDesconto } from "@/lib/atacado-regras";
 import { obterUsuario } from "@/lib/auth";
 import {
   criarCobranca,
@@ -58,11 +59,14 @@ export async function pagarPedido(numero: unknown): Promise<ResultadoPagar> {
       const cobranca = await criarCobranca({
         pedidoId: pedido.id,
         numero: pedido.numero,
+        // Preço por peça já com o desconto de atacado: a soma fecha com o total do pedido.
         itens: pedido.itens.map((item) => ({
           sku: item.sku,
-          titulo: `${item.nomeProduto} (${item.nomeCor}, ${item.nomeTamanho})`,
+          titulo:
+            `${item.nomeProduto} (${item.nomeCor}, ${item.nomeTamanho})` +
+            (pedido.descontoPercentual > 0 ? ` - atacado ${pedido.descontoPercentual}%` : ""),
           quantidade: item.quantidade,
-          precoEmCentavos: item.precoUnitarioEmCentavos,
+          precoEmCentavos: precoComDesconto(item.precoUnitarioEmCentavos, pedido.descontoPercentual),
         })),
         freteEmCentavos: pedido.freteEmCentavos,
         comprador: {

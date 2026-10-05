@@ -3,6 +3,7 @@ import "server-only";
 import { unstable_cache } from "next/cache";
 import { cookies } from "next/headers";
 
+import { precoComDesconto } from "@/lib/atacado-regras";
 import type { Carrinho } from "@/lib/carrinho";
 import { buscarCep, normalizarCep, type EnderecoDoCep } from "@/lib/cep";
 import {
@@ -58,7 +59,8 @@ function pacotesDoCarrinho(carrinho: Carrinho): PacoteDoItem[] {
     .map((item) => ({
       id: item.variacaoId,
       ...item.pacote,
-      valorEmCentavos: item.precoUnitarioEmCentavos,
+      // Valor declarado (seguro) com o desconto de atacado, igual ao do checkout.
+      valorEmCentavos: precoComDesconto(item.precoUnitarioEmCentavos, carrinho.atacado.percentual),
       quantidade: item.quantidade,
     }));
 }

@@ -7,6 +7,7 @@ import type { Usuario } from "@/lib/auth";
 import { normalizarCep } from "@/lib/cep";
 import { cotarFrete } from "@/lib/frete";
 import type { PacoteDoItem } from "@/lib/melhor-envio";
+import { totaisComDesconto } from "@/lib/atacado-regras";
 import { prisma } from "@/lib/prisma";
 import { apenasDigitos, cpfValido, telefoneValido, UFS } from "@/lib/validacao-br";
 
@@ -103,12 +104,15 @@ export async function criarPedidoComEntrega({
   itens,
   pacotes,
   aoCriar,
+  descontoPercentual = 0,
 }: {
   usuario: Usuario;
   dados: z.infer<typeof esquemaDadosDoPedido>;
   itens: ItemParaPedido[];
   pacotes: PacoteDoItem[];
   aoCriar?: (tx: Prisma.TransactionClient, pedidoId: string) => Promise<void>;
+  /** Desconto de atacado (percentual inteiro), aplicado no preço de cada peça. */
+  descontoPercentual?: number;
 }): Promise<{ ok: true; numero: number } | ({ ok: false } & ResultadoDoPedido)> {
   // Endereço: um salvo (precisa ser do próprio cliente) ou um novo.
   let endereco: z.infer<typeof esquemaNovoEndereco>;
@@ -149,7 +153,11 @@ export async function criarPedidoComEntrega({
 
   const cpf = apenasDigitos(dados.cpf);
   const telefone = apenasDigitos(dados.telefone);
-  const subtotal = itens.reduce((t, i) => t + i.precoUnitarioEmCentavos * i.quantidade, 0);
+  // Itens guardam o preço cheio; o desconto fica no pedido (percentual e valor).
+  const { subtotal, desconto, totalDosItens } = totaisComDesconto(
+    itens.map((i) => ({ precoEmCentavos: i.precoUnitarioEmCentavos, quantidade: i.quantidade })),
+    descontoPercentual,
+  );
 
   try {
     const numero = await prisma.$transaction(async (tx) => {
@@ -186,8 +194,10 @@ export async function criarPedidoComEntrega({
           compradorCpf: cpf,
           compradorTelefone: telefone,
           subtotalEmCentavos: subtotal,
+          descontoEmCentavos: desconto,
+          descontoPercentual,
           freteEmCentavos: frete.precoEmCentavos,
-          totalEmCentavos: subtotal + frete.precoEmCentavos,
+          totalEmCentavos: totalDosItens + frete.precoEmCentavos,
           entregaDestinatario: endereco.destinatario,
           entregaCep: cep,
           entregaLogradouro: endereco.logradouro,

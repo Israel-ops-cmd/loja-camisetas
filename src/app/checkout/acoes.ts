@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 
+import { precoComDesconto } from "@/lib/atacado-regras";
 import { obterUsuario } from "@/lib/auth";
 import { gravarItensDoCarrinho, obterCarrinho } from "@/lib/carrinho";
 import { buscarCep, normalizarCep, type EnderecoDoCep } from "@/lib/cep";
@@ -92,9 +93,11 @@ export async function finalizarPedido(
     pacotes: carrinho.itens.map((item) => ({
       id: item.variacaoId,
       ...item.pacote,
-      valorEmCentavos: item.precoUnitarioEmCentavos,
+      valorEmCentavos: precoComDesconto(item.precoUnitarioEmCentavos, carrinho.atacado.percentual),
       quantidade: item.quantidade,
     })),
+    // Recalculado no servidor a partir do carrinho, nunca vindo do navegador.
+    descontoPercentual: carrinho.atacado.percentual,
   });
   if (!resultado.ok) {
     return {

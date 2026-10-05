@@ -46,6 +46,8 @@ type Props = {
   subtotalEmCentavos: number;
   cotacaoInicial: CotacaoDoCarrinho | null;
   servicoPreferido: number | null;
+  /** Desconto de atacado só para exibir; o servidor recalcula ao criar o pedido. */
+  desconto?: { percentual: number; emCentavos: number };
   /** Server Action que cota o frete para um CEP (carrinho ou personalização). */
   cotar: (cep: string) => Promise<CotacaoDoCarrinho | { ok: false; cep: string; erro: string }>;
   /** Server Action que cria o pedido; em caso de sucesso, redireciona. */
@@ -75,6 +77,7 @@ export function FormularioCheckout({
   enderecos,
   itens,
   subtotalEmCentavos,
+  desconto,
   cotacaoInicial,
   servicoPreferido,
   cotar: cotarNoServidor,
@@ -219,7 +222,8 @@ export function FormularioCheckout({
     cotacao?.ok && servicoId
       ? cotacao.opcoes.find((o) => o.servicoId === servicoId)
       : undefined;
-  const total = subtotalEmCentavos + (frete?.precoEmCentavos ?? 0);
+  const total =
+    subtotalEmCentavos - (desconto?.emCentavos ?? 0) + (frete?.precoEmCentavos ?? 0);
   const erroNovo = (campo: string) => erros[`novoEndereco.${campo}`];
 
   return (
@@ -483,6 +487,12 @@ export function FormularioCheckout({
             <dt className="text-apoio">Subtotal</dt>
             <dd>{formatarPreco(subtotalEmCentavos)}</dd>
           </div>
+          {desconto && desconto.emCentavos > 0 && (
+            <div className="flex justify-between gap-4">
+              <dt className="text-apoio">Desconto de atacado ({desconto.percentual}%)</dt>
+              <dd>−{formatarPreco(desconto.emCentavos)}</dd>
+            </div>
+          )}
           <div className="flex justify-between gap-4">
             <dt className="text-apoio">Frete</dt>
             <dd className={frete ? "" : "text-secundario"}>

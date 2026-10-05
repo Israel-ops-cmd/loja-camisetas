@@ -5,6 +5,7 @@ import { ChevronDown, ChevronRight } from "lucide-react";
 
 import { DetalheProduto } from "@/components/produto/DetalheProduto";
 import { ProdutoCartao } from "@/components/produto/ProdutoCartao";
+import { listarFaixasDeAtacado } from "@/lib/atacado";
 import { listarRelacionados } from "@/lib/catalogo";
 import { LIMITE_ULTIMAS_UNIDADES, obterProduto } from "@/lib/produto";
 
@@ -44,10 +45,10 @@ export default async function PaginaProduto({
   // Sem variação ativa, o produto não pode ser comprado (e não aparece na listagem).
   if (!produto || produto.variacoes.length === 0) notFound();
 
-  const relacionados = await listarRelacionados(
-    produto.id,
-    produto.categoria.id,
-  );
+  const [relacionados, faixas] = await Promise.all([
+    listarRelacionados(produto.id, produto.categoria.id),
+    listarFaixasDeAtacado(),
+  ]);
 
   return (
     <>
@@ -81,6 +82,15 @@ export default async function PaginaProduto({
             produto={produto}
             limiteUltimasUnidades={LIMITE_ULTIMAS_UNIDADES}
           >
+            {faixas[0] && (
+              <p className="mt-6 rounded-xl bg-papel px-4 py-3 text-[14px]">
+                <strong>Atacado:</strong> a partir de {faixas[0].minimoDePecas} peças no carrinho,{" "}
+                {faixas[0].percentual}% de desconto, somando qualquer produto.{" "}
+                <Link href="/atacado" className="underline underline-offset-4">
+                  Ver tabela
+                </Link>
+              </p>
+            )}
             <div className="mt-10 border-t border-borda pt-8">
               <h2 className="sobretitulo">Descrição</h2>
               <p className="mt-3 whitespace-pre-line text-apoio">
