@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
+import { cotarFreteDoCheckout, finalizarPedido } from "@/app/checkout/acoes";
 import { FormularioCheckout } from "@/components/checkout/FormularioCheckout";
 import { exigirUsuario } from "@/lib/auth";
 import { obterCarrinho } from "@/lib/carrinho";
@@ -85,6 +86,9 @@ export default async function PaginaCheckout() {
           subtotalEmCentavos={carrinho.subtotalEmCentavos}
           cotacaoInicial={cotacaoInicial}
           servicoPreferido={escolhaDeFrete?.servicoId ?? null}
+          cotar={cotarFreteDoCheckout}
+          finalizar={finalizarPedido}
+          voltar={{ href: "/carrinho", rotulo: "Voltar ao carrinho" }}
         />
       </div>
     </div>

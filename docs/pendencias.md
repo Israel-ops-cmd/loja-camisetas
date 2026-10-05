@@ -50,6 +50,10 @@ Lista do que ficou para depois durante o desenvolvimento. Marque com `[x]` o que
   - Assinatura **recusada** em todos os avisos reais: com `notification_url` na cobrança (formatos `type`/`data.id` e `topic`/`id`), e pela URL do painel no modo produtivo, tanto com a chave da aplicação do Israel quanto com a da aplicação da conta vendedora de teste. Ou seja, no ambiente de teste não foi possível descobrir com que chave os avisos reais são assinados.
   - Se em produção a assinatura também for recusada: abrir caso com o suporte do Mercado Pago com estes dados, ou decidir aceitar avisos sem assinatura válida (o webhook nunca usa o conteúdo do aviso: sempre consulta o pagamento na API com o token da loja).
   - Hoje o `.env.local` está com a assinatura secreta da aplicação da conta vendedora de teste. Na Vercel, conferir qual está cadastrada.
+- [ ] **Rede de segurança para o webhook** (obrigatória antes de publicar): mesmo que um aviso do Mercado Pago se perca ou seja recusado, nenhum pedido pago pode ficar parado como "Aguardando pagamento". As três partes usam a mesma conferência que já existe (`conferirPagamentosDoPedido` em `src/lib/pagamento.ts`), que lê o pagamento na API e é segura de repetir:
+  - [ ] Página do pedido: conferir o pagamento na API sempre que o cliente abrir um pedido pendente, e não só na volta do Mercado Pago (hoje só confere com `?retorno=`). Limitar a uma conferência por pedido a cada minuto, para não chamar a API a cada recarga. Entra na etapa 13 (`feat/admin-pedidos`).
+  - [ ] Painel do administrador: botão "Conferir pagamento" em cada pedido pendente. Entra na etapa 13 (`feat/admin-pedidos`).
+  - [ ] Tarefa agendada (Vercel Cron) que confere os pedidos pendentes dentro do prazo de pagamento. Pode ser a mesma tarefa que cancela os pedidos não pagos depois de 3 dias (item em "Pedidos"). No plano gratuito da Vercel, tarefas agendadas rodam no máximo uma vez por dia; para conferir com mais frequência, é preciso o plano pago ou um agendador externo. Entra na etapa 13 (`feat/admin-pedidos`).
 - [ ] Testar com cartão real os meios que não passaram no ambiente de teste. O Mastercard de teste `5031 4332 1540 6351` foi recusado no checkout do Mercado Pago com "A transação não aceita este meio de pagamento", logo ao digitar o número. A cobrança não exclui nenhum meio, e o Mastercard de crédito está ativo na conta vendedora de teste, então tudo indica uma limitação do ambiente de teste. Confirmar com um Mastercard real no pagamento de valor baixo antes de publicar.
 - [ ] Testar no ambiente de teste os casos de cartão recusado (titular `OTHE`) e pendente (`CONT`), e um Pix ou boleto pago depois (depende do webhook).
 - [ ] Antes de publicar, fazer um pagamento real de valor baixo em produção e estornar, para conferir webhook, baixa de estoque e devolução. **Pagar e fechar a aba sem voltar à loja**: o pedido precisa virar "Pago" pelo webhook (no log: `[webhook] pagamento … processado`). Esse é o teste que valida a assinatura.
@@ -61,13 +65,22 @@ Lista do que ficou para depois durante o desenvolvimento. Marque com `[x]` o que
 - [ ] Mostrar no painel os alertas dos pedidos (pago sem estoque, valor divergente, pagamento aprovado em pedido cancelado) e permitir estornar pelo painel (etapa 13).
 - [ ] E-mail de confirmação do pedido para o cliente (etapa 14). Hoje ele vê o pedido só na página do pedido e em "Minha conta".
 
+### Personalização
+
+- [ ] Avisos por e-mail (etapa 14): para a loja quando chega um pedido de personalização ou um pedido de ajuste; para o cliente quando a prévia é enviada. Hoje ninguém é avisado: a loja precisa abrir o painel (o início do painel mostra quantos pedidos esperam prévia) e o cliente precisa abrir "Minha conta".
+- [ ] Revisar o texto da declaração de direito de uso da arte (`DECLARACAO_DE_DIREITOS` em `src/lib/personalizacao-regras.ts`) e ligá-lo aos termos de uso quando as páginas institucionais existirem (etapa 15). Hoje o site grava a data e a hora em que o cliente confirmou a declaração.
+- [ ] Confirmar com o pai do Israel se ele consegue abrir arquivos `.cdr` (CorelDRAW), `.ai` (Illustrator) e `.psd` (Photoshop). Se não conseguir, tirar esses formatos de `FORMATOS_DE_ARTE` em `src/lib/personalizacao-regras.ts`.
+- [ ] Confirmar com o pai do Israel quais outras peças podem ser personalizadas (baby look, infantil etc.). Elas entram pelo painel na etapa 12, como produtos da categoria "Camisetas Básicas", que é de onde a personalização tira as peças.
+- [ ] O pedido de personalização não confere o estoque das camisetas lisas: o cliente pode pedir mais peças do que há em estoque. A baixa acontece no pagamento, e se faltar peça o pedido fica Pago com alerta (opção C). Avaliar se o orçamento deve conferir o estoque antes de enviar a prévia.
+- [ ] Limpeza de arquivos abandonados no Storage (pasta privada `personalizacao`): artes enviadas em formulários que não foram concluídos, e arquivos de pedidos cancelados. Só o administrador pode apagar (regra do Storage); fazer junto com as tarefas agendadas da etapa 13 ou por um botão no painel.
+
 ### Conteúdo da loja
 
 - [ ] Preços reais de cada produto.
 - [ ] Cores e tamanhos disponíveis de cada produto, com o estoque real.
 - [ ] Descrição de cada produto. Hoje a página mostra o marcador `[DESCRIÇÃO DO PRODUTO]`.
 - [ ] Tabela de medidas por tamanho. Hoje a página mostra o marcador `[TABELA DE MEDIDAS]`.
-- [ ] Produtos da categoria "Camisetas Básicas". Hoje ela está vazia e mostra "Nenhum produto encontrado".
+- [ ] Produtos reais da categoria "Camisetas Básicas". Hoje ela tem só a "Camiseta lisa" de exemplo (seed: branca, preta, azul-marinho e off-white, P a GG, preço de teste R$ 1,00), que também é a peça base da personalização.
 - [ ] Tabela de descontos do atacado.
 - [ ] CNPJ, cidade, WhatsApp, e-mail, horário de atendimento e Instagram para o rodapé.
 - [ ] Respostas das perguntas frequentes, prazos de produção e entrega.
@@ -79,6 +92,7 @@ Lista do que ficou para depois durante o desenvolvimento. Marque com `[x]` o que
 
 - [ ] Fotos para os cartões de categoria "Básicas", "Personalizadas" e "Atacado".
 - [ ] Pelo menos uma foto da peça real em cada página de produto. As fotos atuais são montagens digitais da estampa sobre modelos.
+- [ ] Fotos da "Camiseta lisa" (uma por cor). Hoje a página dela mostra o marcador `[FOTO]`.
 
 ### Acesso e segurança
 
@@ -103,6 +117,8 @@ Lista do que ficou para depois durante o desenvolvimento. Marque com `[x]` o que
 - [ ] Guardar o carrinho na conta do cliente, para continuar a compra em outro aparelho. Hoje ele fica num cookie do navegador.
 - [ ] Editar e apagar endereços salvos em "Minha conta". Hoje eles só são criados no checkout.
 - [ ] Compra sem conta (só com e-mail). Hoje o login é obrigatório para comprar.
+- [ ] Personalização: deixar o cliente enviar novos arquivos junto com o pedido de ajuste. Hoje o ajuste é só texto.
+- [ ] Personalização: o cliente cancelar o próprio pedido de personalização antes de aprovar. Hoje só o administrador cancela.
 - [ ] Editor de estampa na tela para a personalização (hoje é formulário com envio de arte).
 - [ ] Avaliar se o texto do hero e do menu deve dizer que a loja é de camisetas cristãs.
 - [ ] Depoimentos de clientes, quando houver avaliações reais.

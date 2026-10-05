@@ -3,15 +3,11 @@
 import Link from "next/link";
 import { useState, useTransition, type FormEvent, type ReactNode } from "react";
 
-import {
-  buscarEnderecoPorCep,
-  cotarFreteDoCheckout,
-  finalizarPedido,
-  type DadosDoPedido,
-} from "@/app/checkout/acoes";
+import { buscarEnderecoPorCep } from "@/app/checkout/acoes";
 import { Aviso } from "@/components/formulario/Aviso";
 import { Campo } from "@/components/formulario/Campo";
 import { classesBotao } from "@/components/ui/Botao";
+import type { DadosDoPedido, ResultadoDoPedido } from "@/lib/criar-pedido";
 import { formatarPreco } from "@/lib/formatacao";
 import type { CotacaoDoCarrinho } from "@/lib/frete";
 import {
@@ -50,6 +46,12 @@ type Props = {
   subtotalEmCentavos: number;
   cotacaoInicial: CotacaoDoCarrinho | null;
   servicoPreferido: number | null;
+  /** Server Action que cota o frete para um CEP (carrinho ou personalização). */
+  cotar: (cep: string) => Promise<CotacaoDoCarrinho | { ok: false; cep: string; erro: string }>;
+  /** Server Action que cria o pedido; em caso de sucesso, redireciona. */
+  finalizar: (dados: DadosDoPedido) => Promise<ResultadoDoPedido>;
+  /** Para onde o cliente volta para revisar o que está comprando. */
+  voltar: { href: string; rotulo: string };
 };
 
 const NOVO = "novo";
@@ -75,6 +77,9 @@ export function FormularioCheckout({
   subtotalEmCentavos,
   cotacaoInicial,
   servicoPreferido,
+  cotar: cotarNoServidor,
+  finalizar,
+  voltar,
 }: Props) {
   const [enderecoId, setEnderecoId] = useState(enderecos[0]?.id ?? NOVO);
   const [novo, setNovo] = useState({
@@ -106,7 +111,7 @@ export function FormularioCheckout({
     setCotando(true);
     setCotacao(null);
     setServicoId(null);
-    const resultado = await cotarFreteDoCheckout(cep);
+    const resultado = await cotarNoServidor(cep);
     setCotacao(resultado.ok ? resultado : { ok: false, cep, erro: resultado.erro });
     setServicoId(servicoInicial(resultado.ok ? resultado : null, servicoPreferido));
     setCotando(false);
@@ -195,7 +200,7 @@ export function FormularioCheckout({
 
     iniciarEnvio(async () => {
       // Em caso de sucesso, a ação leva para a página do pedido.
-      const resultado = await finalizarPedido(dados);
+      const resultado = await finalizar(dados);
       if (!resultado) return;
       setErroGeral(resultado.erro);
       setErros(resultado.campos ?? {});
@@ -497,8 +502,8 @@ export function FormularioCheckout({
               {revisarCarrinho && (
                 <>
                   {" "}
-                  <Link href="/carrinho" className="underline underline-offset-4">
-                    Ir para o carrinho
+                  <Link href={voltar.href} className="underline underline-offset-4">
+                    {voltar.rotulo}
                   </Link>
                 </>
               )}
@@ -517,10 +522,10 @@ export function FormularioCheckout({
           O estoque é reservado quando o pagamento for confirmado.
         </p>
         <Link
-          href="/carrinho"
+          href={voltar.href}
           className="mt-2 flex min-h-11 items-center justify-center text-[14px] underline underline-offset-4 hover:text-secundario"
         >
-          Voltar ao carrinho
+          {voltar.rotulo}
         </Link>
       </section>
     </form>
