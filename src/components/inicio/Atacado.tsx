@@ -19,7 +19,7 @@ export function Atacado() {
             orçamento.
           </p>
         </div>
-        <Botao href="/atacado" variante="secundario" className="shrink-0">
+        <Botao href="/atacado#orcamento" variante="secundario" className="shrink-0">
           Pedir orçamento
         </Botao>
       </div>
