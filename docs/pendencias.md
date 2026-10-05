@@ -65,13 +65,21 @@ Lista do que ficou para depois durante o desenvolvimento. Marque com `[x]` o que
 - [ ] Mostrar no painel os alertas dos pedidos (pago sem estoque, valor divergente, pagamento aprovado em pedido cancelado) e permitir estornar pelo painel (etapa 13).
 - [ ] E-mail de confirmação do pedido para o cliente (etapa 14). Hoje ele vê o pedido só na página do pedido e em "Minha conta".
 
+### Personalização
+
+- [ ] Avisos por e-mail (etapa 14): para a loja quando chega um pedido de personalização ou um pedido de ajuste; para o cliente quando a prévia é enviada. Hoje ninguém é avisado: a loja precisa abrir o painel (o início do painel mostra quantos pedidos esperam prévia) e o cliente precisa abrir "Minha conta".
+- [ ] Confirmar com o pai do Israel se ele consegue abrir arquivos `.cdr` (CorelDRAW), `.ai` (Illustrator) e `.psd` (Photoshop). Se não conseguir, tirar esses formatos de `FORMATOS_DE_ARTE` em `src/lib/personalizacao-regras.ts`.
+- [ ] Confirmar com o pai do Israel quais outras peças podem ser personalizadas (baby look, infantil etc.). Elas entram pelo painel na etapa 12, como produtos da categoria "Camisetas Básicas", que é de onde a personalização tira as peças.
+- [ ] O pedido de personalização não confere o estoque das camisetas lisas: o cliente pode pedir mais peças do que há em estoque. A baixa acontece no pagamento, e se faltar peça o pedido fica Pago com alerta (opção C). Avaliar se o orçamento deve conferir o estoque antes de enviar a prévia.
+- [ ] Limpeza de arquivos abandonados no Storage (pasta privada `personalizacao`): artes enviadas em formulários que não foram concluídos, e arquivos de pedidos cancelados. Só o administrador pode apagar (regra do Storage); fazer junto com as tarefas agendadas da etapa 13 ou por um botão no painel.
+
 ### Conteúdo da loja
 
 - [ ] Preços reais de cada produto.
 - [ ] Cores e tamanhos disponíveis de cada produto, com o estoque real.
 - [ ] Descrição de cada produto. Hoje a página mostra o marcador `[DESCRIÇÃO DO PRODUTO]`.
 - [ ] Tabela de medidas por tamanho. Hoje a página mostra o marcador `[TABELA DE MEDIDAS]`.
-- [ ] Produtos da categoria "Camisetas Básicas". Hoje ela está vazia e mostra "Nenhum produto encontrado".
+- [ ] Produtos reais da categoria "Camisetas Básicas". Hoje ela tem só a "Camiseta lisa" de exemplo (seed: branca, preta, azul-marinho e off-white, P a GG, preço de teste R$ 1,00), que também é a peça base da personalização.
 - [ ] Tabela de descontos do atacado.
 - [ ] CNPJ, cidade, WhatsApp, e-mail, horário de atendimento e Instagram para o rodapé.
 - [ ] Respostas das perguntas frequentes, prazos de produção e entrega.
@@ -83,6 +91,7 @@ Lista do que ficou para depois durante o desenvolvimento. Marque com `[x]` o que
 
 - [ ] Fotos para os cartões de categoria "Básicas", "Personalizadas" e "Atacado".
 - [ ] Pelo menos uma foto da peça real em cada página de produto. As fotos atuais são montagens digitais da estampa sobre modelos.
+- [ ] Fotos da "Camiseta lisa" (uma por cor). Hoje a página dela mostra o marcador `[FOTO]`.
 
 ### Acesso e segurança
 
@@ -107,6 +116,8 @@ Lista do que ficou para depois durante o desenvolvimento. Marque com `[x]` o que
 - [ ] Guardar o carrinho na conta do cliente, para continuar a compra em outro aparelho. Hoje ele fica num cookie do navegador.
 - [ ] Editar e apagar endereços salvos em "Minha conta". Hoje eles só são criados no checkout.
 - [ ] Compra sem conta (só com e-mail). Hoje o login é obrigatório para comprar.
+- [ ] Personalização: deixar o cliente enviar novos arquivos junto com o pedido de ajuste. Hoje o ajuste é só texto.
+- [ ] Personalização: o cliente cancelar o próprio pedido de personalização antes de aprovar. Hoje só o administrador cancela.
 - [ ] Editor de estampa na tela para a personalização (hoje é formulário com envio de arte).
 - [ ] Avaliar se o texto do hero e do menu deve dizer que a loja é de camisetas cristãs.
 - [ ] Depoimentos de clientes, quando houver avaliações reais.

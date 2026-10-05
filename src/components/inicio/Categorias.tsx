@@ -20,7 +20,7 @@ const categorias: Categoria[] = [
       posicao: "object-[88%_40%]",
     },
   },
-  { linha: "Com a sua arte", nome: "Personalizadas", href: "/#personalizacao" },
+  { linha: "Com a sua arte", nome: "Personalizadas", href: "/personalizacao" },
   { linha: "Em quantidade", nome: "Atacado", href: "/#atacado" },
 ];
 
