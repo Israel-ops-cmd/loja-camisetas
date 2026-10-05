@@ -8,6 +8,13 @@ import {
   NOME_COOKIE_CARRINHO,
   type ItemDoCookie,
 } from "@/lib/carrinho-cookie";
+import { listarFaixasDeAtacado } from "@/lib/atacado";
+import {
+  faixaAplicavel,
+  proximaFaixa,
+  totaisComDesconto,
+  type FaixaDeDesconto,
+} from "@/lib/atacado-regras";
 import { prisma } from "@/lib/prisma";
 
 const TRINTA_DIAS = 60 * 60 * 24 * 30;
@@ -77,7 +84,30 @@ export type Carrinho = {
   avisos: string[];
   /** O cookie tem itens removidos ou quantidades acima do estoque. */
   precisaSincronizar: boolean;
+  atacado: ResumoDoAtacado;
 };
+
+export type ResumoDoAtacado = {
+  /** Percentual aplicado (0 = sem desconto). */
+  percentual: number;
+  descontoEmCentavos: number;
+  /** Próxima faixa com desconto maior (para o incentivo "faltam N peças"). */
+  proxima: (FaixaDeDesconto & { faltam: number }) | null;
+};
+
+/** Desconto de atacado pelo total de peças disponíveis (produtos misturados). */
+async function resumoDoAtacado(
+  itens: { precoUnitarioEmCentavos: number; quantidade: number }[],
+): Promise<ResumoDoAtacado> {
+  const faixas = await listarFaixasDeAtacado();
+  const pecas = itens.reduce((t, i) => t + i.quantidade, 0);
+  const percentual = faixaAplicavel(pecas, faixas)?.percentual ?? 0;
+  const { desconto } = totaisComDesconto(
+    itens.map((i) => ({ precoEmCentavos: i.precoUnitarioEmCentavos, quantidade: i.quantidade })),
+    percentual,
+  );
+  return { percentual, descontoEmCentavos: desconto, proxima: proximaFaixa(pecas, faixas) };
+}
 
 /**
  * Junta o cookie com o banco e corrige o que mudou desde que o item foi
@@ -93,6 +123,7 @@ export async function obterCarrinho(): Promise<Carrinho> {
       subtotalEmCentavos: 0,
       avisos: [],
       precisaSincronizar: false,
+      atacado: await resumoDoAtacado([]),
     };
   }
 
@@ -198,5 +229,6 @@ export async function obterCarrinho(): Promise<Carrinho> {
     ),
     avisos: [...new Set(avisos)],
     precisaSincronizar,
+    atacado: await resumoDoAtacado(disponiveis),
   };
 }

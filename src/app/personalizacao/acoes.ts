@@ -77,7 +77,7 @@ const esquemaPersonalizacao = z
       z.number().int().min(0).max(QUANTIDADE_MAXIMA_POR_TAMANHO, `No máximo ${QUANTIDADE_MAXIMA_POR_TAMANHO} por tamanho.`),
     ),
     posicoes: z
-      .array(z.enum(["FRENTE_PEITO", "FRENTE_GRANDE", "COSTAS"]))
+      .array(z.enum(["FRENTE_PEITO", "FRENTE_GRANDE", "COSTAS"], "Posição inválida."))
       .min(1, "Escolha pelo menos uma posição para a estampa.")
       .max(3),
     descricao: z.string().trim().max(2000, "Texto longo demais (máximo de 2.000 caracteres).").optional(),

@@ -21,7 +21,7 @@ const categorias: Categoria[] = [
     },
   },
   { linha: "Com a sua arte", nome: "Personalizadas", href: "/personalizacao" },
-  { linha: "Em quantidade", nome: "Atacado", href: "/#atacado" },
+  { linha: "Em quantidade", nome: "Atacado", href: "/atacado" },
 ];
 
 export function Categorias() {
