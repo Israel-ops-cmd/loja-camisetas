@@ -10,14 +10,7 @@ import {
   rotulosDePosicao,
 } from "@/lib/personalizacao-regras";
 
-export function Painel({ titulo, children }: { titulo: string; children: React.ReactNode }) {
-  return (
-    <section className="rounded-[20px] bg-papel p-6 sm:p-8">
-      <h2 className="sobretitulo">{titulo}</h2>
-      <div className="mt-4">{children}</div>
-    </section>
-  );
-}
+export { Painel } from "@/components/ui/Painel";
 
 /** Peça, cor, posições, quantidades, prazo e descrição. */
 export function ResumoDaPersonalizacao({ p }: { p: PersonalizacaoDetalhada }) {
