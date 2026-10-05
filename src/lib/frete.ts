@@ -81,12 +81,20 @@ export type CotacaoDoCarrinho =
     }
   | { ok: false; cep: string; erro: string };
 
-export async function cotarFreteDoCarrinho(
+export function cotarFreteDoCarrinho(
   carrinho: Carrinho,
   cep: string,
   servicoId: number | null,
 ): Promise<CotacaoDoCarrinho> {
-  const pacotes = pacotesDoCarrinho(carrinho);
+  return cotarFrete(pacotesDoCarrinho(carrinho), cep, servicoId);
+}
+
+/** Cota qualquer conjunto de pacotes (carrinho ou personalização). */
+export async function cotarFrete(
+  pacotes: PacoteDoItem[],
+  cep: string,
+  servicoId: number | null,
+): Promise<CotacaoDoCarrinho> {
   if (pacotes.length === 0) {
     return { ok: false, cep, erro: "Adicione produtos para calcular o frete." };
   }
