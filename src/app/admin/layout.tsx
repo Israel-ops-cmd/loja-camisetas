@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { NavegacaoDoPainel } from "@/components/admin/NavegacaoDoPainel";
 import { exigirAdministrador } from "@/lib/auth";
 
 export const metadata: Metadata = {
@@ -13,5 +14,10 @@ export const metadata: Metadata = {
  */
 export default async function LayoutAdmin({ children }: LayoutProps<"/admin">) {
   await exigirAdministrador();
-  return children;
+  return (
+    <>
+      <NavegacaoDoPainel />
+      {children}
+    </>
+  );
 }
