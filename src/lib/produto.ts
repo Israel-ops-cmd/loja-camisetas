@@ -4,8 +4,7 @@ import { cache } from "react";
 
 import { prisma } from "@/lib/prisma";
 
-/** Abaixo deste estoque, a página mostra "Últimas N unidades". */
-export const LIMITE_ULTIMAS_UNIDADES = 3;
+export { LIMITE_ULTIMAS_UNIDADES } from "@/lib/estoque-regras";
 
 export type ProdutoDetalhe = {
   id: string;

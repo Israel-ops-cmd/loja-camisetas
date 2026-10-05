@@ -46,3 +46,10 @@ export function descreverFaixa(faixa: FaixaDeDesconto, seguinte?: FaixaDeDescont
     ? `${faixa.minimoDePecas} a ${seguinte.minimoDePecas - 1} peças`
     : `${faixa.minimoDePecas} peças ou mais`;
 }
+
+/** Travas do editor da tabela no painel (contra erro de digitação). */
+export const LIMITES_DA_TABELA = {
+  faixas: 5,
+  minimoDePecas: { minimo: 2, maximo: 10_000 },
+  percentual: { minimo: 1, maximo: 50 },
+};

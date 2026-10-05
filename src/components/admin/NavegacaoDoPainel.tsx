@@ -6,6 +6,8 @@ import { usePathname } from "next/navigation";
 const SECOES = [
   { href: "/admin", rotulo: "Início" },
   { href: "/admin/produtos", rotulo: "Produtos" },
+  { href: "/admin/estoque", rotulo: "Estoque" },
+  { href: "/admin/atacado", rotulo: "Atacado" },
   { href: "/admin/personalizacoes", rotulo: "Personalizações" },
   { href: "/admin/orcamentos", rotulo: "Orçamentos" },
 ];

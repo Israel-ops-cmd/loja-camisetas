@@ -62,12 +62,13 @@ Lista do que ficou para depois durante o desenvolvimento. Marque com `[x]` o que
 
 - [x] Definir o que acontece quando o pagamento é confirmado e o estoque já acabou: o pedido fica PAGO com alerta para o administrador decidir entre produzir ou estornar (opção C). O estoque fica negativo, indicando quantas peças faltam.
 - [ ] Cancelamento automático de pedidos não pagos depois de 3 dias, com uma tarefa agendada (Vercel Cron). Hoje a cobrança vence em 3 dias e o pedido mostra que o prazo terminou, mas continua como "Aguardando pagamento".
+- [ ] Marcar pedidos como "Enviado" pelo painel (etapa 13). A correção de contagem do estoque desconta as peças de pedidos "Pago" e "Em separação", que ainda estão na prateleira esperando envio (`STATUS_ESPERANDO_ENVIO` em `src/lib/estoque-regras.ts`). Enquanto não der para marcar o envio, todo pedido pago conta como peça na prateleira, e a contagem fica errada depois que as peças saírem.
 - [ ] Mostrar no painel os alertas dos pedidos (pago sem estoque, valor divergente, pagamento aprovado em pedido cancelado) e permitir estornar pelo painel (etapa 13).
 - [ ] E-mail de confirmação do pedido para o cliente (etapa 14). Hoje ele vê o pedido só na página do pedido e em "Minha conta".
 
 ### Atacado e orçamentos
 
-- [ ] Editar a tabela de desconto do atacado pelo painel (etapa 12): faixas, percentuais e ligar/desligar.
+- [x] Editar a tabela de desconto do atacado pelo painel (etapa 12, `/admin/atacado`): faixas, percentuais e ligar/desligar. Travas: até 5 faixas, de 1% a 50%, a partir de 2 peças, desconto maior para quantidade maior.
 - [ ] Aviso por e-mail para a loja quando chega um pedido de orçamento (etapa 14). Hoje a loja precisa abrir o painel (o início mostra quantos orçamentos novos há).
 - [ ] Na política de privacidade (etapa 15), dizer por quanto tempo os dados dos orçamentos ficam guardados e como pedir a exclusão. O formulário avisa: "Usamos seus dados só para responder a este orçamento".
 - [ ] O limite de 3 orçamentos por hora usa o IP informado pela Vercel (`x-forwarded-for`). Conferir em produção que ele vem preenchido; no computador local, todos os envios contam como o mesmo IP.
@@ -86,12 +87,12 @@ Lista do que ficou para depois durante o desenvolvimento. Marque com `[x]` o que
 Desde a etapa 12, produtos, preços, cores, tamanhos, descrições e fotos são cadastrados pelo painel (`/admin/produtos`). Os dados de exemplo são trocados à mão por ali antes de publicar (decisão: sem botão de apagar dados de exemplo; produtos e variações nunca são apagados, só escondidos).
 
 - [ ] Preços reais de cada produto.
-- [ ] Cores e tamanhos disponíveis de cada produto, com o estoque real. Combinação nova criada pelo painel começa com estoque 0; o lançamento de estoque entra na etapa 12b (`feat/admin-estoque`).
+- [ ] Cores e tamanhos disponíveis de cada produto, com o estoque real. Combinação nova criada pelo painel começa com estoque 0; o estoque real é lançado em Estoque (`/admin/estoque`), com "Chegaram peças" ou "Corrigir contagem". Hoje todas as variações de exemplo estão com 10 peças.
 - [ ] Descrição de cada produto. Hoje a página mostra o marcador `[DESCRIÇÃO DO PRODUTO]`.
 - [ ] Esconder pelo painel (desligar "Mostrar na loja") os produtos de exemplo que não forem vendidos de verdade.
 - [ ] Tabela de medidas por tamanho. Hoje a página mostra o marcador `[TABELA DE MEDIDAS]`.
 - [ ] Produtos reais da categoria "Camisetas Básicas". Hoje ela tem só a "Camiseta lisa" de exemplo (seed: branca, preta, azul-marinho e off-white, P a GG, preço de teste R$ 1,00), que também é a peça base da personalização.
-- [ ] **Confirmar com o pai do Israel a tabela de desconto do atacado.** Hoje está a tabela PROVISÓRIA: 10 a 19 peças, 5%; 20 a 49, 10%; 50 ou mais, 15% (total de peças do carrinho, produtos misturados). Os valores ficam na tabela `faixas_atacado` do banco (criada pelo seed em `prisma/seed.ts`, `FAIXAS_ATACADO_PROVISORIAS`) e vão ser editáveis pelo painel na etapa 12. Se mudar antes disso, alterar direto no banco: o seed não sobrescreve valores existentes.
+- [ ] **Confirmar com o pai do Israel a tabela de desconto do atacado.** Hoje está a tabela PROVISÓRIA: 10 a 19 peças, 5%; 20 a 49, 10%; 50 ou mais, 15% (total de peças do carrinho, produtos misturados). Os valores ficam na tabela `faixas_atacado` do banco (criada pelo seed em `prisma/seed.ts`, `FAIXAS_ATACADO_PROVISORIAS`) e são editáveis pelo painel em Atacado (`/admin/atacado`).
 - [ ] CNPJ, cidade, WhatsApp, e-mail, horário de atendimento e Instagram para o rodapé.
 - [ ] Respostas das perguntas frequentes, prazos de produção e entrega.
 - [ ] Política de troca e devolução.
@@ -135,6 +136,7 @@ Desde a etapa 12, produtos, preços, cores, tamanhos, descrições e fotos são 
 - [ ] Editor de estampa na tela para a personalização (hoje é formulário com envio de arte).
 - [ ] Painel de produtos: reduzir as fotos no navegador antes de enviar. Hoje vão no tamanho original (até 10 MB); o site já mostra versões otimizadas, mas o original ocupa espaço no Storage (1 GB no plano gratuito do Supabase).
 - [ ] Painel de produtos: arrastar para reordenar fotos (hoje são botões "Subir" e "Descer") e editar ou esconder cores e tamanhos já criados (hoje só dá para criar).
+- [ ] Estoque: lançar a chegada de um lote com vários tamanhos numa tela só. Hoje é um tamanho por vez.
 - [ ] Limpeza de fotos órfãs na pasta `produtos` do Storage: arquivo enviado sem chegar a ser registrado (por exemplo, internet caiu no meio). Fazer junto com a limpeza da pasta `personalizacao`.
 - [ ] Avaliar se o texto do hero e do menu deve dizer que a loja é de camisetas cristãs.
 - [ ] Depoimentos de clientes, quando houver avaliações reais.

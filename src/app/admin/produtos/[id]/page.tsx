@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Check, Circle, ExternalLink } from "lucide-react";
+import { Boxes, Check, Circle, ExternalLink } from "lucide-react";
 import { z } from "zod";
 
 import { FormularioProduto } from "@/components/admin/FormularioProduto";
@@ -80,6 +80,15 @@ export default async function PaginaEditarProduto({ params, searchParams }: Page
                 </li>
               ))}
             </ul>
+            {aVenda.length > 0 && (
+              <Link
+                href={`/admin/estoque?produto=${produto.id}`}
+                className="mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full border border-tinta px-6 text-[15px] font-bold hover:bg-fundo sm:w-auto"
+              >
+                <Boxes aria-hidden="true" className="size-5" strokeWidth={1.8} />
+                Lançar estoque deste produto
+              </Link>
+            )}
           </section>
 
           <Painel titulo="Dados do produto">
