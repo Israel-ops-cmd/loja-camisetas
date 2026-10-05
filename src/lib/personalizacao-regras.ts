@@ -51,7 +51,12 @@ export const rotulosDeStatusDaPersonalizacao: Record<StatusPersonalizacao, strin
   APROVADA: "Aprovado",
   CONVERTIDA: "Virou pedido",
   CANCELADA: "Cancelado",
+  RECUSADA: "Recusado",
 };
+
+/** Texto que o cliente confirma ao enviar a arte. A data da confirmação fica no pedido. */
+export const DECLARACAO_DE_DIREITOS =
+  "Declaro que tenho direito de usar a arte, as imagens, os textos e as marcas enviados (sou o autor ou tenho autorização de quem é) e que eles não violam direitos de outras pessoas.";
 
 export function formatarNumeroDaPersonalizacao(numero: number) {
   return `nº ${numero}`;

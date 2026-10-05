@@ -294,6 +294,8 @@ enum StatusPersonalizacao {
   /// Virou um pedido (pagamento pelo fluxo normal).
   CONVERTIDA
   CANCELADA
+  /// Recusado pela loja (ex.: arte sem direito de uso). O motivo aparece para o cliente.
+  RECUSADA
 
   @@map("status_personalizacao")
 }
@@ -341,8 +343,15 @@ model Personalizacao {
   descricao     String?
   prazoDesejado DateTime? @db.Date
 
+  /// Quando o cliente declarou ter direito de uso da arte enviada
+  /// (obrigatório para enviar o pedido; nulo só em pedidos anteriores à regra).
+  declaracaoDireitosEm DateTime?
+
   /// Definido pelo administrador ao enviar a prévia.
   precoUnitarioEmCentavos Int?
+
+  /// Motivo da recusa, mostrado ao cliente.
+  motivoRecusa String?
 
   /// Pedido criado depois da aprovação.
   pedidoId String? @unique @db.Uuid

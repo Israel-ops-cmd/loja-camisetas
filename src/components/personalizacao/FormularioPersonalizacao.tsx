@@ -15,6 +15,7 @@ import { SeletorQuantidade } from "@/components/ui/SeletorQuantidade";
 import type { PosicaoEstampa } from "@/generated/prisma/enums";
 import type { PecaPersonalizavel } from "@/lib/personalizacao";
 import {
+  DECLARACAO_DE_DIREITOS,
   FORMATOS_DE_ARTE,
   MAXIMO_DE_ARQUIVOS,
   ordemDasPosicoes,
@@ -38,6 +39,7 @@ export function FormularioPersonalizacao({
   const [arquivos, setArquivos] = useState<ArquivoEnviado[]>([]);
   const [descricao, setDescricao] = useState("");
   const [prazo, setPrazo] = useState("");
+  const [declaracao, setDeclaracao] = useState(false);
   const [enviandoArquivo, setEnviandoArquivo] = useState(false);
   const [erros, setErros] = useState<Record<string, string>>({});
   const [erroGeral, setErroGeral] = useState<string | null>(null);
@@ -75,6 +77,7 @@ export function FormularioPersonalizacao({
         descricao: descricao || undefined,
         prazoDesejado: prazo || undefined,
         arquivos: arquivos.map(({ caminho, nome }) => ({ caminho, nome })),
+        declaracao,
       });
       if (!resultado) return;
       setErroGeral(resultado.erro);
@@ -245,6 +248,23 @@ export function FormularioPersonalizacao({
           <p className="mt-3 text-[15px] text-apoio">
             A gente prepara a prévia da estampa e o preço. Você só paga depois de aprovar.
           </p>
+          <label className="mt-5 flex cursor-pointer items-start gap-3 text-[14px] leading-snug">
+            <input
+              type="checkbox"
+              checked={declaracao}
+              onChange={(e) => setDeclaracao(e.target.checked)}
+              required
+              aria-invalid={erros.declaracao ? true : undefined}
+              aria-describedby={erros.declaracao ? "erro-declaracao" : undefined}
+              className="mt-0.5 size-5 shrink-0 accent-tinta"
+            />
+            <span>{DECLARACAO_DE_DIREITOS}</span>
+          </label>
+          {erros.declaracao && (
+            <p id="erro-declaracao" className="mt-2 text-[13px] font-semibold">
+              {erros.declaracao}
+            </p>
+          )}
           {erroGeral && (
             <div className="mt-4">
               <Aviso tipo="erro">{erroGeral}</Aviso>

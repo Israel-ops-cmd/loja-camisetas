@@ -89,6 +89,7 @@ const esquemaPersonalizacao = z
     arquivos: z
       .array(z.object({ caminho: z.string().min(1).max(300), nome: z.string().min(1).max(200) }))
       .max(MAXIMO_DE_ARQUIVOS, `Envie no máximo ${MAXIMO_DE_ARQUIVOS} arquivos.`),
+    declaracao: z.literal(true, "Confirme que você tem direito de usar a arte enviada."),
   })
   .refine((d) => Object.values(d.quantidades).some((q) => q > 0), {
     message: "Informe a quantidade de pelo menos um tamanho.",
@@ -153,6 +154,8 @@ export async function enviarPersonalizacao(dados: unknown): Promise<ResultadoDaP
       posicoes: d.posicoes,
       descricao: d.descricao || null,
       prazoDesejado: d.prazoDesejado ? new Date(`${d.prazoDesejado}T12:00:00Z`) : null,
+      // A validação acima exige a declaração; o momento dela fica registrado.
+      declaracaoDireitosEm: new Date(),
       itens: {
         create: tamanhosPedidos.map(([tamanhoId, quantidade]) => ({ tamanhoId, quantidade })),
       },
