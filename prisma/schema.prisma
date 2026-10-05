@@ -23,47 +23,50 @@ model Categoria {
 }
 
 model Produto {
-  id                  String          @id @default(uuid(7)) @db.Uuid
+  id                  String           @id @default(uuid(7)) @db.Uuid
   nome                String
-  slug                String          @unique
+  slug                String           @unique
   descricao           String?
   precoBaseEmCentavos Int
-  ativo               Boolean         @default(true)
-  destaque            Boolean         @default(false)
+  ativo               Boolean          @default(true)
+  destaque            Boolean          @default(false)
   // Pacote de uma unidade, para o cálculo de frete. Padrão PROVISÓRIO
   // (camiseta embalada estimada): confirmar com a medida real.
-  pesoEmGramas        Int             @default(300)
-  larguraCm           Int             @default(22)
-  alturaCm            Int             @default(4)
-  comprimentoCm       Int             @default(28)
-  categoriaId         String          @db.Uuid
-  categoria           Categoria       @relation(fields: [categoriaId], references: [id])
+  pesoEmGramas        Int              @default(300)
+  larguraCm           Int              @default(22)
+  alturaCm            Int              @default(4)
+  comprimentoCm       Int              @default(28)
+  categoriaId         String           @db.Uuid
+  categoria           Categoria        @relation(fields: [categoriaId], references: [id])
   variacoes           Variacao[]
   imagens             ProdutoImagem[]
-  criadoEm            DateTime        @default(now())
-  atualizadoEm        DateTime        @updatedAt
+  personalizacoes     Personalizacao[]
+  criadoEm            DateTime         @default(now())
+  atualizadoEm        DateTime         @updatedAt
 
   @@index([categoriaId])
   @@map("produtos")
 }
 
 model Cor {
-  id        String          @id @default(uuid(7)) @db.Uuid
-  nome      String          @unique
+  id              String           @id @default(uuid(7)) @db.Uuid
+  nome            String           @unique
   /// Hexadecimal, ex.: #141414
-  hex       String
-  variacoes Variacao[]
-  imagens   ProdutoImagem[]
+  hex             String
+  variacoes       Variacao[]
+  imagens         ProdutoImagem[]
+  personalizacoes Personalizacao[]
 
   @@map("cores")
 }
 
 model Tamanho {
-  id        String     @id @default(uuid(7)) @db.Uuid
-  nome      String     @unique
+  id                    String               @id @default(uuid(7)) @db.Uuid
+  nome                  String               @unique
   /// Ordem de exibição (P antes de M...)
-  ordem     Int
-  variacoes Variacao[]
+  ordem                 Int
+  variacoes             Variacao[]
+  itensDePersonalizacao PersonalizacaoItem[]
 
   @@map("tamanhos")
 }
@@ -139,16 +142,17 @@ model MovimentacaoEstoque {
 
 model Cliente {
   /// Mesmo id do usuário no Supabase Auth (auth.users.id).
-  id           String     @id @db.Uuid
-  nome         String
-  email        String     @unique
-  telefone     String?
+  id              String           @id @db.Uuid
+  nome            String
+  email           String           @unique
+  telefone        String?
   /// Opcional no cadastro; exigido no checkout (boleto e etiqueta de envio).
-  cpf          String?
-  enderecos    Endereco[]
-  pedidos      Pedido[]
-  criadoEm     DateTime   @default(now())
-  atualizadoEm DateTime   @updatedAt
+  cpf             String?
+  enderecos       Endereco[]
+  pedidos         Pedido[]
+  personalizacoes Personalizacao[]
+  criadoEm        DateTime         @default(now())
+  atualizadoEm    DateTime         @updatedAt
 
   @@map("clientes")
 }
@@ -247,10 +251,12 @@ model Pedido {
   /// divergente). Nulo quando está tudo certo.
   alerta String?
 
-  itens         ItemPedido[]
-  movimentacoes MovimentacaoEstoque[]
-  criadoEm      DateTime              @default(now())
-  atualizadoEm  DateTime              @updatedAt
+  itens          ItemPedido[]
+  movimentacoes  MovimentacaoEstoque[]
+  /// Preenchido quando o pedido nasce de uma personalização aprovada.
+  personalizacao Personalizacao?
+  criadoEm       DateTime              @default(now())
+  atualizadoEm   DateTime              @updatedAt
 
   @@index([clienteId])
   @@index([status])
@@ -274,4 +280,123 @@ model ItemPedido {
 
   @@index([pedidoId])
   @@map("itens_pedido")
+}
+
+// ---------------------------------------------------------------- Personalização
+
+enum StatusPersonalizacao {
+  /// Enviado pelo cliente, esperando a prévia.
+  RECEBIDA
+  PREVIA_ENVIADA
+  AJUSTE_SOLICITADO
+  /// Cliente aprovou; falta escolher entrega e pagar.
+  APROVADA
+  /// Virou um pedido (pagamento pelo fluxo normal).
+  CONVERTIDA
+  CANCELADA
+
+  @@map("status_personalizacao")
+}
+
+enum PosicaoEstampa {
+  FRENTE_PEITO
+  FRENTE_GRANDE
+  COSTAS
+
+  @@map("posicao_estampa")
+}
+
+enum TipoArquivoPersonalizacao {
+  ARTE
+  PREVIA
+
+  @@map("tipo_arquivo_personalizacao")
+}
+
+enum AutorMensagem {
+  CLIENTE
+  LOJA
+
+  @@map("autor_mensagem")
+}
+
+/// Pedido de camiseta com a arte do cliente. O preço é orçado caso a caso
+/// pelo administrador junto com a prévia.
+model Personalizacao {
+  id     String               @id @default(uuid(7)) @db.Uuid
+  /// Número mostrado ao cliente ("Personalização nº 1").
+  numero Int                  @unique @default(autoincrement())
+  status StatusPersonalizacao @default(RECEBIDA)
+
+  clienteId String           @db.Uuid
+  cliente   Cliente          @relation(fields: [clienteId], references: [id])
+  /// Peça base (camiseta lisa), cor escolhida e posições da estampa.
+  produtoId String           @db.Uuid
+  produto   Produto          @relation(fields: [produtoId], references: [id])
+  corId     String           @db.Uuid
+  cor       Cor              @relation(fields: [corId], references: [id])
+  posicoes  PosicaoEstampa[]
+
+  /// Ideia, textos da estampa e observações do cliente.
+  descricao     String?
+  prazoDesejado DateTime? @db.Date
+
+  /// Definido pelo administrador ao enviar a prévia.
+  precoUnitarioEmCentavos Int?
+
+  /// Pedido criado depois da aprovação.
+  pedidoId String? @unique @db.Uuid
+  pedido   Pedido? @relation(fields: [pedidoId], references: [id])
+
+  itens     PersonalizacaoItem[]
+  arquivos  PersonalizacaoArquivo[]
+  mensagens PersonalizacaoMensagem[]
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  @@index([clienteId])
+  @@index([status])
+  @@map("personalizacoes")
+}
+
+model PersonalizacaoItem {
+  id               String         @id @default(uuid(7)) @db.Uuid
+  quantidade       Int
+  personalizacaoId String         @db.Uuid
+  personalizacao   Personalizacao @relation(fields: [personalizacaoId], references: [id], onDelete: Cascade)
+  tamanhoId        String         @db.Uuid
+  tamanho          Tamanho        @relation(fields: [tamanhoId], references: [id])
+
+  @@unique([personalizacaoId, tamanhoId])
+  @@map("personalizacao_itens")
+}
+
+/// Arquivo guardado no Supabase Storage (pasta privada "personalizacao").
+model PersonalizacaoArquivo {
+  id               String                    @id @default(uuid(7)) @db.Uuid
+  tipo             TipoArquivoPersonalizacao
+  /// Caminho no Storage: "<clienteId>/artes/..." ou "<clienteId>/previas/...".
+  caminho          String                    @unique
+  nomeOriginal     String
+  tamanhoBytes     Int
+  personalizacaoId String                    @db.Uuid
+  personalizacao   Personalizacao            @relation(fields: [personalizacaoId], references: [id], onDelete: Cascade)
+  criadoEm         DateTime                  @default(now())
+
+  @@index([personalizacaoId])
+  @@map("personalizacao_arquivos")
+}
+
+/// Pedidos de ajuste do cliente e recados da loja junto com a prévia.
+model PersonalizacaoMensagem {
+  id               String         @id @default(uuid(7)) @db.Uuid
+  autor            AutorMensagem
+  texto            String
+  personalizacaoId String         @db.Uuid
+  personalizacao   Personalizacao @relation(fields: [personalizacaoId], references: [id], onDelete: Cascade)
+  criadoEm         DateTime       @default(now())
+
+  @@index([personalizacaoId])
+  @@map("personalizacao_mensagens")
 }

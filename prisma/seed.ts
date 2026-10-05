@@ -92,6 +92,17 @@ const produtos = [
   },
 ];
 
+// Camisetas lisas: categoria "Camisetas Básicas". Também são a peça base da
+// personalização. Sem foto até haver fotos próprias.
+const lisas = [
+  {
+    slug: "camiseta-lisa",
+    codigo: "LIS",
+    nome: "Camiseta lisa",
+    cores: ["Branca", "Preta", "Azul-marinho", "Off-white"],
+  },
+];
+
 async function main() {
   for (const categoria of categorias) {
     await prisma.categoria.upsert({
@@ -178,6 +189,54 @@ async function main() {
           },
         },
       });
+    }
+  }
+
+  const basicas = await prisma.categoria.findUniqueOrThrow({
+    where: { slug: "basicas" },
+  });
+
+  for (const dados of lisas) {
+    const produto = await prisma.produto.upsert({
+      where: { slug: dados.slug },
+      update: {},
+      create: {
+        slug: dados.slug,
+        nome: dados.nome,
+        precoBaseEmCentavos: PRECO_DE_TESTE_EM_CENTAVOS,
+        categoriaId: basicas.id,
+      },
+    });
+
+    for (const nomeDaCor of dados.cores) {
+      const cor = await prisma.cor.findUniqueOrThrow({ where: { nome: nomeDaCor } });
+      const codigoCor = cores.find((c) => c.nome === nomeDaCor)!.codigo;
+
+      for (const nomeTamanho of tamanhos) {
+        const tamanho = await prisma.tamanho.findUniqueOrThrow({
+          where: { nome: nomeTamanho },
+        });
+        const chave = { produtoId: produto.id, corId: cor.id, tamanhoId: tamanho.id };
+        const existente = await prisma.variacao.findUnique({
+          where: { produtoId_corId_tamanhoId: chave },
+        });
+        if (existente) continue;
+
+        await prisma.variacao.create({
+          data: {
+            ...chave,
+            sku: `CV-${dados.codigo}-${codigoCor}-${nomeTamanho}`,
+            estoque: ESTOQUE_DE_TESTE,
+            movimentacoes: {
+              create: {
+                quantidade: ESTOQUE_DE_TESTE,
+                motivo: "ENTRADA",
+                observacao: "Estoque inicial de teste (seed)",
+              },
+            },
+          },
+        });
+      }
     }
   }
 
