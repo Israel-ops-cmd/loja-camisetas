@@ -8,7 +8,10 @@ import { z } from "zod";
 import {
   LIMITE_DE_ENVIOS_POR_HORA,
   QUANTIDADE_MAXIMA_DO_ORCAMENTO,
+  rotulosDeTipoDePeca,
 } from "@/lib/orcamento-regras";
+import { enviarDepois } from "@/lib/emails/envio";
+import { emailsDeOrcamento, urlDoSite } from "@/lib/emails/eventos";
 import { prisma } from "@/lib/prisma";
 import { apenasDigitos, telefoneValido, UFS } from "@/lib/validacao-br";
 
@@ -84,22 +87,29 @@ export async function enviarOrcamento(dados: unknown): Promise<ResultadoDoOrcame
     };
   }
 
-  const orcamento = await prisma.orcamento.create({
-    data: {
-      nome: d.nome,
-      empresa: d.empresa || null,
-      email: d.email,
-      telefone: apenasDigitos(d.telefone),
-      cidade: d.cidade,
-      uf: d.uf,
-      tipoDePeca: d.tipoDePeca,
-      quantidade: d.quantidade,
-      prazoDesejado: d.prazoDesejado ? new Date(`${d.prazoDesejado}T12:00:00Z`) : null,
-      mensagem: d.mensagem || null,
-      ipHash,
-    },
-    select: { numero: true },
+  // Confirmação para quem pediu e aviso para a loja, na mesma transação.
+  const site = await urlDoSite();
+  const emails: string[] = [];
+  const orcamento = await prisma.$transaction(async (tx) => {
+    const criado = await tx.orcamento.create({
+      data: {
+        nome: d.nome,
+        empresa: d.empresa || null,
+        email: d.email,
+        telefone: apenasDigitos(d.telefone),
+        cidade: d.cidade,
+        uf: d.uf,
+        tipoDePeca: d.tipoDePeca,
+        quantidade: d.quantidade,
+        prazoDesejado: d.prazoDesejado ? new Date(`${d.prazoDesejado}T12:00:00Z`) : null,
+        mensagem: d.mensagem || null,
+        ipHash,
+      },
+    });
+    emails.push(...(await emailsDeOrcamento(tx, { ...criado, tipoDePeca: rotulosDeTipoDePeca[criado.tipoDePeca] }, site)));
+    return criado;
   });
+  enviarDepois(emails);
 
   return { ok: true, numero: orcamento.numero };
 }

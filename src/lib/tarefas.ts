@@ -1,5 +1,7 @@
 import "server-only";
 
+import { enviarEmails, reenviarEmailsAtrasados } from "@/lib/emails/envio";
+import { emailDeCancelamento, emailDeLembrete, urlDoSite } from "@/lib/emails/eventos";
 import { expirarCobranca } from "@/lib/mercado-pago";
 import { conferirPagamentosDoPedido, prazoDePagamento, PRAZO_DE_PAGAMENTO_DIAS, registrar } from "@/lib/pagamento";
 import { prisma } from "@/lib/prisma";
@@ -30,6 +32,8 @@ export type ResumoDaTarefa = {
   viraramPagos: number[];
   cancelados: number[];
   esperandoCompensacao: number[];
+  lembretes: number[];
+  emails: { tentados: number; enviados: number };
   erros: { numero: number; erro: string }[];
 };
 
@@ -58,7 +62,7 @@ async function conferirPendentes(resumo: ResumoDaTarefa) {
 }
 
 /** Cancela os pedidos não pagos cujo prazo terminou (com tolerância para boleto). */
-async function cancelarVencidos(resumo: ResumoDaTarefa, agora: Date) {
+async function cancelarVencidos(resumo: ResumoDaTarefa, agora: Date, site: string) {
   const vencidos = await prisma.pedido.findMany({
     where: { status: "AGUARDANDO_PAGAMENTO", criadoEm: { lt: new Date(agora.getTime() - PRAZO_DE_PAGAMENTO_DIAS * DIA) } },
     orderBy: { criadoEm: "asc" },
@@ -83,21 +87,24 @@ async function cancelarVencidos(resumo: ResumoDaTarefa, agora: Date) {
           return { tipo: "esperando" as const };
         }
 
-        await tx.pedido.update({
+        const cancelado = await tx.pedido.update({
           where: { id },
           data: { status: "CANCELADO", canceladoEm: agora, motivoCancelamento: MOTIVO_DO_CANCELAMENTO_POR_PRAZO },
+          include: { itens: true },
         });
+        const emails = await emailDeCancelamento(tx, cancelado, "prazo", site);
         await registrar(
           tx,
           id,
           `Cancelado automaticamente: o prazo para pagar terminou em ${fimDoPrazo.toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" })}${emAndamento ? ` e o pagamento pendente não foi compensado em ${TOLERANCIA_PARA_COMPENSACAO_DIAS} dias` : ""}.`,
         );
-        return { tipo: "cancelado" as const, preferencia: pedido.mercadoPagoPreferenciaId };
+        return { tipo: "cancelado" as const, preferencia: pedido.mercadoPagoPreferenciaId, emails };
       });
 
       if (resultado.tipo === "cancelado") {
         resumo.cancelados.push(numero);
         if (resultado.preferencia) await expirarCobranca(resultado.preferencia);
+        await enviarEmails(resultado.emails);
       } else if (resultado.tipo === "esperando") {
         resumo.esperandoCompensacao.push(numero);
       }
@@ -107,10 +114,49 @@ async function cancelarVencidos(resumo: ResumoDaTarefa, agora: Date) {
   }
 }
 
+/**
+ * Lembrete de pagamento: pedido aguardando há mais de um dia, ainda dentro do
+ * prazo, recebe um e-mail (uma vez só por pedido, pela chave do e-mail).
+ */
+async function lembrarPagamentos(resumo: ResumoDaTarefa, agora: Date, site: string) {
+  const pedidos = await prisma.pedido.findMany({
+    where: {
+      status: "AGUARDANDO_PAGAMENTO",
+      criadoEm: { lt: new Date(agora.getTime() - DIA), gt: new Date(agora.getTime() - PRAZO_DE_PAGAMENTO_DIAS * DIA) },
+      OR: [{ mercadoPagoStatus: null }, { mercadoPagoStatus: { not: "valor_divergente" } }],
+    },
+    include: { itens: true },
+    orderBy: { criadoEm: "asc" },
+    take: LIMITE_POR_EXECUCAO,
+  });
+  for (const pedido of pedidos) {
+    const chave = `LEMBRETE_PAGAMENTO:${pedido.id}`;
+    if (await prisma.email.findUnique({ where: { chave }, select: { id: true } })) continue;
+    try {
+      const chaves = await emailDeLembrete(prisma, pedido, site, prazoDePagamento(pedido.criadoEm));
+      await enviarEmails(chaves);
+      resumo.lembretes.push(pedido.numero);
+    } catch (erro) {
+      resumo.erros.push({ numero: pedido.numero, erro: erro instanceof Error ? erro.message : String(erro) });
+    }
+  }
+}
+
 export async function executarTarefaDiaria(agora = new Date()): Promise<ResumoDaTarefa> {
-  const resumo: ResumoDaTarefa = { conferidos: 0, viraramPagos: [], cancelados: [], esperandoCompensacao: [], erros: [] };
-  // Primeiro confere: um pedido pago no último minuto não pode ser cancelado.
+  const resumo: ResumoDaTarefa = {
+    conferidos: 0,
+    viraramPagos: [],
+    cancelados: [],
+    esperandoCompensacao: [],
+    lembretes: [],
+    emails: { tentados: 0, enviados: 0 },
+    erros: [],
+  };
+  const site = await urlDoSite();
+  // Primeiro confere: um pedido pago no último minuto não pode ser cancelado nem lembrado.
   await conferirPendentes(resumo);
-  await cancelarVencidos(resumo, agora);
+  await cancelarVencidos(resumo, agora, site);
+  await lembrarPagamentos(resumo, agora, site);
+  resumo.emails = await reenviarEmailsAtrasados();
   return resumo;
 }

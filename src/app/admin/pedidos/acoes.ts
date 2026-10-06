@@ -10,6 +10,8 @@ import {
   estornarPagamentoNoMercadoPago,
   expirarCobranca,
 } from "@/lib/mercado-pago";
+import { enviarDepois } from "@/lib/emails/envio";
+import { emailDeCancelamento, emailDeEnvio, urlDoSite } from "@/lib/emails/eventos";
 import { administradorDaAcao, SEM_PERMISSAO } from "@/lib/painel";
 import { conferirPagamentosDoPedido, processarPagamento, registrar } from "@/lib/pagamento";
 import { PROXIMA_SITUACAO, rotulosDeStatus, SITUACAO_ANTERIOR } from "@/lib/pedidos";
@@ -60,6 +62,8 @@ export async function mudarSituacao(numero: unknown, dados: unknown): Promise<Re
     return { ok: false, erro: "Digite o código de rastreio que está no comprovante de postagem (ex.: AB123456789BR)." };
   }
 
+  const site = await urlDoSite();
+  const emails: string[] = [];
   const resultado = await prisma.$transaction(async (tx) => {
     const pedido = await travar(tx, n);
     if (!pedido) return NAO_ENCONTRADO;
@@ -84,11 +88,17 @@ export async function mudarSituacao(numero: unknown, dados: unknown): Promise<Re
         : `Situação voltou de "${rotulosDeStatus[de]}" para "${rotulosDeStatus[para]}".`,
       admin.nome,
     );
+    // Primeira vez que fica "Enviado": avisa o cliente com o rastreio (uma vez só).
+    if (avancando && para === "ENVIADO") {
+      const completo = await tx.pedido.findUniqueOrThrow({ where: { id: pedido.id }, include: { itens: true } });
+      emails.push(...(await emailDeEnvio(tx, completo, site)));
+    }
     return null;
   });
 
   refresh();
   if (resultado) return { ok: false, erro: resultado };
+  enviarDepois(emails);
   return { ok: true, mensagem: `Pedido agora está "${rotulosDeStatus[para]}".` };
 }
 
@@ -96,7 +106,7 @@ export async function mudarSituacao(numero: unknown, dados: unknown): Promise<Re
 export async function conferirPagamento(numero: unknown): Promise<Resultado> {
   if (!(await administradorDaAcao())) return { ok: false, erro: SEM_PERMISSAO };
   const n = numeroDoPedido(numero);
-  const pedido = n ? await prisma.pedido.findUnique({ where: { numero: n }, select: { id: true, status: true } }) : null;
+  const pedido = n ? await prisma.pedido.findUnique({ where: { numero: n }, select: { id: true, status: true, alerta: true } }) : null;
   if (!pedido) return { ok: false, erro: NAO_ENCONTRADO };
 
   try {
@@ -105,14 +115,17 @@ export async function conferirPagamento(numero: unknown): Promise<Resultado> {
     return { ok: false, erro: erro instanceof ErroMercadoPago ? erro.message : "Não conseguimos conferir agora. Tente de novo." };
   }
   await prisma.pedido.update({ where: { id: pedido.id }, data: { pagamentoConferidoEm: new Date() } });
-  const depois = await prisma.pedido.findUniqueOrThrow({ where: { id: pedido.id }, select: { status: true } });
+  const depois = await prisma.pedido.findUniqueOrThrow({ where: { id: pedido.id }, select: { status: true, alerta: true } });
   refresh();
+  const novoAlerta = !!depois.alerta && depois.alerta !== pedido.alerta;
   return {
     ok: true,
     mensagem:
       depois.status !== pedido.status
-        ? `Conferido: o pedido mudou para "${rotulosDeStatus[depois.status]}".`
-        : "Conferido no Mercado Pago. Nada mudou.",
+        ? `Conferido: o pedido mudou para "${rotulosDeStatus[depois.status]}".${novoAlerta ? " Há um alerta para decidir." : ""}`
+        : novoAlerta
+          ? "Conferido: o Mercado Pago tem um pagamento que precisa de decisão. Veja o alerta no alto da página."
+          : "Conferido no Mercado Pago. Nada mudou.",
   };
 }
 
@@ -141,6 +154,8 @@ export async function cancelarPedido(numero: unknown, dados: unknown): Promise<R
     return { ok: false, erro: "Não conseguimos conferir o pagamento no Mercado Pago antes de cancelar. Tente de novo em instantes." };
   }
 
+  const site = await urlDoSite();
+  const emails: string[] = [];
   const resultado = await prisma.$transaction(async (tx) => {
     const travado = await travar(tx, n);
     if (!travado) return { erro: NAO_ENCONTRADO };
@@ -152,11 +167,13 @@ export async function cancelarPedido(numero: unknown, dados: unknown): Promise<R
     const atualizado = await tx.pedido.update({
       where: { id: travado.id },
       data: { status: "CANCELADO", canceladoEm: new Date(), motivoCancelamento: validacao.data.motivo },
-      select: { mercadoPagoPreferenciaId: true },
+      include: { itens: true },
     });
     await registrar(tx, travado.id, `Pedido cancelado antes do pagamento. Motivo: ${validacao.data.motivo}`, admin.nome);
+    emails.push(...(await emailDeCancelamento(tx, atualizado, "loja", site)));
     return { preferencia: atualizado.mercadoPagoPreferenciaId };
   });
+  enviarDepois(emails);
 
   refresh();
   if ("erro" in resultado) return { ok: false, erro: resultado.erro! };
@@ -222,6 +239,8 @@ export async function estornarPagamento(numero: unknown, dados: unknown): Promis
   }
 
   const ehDoPedido = pedido.mercadoPagoPagamentoId === pagamentoId;
+  // O motivo vai antes: o e-mail de cancelamento é gerado ao aplicar o estorno.
+  if (ehDoPedido) await prisma.pedido.update({ where: { id: pedido.id }, data: { motivoCancelamento: texto } });
   // Aplica o estorno no pedido (cancela e devolve o estoque, se for o pagamento dele).
   try {
     await processarPagamento(pagamentoId);
@@ -229,9 +248,6 @@ export async function estornarPagamento(numero: unknown, dados: unknown): Promis
     console.error(`[pedidos] estorno ${pagamentoId} feito, mas não aplicado ao pedido agora:`, erro);
   }
   await prisma.$transaction(async (tx) => {
-    if (ehDoPedido) {
-      await tx.pedido.update({ where: { id: pedido.id }, data: { motivoCancelamento: texto } });
-    }
     await registrar(
       tx,
       pedido.id,

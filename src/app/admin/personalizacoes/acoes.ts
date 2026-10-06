@@ -4,6 +4,8 @@ import { refresh } from "next/cache";
 import { z } from "zod";
 
 import { obterUsuario } from "@/lib/auth";
+import { enviarDepois } from "@/lib/emails/envio";
+import { emailDePreviaPronta, emailDeRecusa, personalizacaoParaEmail, urlDoSite } from "@/lib/emails/eventos";
 import { arquivosNoStorage, caminhoNovo, criarEnvioAssinado } from "@/lib/personalizacao";
 import {
   extensaoDoArquivo,
@@ -84,6 +86,8 @@ export async function enviarPrevia(numero: unknown, dados: unknown): Promise<Res
     return { ok: false, erro: "Alguma imagem não terminou de enviar. Envie de novo." };
   }
 
+  const site = await urlDoSite();
+  const emails: string[] = [];
   await prisma.$transaction(async (tx) => {
     await tx.personalizacaoArquivo.createMany({
       data: caminhos.map((caminho) => ({
@@ -104,9 +108,14 @@ export async function enviarPrevia(numero: unknown, dados: unknown): Promise<Res
       where: { id: personalizacao.id },
       data: { status: "PREVIA_ENVIADA", precoUnitarioEmCentavos: precoEmCentavos },
     });
+    // Um e-mail por prévia (a chave é o arquivo da prévia).
+    const previa = await tx.personalizacaoArquivo.findUniqueOrThrow({ where: { caminho: caminhos[0] }, select: { id: true } });
+    const dados = await personalizacaoParaEmail(tx, personalizacao.id);
+    emails.push(...(await emailDePreviaPronta(tx, dados, previa.id, precoEmCentavos, mensagem || null, site)));
   });
 
   refresh();
+  enviarDepois(emails);
   return { ok: true };
 }
 
@@ -151,16 +160,23 @@ export async function recusarPersonalizacao(numero: unknown, motivo: unknown): P
     .safeParse(motivo);
   if (!texto.success) return { ok: false, erro: texto.error.issues[0].message };
 
-  const { count } = await prisma.personalizacao.updateMany({
-    where: {
-      id: personalizacao.id,
-      status: { in: ["RECEBIDA", "AJUSTE_SOLICITADO", "PREVIA_ENVIADA", "APROVADA"] },
-    },
-    data: { status: "RECUSADA", motivoRecusa: texto.data },
+  const site = await urlDoSite();
+  const emails: string[] = [];
+  const count = await prisma.$transaction(async (tx) => {
+    const { count } = await tx.personalizacao.updateMany({
+      where: {
+        id: personalizacao.id,
+        status: { in: ["RECEBIDA", "AJUSTE_SOLICITADO", "PREVIA_ENVIADA", "APROVADA"] },
+      },
+      data: { status: "RECUSADA", motivoRecusa: texto.data },
+    });
+    if (count > 0) emails.push(...(await emailDeRecusa(tx, await personalizacaoParaEmail(tx, personalizacao.id), texto.data, site)));
+    return count;
   });
   if (count === 0) {
     return { ok: false, erro: "Esse pedido já virou pedido de compra, foi cancelado ou foi recusado." };
   }
   refresh();
+  enviarDepois(emails);
   return { ok: true };
 }

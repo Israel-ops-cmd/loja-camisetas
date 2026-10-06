@@ -13,6 +13,8 @@ import {
   validarDadosDoPedido,
   type ResultadoDoPedido,
 } from "@/lib/criar-pedido";
+import { enviarDepois } from "@/lib/emails/envio";
+import { emailDeAjuste, emailsDePersonalizacaoRecebida, personalizacaoParaEmail, urlDoSite } from "@/lib/emails/eventos";
 import { cotarFrete, type CotacaoDoCarrinho } from "@/lib/frete";
 import {
   arquivosNoStorage,
@@ -146,30 +148,38 @@ export async function enviarPersonalizacao(dados: unknown): Promise<ResultadoDaP
 
   await garantirCliente({ id: usuario.id, email: usuario.email, user_metadata: { nome: usuario.nome } });
 
-  const personalizacao = await prisma.personalizacao.create({
-    data: {
-      clienteId: usuario.id,
-      produtoId: d.produtoId,
-      corId: d.corId,
-      posicoes: d.posicoes,
-      descricao: d.descricao || null,
-      prazoDesejado: d.prazoDesejado ? new Date(`${d.prazoDesejado}T12:00:00Z`) : null,
-      // A validação acima exige a declaração; o momento dela fica registrado.
-      declaracaoDireitosEm: new Date(),
-      itens: {
-        create: tamanhosPedidos.map(([tamanhoId, quantidade]) => ({ tamanhoId, quantidade })),
+  // Confirmação para o cliente e aviso para a loja, na mesma transação.
+  const site = await urlDoSite();
+  const emails: string[] = [];
+  const personalizacao = await prisma.$transaction(async (tx) => {
+    const criada = await tx.personalizacao.create({
+      data: {
+        clienteId: usuario.id,
+        produtoId: d.produtoId,
+        corId: d.corId,
+        posicoes: d.posicoes,
+        descricao: d.descricao || null,
+        prazoDesejado: d.prazoDesejado ? new Date(`${d.prazoDesejado}T12:00:00Z`) : null,
+        // A validação acima exige a declaração; o momento dela fica registrado.
+        declaracaoDireitosEm: new Date(),
+        itens: {
+          create: tamanhosPedidos.map(([tamanhoId, quantidade]) => ({ tamanhoId, quantidade })),
+        },
+        arquivos: {
+          create: caminhos.map((caminho) => ({
+            tipo: "ARTE" as const,
+            caminho,
+            nomeOriginal: d.arquivos.find((a) => a.caminho === caminho)!.nome,
+            tamanhoBytes: noStorage.get(caminho)!,
+          })),
+        },
       },
-      arquivos: {
-        create: caminhos.map((caminho) => ({
-          tipo: "ARTE" as const,
-          caminho,
-          nomeOriginal: d.arquivos.find((a) => a.caminho === caminho)!.nome,
-          tamanhoBytes: noStorage.get(caminho)!,
-        })),
-      },
-    },
-    select: { numero: true },
+      select: { id: true, numero: true },
+    });
+    emails.push(...(await emailsDePersonalizacaoRecebida(tx, await personalizacaoParaEmail(tx, criada.id), site)));
+    return criada;
   });
+  enviarDepois(emails);
 
   redirect(`/conta/personalizacoes/${personalizacao.numero}?novo=1`);
 }
@@ -205,18 +215,24 @@ export async function pedirAjuste(numero: unknown, texto: unknown): Promise<Resu
   const validacao = z.string().trim().min(5, "Conte o que precisa mudar.").max(2000).safeParse(texto);
   if (!validacao.success) return { ok: false, erro: validacao.error.issues[0].message };
 
+  const site = await urlDoSite();
+  const emails: string[] = [];
   const ok = await prisma.$transaction(async (tx) => {
     const { count } = await tx.personalizacao.updateMany({
       where: { id: encontrado.personalizacao.id, status: "PREVIA_ENVIADA" },
       data: { status: "AJUSTE_SOLICITADO" },
     });
     if (count === 0) return false;
-    await tx.personalizacaoMensagem.create({
+    const mensagem = await tx.personalizacaoMensagem.create({
       data: { personalizacaoId: encontrado.personalizacao.id, autor: "CLIENTE", texto: validacao.data },
+      select: { id: true },
     });
+    const dados = await personalizacaoParaEmail(tx, encontrado.personalizacao.id);
+    emails.push(...(await emailDeAjuste(tx, dados, mensagem.id, validacao.data, site)));
     return true;
   });
   if (!ok) return { ok: false, erro: "Essa prévia não está mais esperando aprovação. Recarregue a página." };
+  enviarDepois(emails);
   refresh();
   return { ok: true };
 }

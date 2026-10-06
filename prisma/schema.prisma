@@ -504,3 +504,56 @@ model Orcamento {
   @@index([ipHash, criadoEm])
   @@map("orcamentos")
 }
+
+// ---------------------------------------------------------------- E-mails
+
+enum TipoEmail {
+  // Para o cliente
+  PAGAMENTO_APROVADO
+  PEDIDO_ENVIADO
+  PEDIDO_CANCELADO
+  LEMBRETE_PAGAMENTO
+  PREVIA_PRONTA
+  PERSONALIZACAO_RECUSADA
+  PERSONALIZACAO_RECEBIDA
+  ORCAMENTO_RECEBIDO
+  // Para a loja
+  LOJA_PEDIDO_PAGO
+  LOJA_ALERTA
+  LOJA_NOVA_PERSONALIZACAO
+  LOJA_AJUSTE_SOLICITADO
+  LOJA_NOVO_ORCAMENTO
+
+  @@map("tipo_email")
+}
+
+enum StatusEmail {
+  PENDENTE
+  ENVIADO
+  FALHOU
+
+  @@map("status_email")
+}
+
+/// Fila e registro dos e-mails. Gravado na mesma transação do evento (ex.:
+/// pedido pago) e enviado logo depois; a tarefa diária reenvia o que falhou.
+model Email {
+  id           String      @id @default(uuid(7)) @db.Uuid
+  tipo         TipoEmail
+  /// Evita o mesmo e-mail duas vezes (ex.: "PAGAMENTO_APROVADO:<pedidoId>").
+  chave        String      @unique
+  destinatario String
+  assunto      String
+  html         String
+  texto        String
+  status       StatusEmail @default(PENDENTE)
+  tentativas   Int         @default(0)
+  erro         String?
+  /// Id do e-mail no Resend.
+  idNoServico  String?
+  criadoEm     DateTime    @default(now())
+  enviadoEm    DateTime?
+
+  @@index([status, criadoEm])
+  @@map("emails")
+}
