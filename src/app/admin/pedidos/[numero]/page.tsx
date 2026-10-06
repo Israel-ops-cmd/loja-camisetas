@@ -9,8 +9,10 @@ import {
   CancelarPedido,
   EstornarPagamento,
 } from "@/components/admin/AcoesDoPedido";
+import { EtiquetaDoPedido } from "@/components/admin/EtiquetaDoPedido";
 import { Painel } from "@/components/ui/Painel";
 import { exigirAdministrador } from "@/lib/auth";
+import { remetenteIncompleto, situacaoDaEtiqueta } from "@/lib/etiquetas";
 import { formatarPreco } from "@/lib/formatacao";
 import { buscarPagamentosDoPedido, type PagamentoMercadoPago } from "@/lib/mercado-pago";
 import { prazoDePagamento } from "@/lib/pagamento";
@@ -61,6 +63,19 @@ export default async function PaginaAdminPedido({ params }: PageProps<"/admin/pe
   if (!pedido) notFound();
 
   // Pagamentos no Mercado Pago (só se o cliente chegou a abrir a cobrança).
+  // Etiqueta no Melhor Envio (situação lida na hora).
+  let etiqueta: Awaited<ReturnType<typeof situacaoDaEtiqueta>> | null = null;
+  let erroNaEtiqueta = false;
+  if (pedido.melhorEnvioEtiquetaId) {
+    try {
+      etiqueta = await situacaoDaEtiqueta(pedido.melhorEnvioEtiquetaId);
+    } catch {
+      erroNaEtiqueta = true;
+    }
+  }
+  const mostrarEtiqueta =
+    !!pedido.melhorEnvioEtiquetaId || ["PAGO", "EM_SEPARACAO"].includes(pedido.status);
+
   let pagamentos: PagamentoMercadoPago[] = [];
   let erroNosPagamentos = false;
   if (pedido.mercadoPagoPreferenciaId) {
@@ -143,10 +158,28 @@ export default async function PaginaAdminPedido({ params }: PageProps<"/admin/pe
             {proximoPasso[pedido.status] && (
               <div className="space-y-4">
                 <p className="text-[16px]">{proximoPasso[pedido.status]}</p>
-                <BotoesDeSituacao numero={pedido.numero} status={pedido.status} codigoRastreio={pedido.codigoRastreio} />
+                <BotoesDeSituacao
+                  numero={pedido.numero}
+                  status={pedido.status}
+                  codigoRastreio={pedido.codigoRastreio ?? etiqueta?.rastreio ?? null}
+                />
               </div>
             )}
           </Painel>
+
+          {mostrarEtiqueta && (
+            <Painel titulo="Etiqueta de envio">
+              <EtiquetaDoPedido
+                numero={pedido.numero}
+                servico={[pedido.freteTransportadora, pedido.freteServico].filter(Boolean).join(" ") || "frete escolhido"}
+                freteCobrado={pedido.freteEmCentavos}
+                etiqueta={etiqueta}
+                erroAoLer={erroNaEtiqueta}
+                podeComprar={["PAGO", "EM_SEPARACAO"].includes(pedido.status)}
+                faltaRemetente={remetenteIncompleto()}
+              />
+            </Painel>
+          )}
 
           <Painel titulo={`Itens · ${pecas === 1 ? "1 peça" : `${pecas} peças`}`}>
             <ul className="divide-y divide-borda">

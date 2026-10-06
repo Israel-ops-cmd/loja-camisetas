@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Boxes, ClipboardList, Package, Palette, Percent, Shirt } from "lucide-react";
 
+import { LimpezaDeArquivos } from "@/components/admin/LimpezaDeArquivos";
 import { exigirAdministrador } from "@/lib/auth";
 import { LIMITE_ULTIMAS_UNIDADES } from "@/lib/estoque-regras";
 import { prisma } from "@/lib/prisma";
@@ -132,6 +133,13 @@ export default async function PaginaPainel() {
             </Link>
           </li>
         </ul>
+
+        <section className="mt-10 rounded-[20px] bg-papel p-6 sm:p-8">
+          <h2 className="sobretitulo">Manutenção</h2>
+          <div className="mt-4">
+            <LimpezaDeArquivos />
+          </div>
+        </section>
       </div>
     </div>
   );

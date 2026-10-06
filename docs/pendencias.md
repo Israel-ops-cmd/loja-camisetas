@@ -33,7 +33,12 @@ Lista do que ficou para depois durante o desenvolvimento. Marque com `[x]` o que
 
 ### Frete (Melhor Envio)
 
-- [ ] Criar a conta real do Melhor Envio e trocar o token de sandbox pelo de produção (`MELHOR_ENVIO_AMBIENTE=producao`).
+- [ ] Criar a conta real do Melhor Envio e trocar o token de sandbox pelo de produção (`MELHOR_ENVIO_AMBIENTE=producao`). O token de produção precisa das mesmas permissões do de sandbox (lista no `.env.example`): cálculo, carrinho, compra, geração, impressão, rastreio, cancelamento, leitura de pedidos e de usuário.
+- [ ] Colocar saldo na carteira do Melhor Envio de produção: cada etiqueta comprada pelo painel é paga com esse saldo.
+- [ ] Preencher os dados reais do remetente (`MELHOR_ENVIO_REMETENTE_*` no `.env.example`: nome, telefone, CPF ou CNPJ, endereço, número e bairro da loja) no `.env.local` e na Vercel. Sem eles, o painel mostra que faltam dados e não deixa comprar etiqueta. Nos testes foram usados dados fictícios, só no processo do teste.
+- [ ] **Nota fiscal:** as etiquetas saem com declaração de conteúdo (`non_commercial: true` em `src/lib/etiquetas.ts`), que serve para quem vende sem nota. Confirmar com o pai do Israel se a loja emite NF-e (CNPJ). Se emitir, a etiqueta precisa da chave da nota de cada pedido, e isso tem que ser acrescentado ao painel.
+- [ ] Testar em produção (ou de novo no sandbox) a etiqueta chegando a "Pronta para imprimir", o PDF impresso e o código de rastreio preenchendo sozinho o campo de "Enviei o pedido". No sandbox, em 06/10/2026, a etiqueta ficou como "paga, sendo gerada" durante todo o teste; compra, toque duplo sem cobrar de novo, impressão (link), cancelamento com o saldo de volta e histórico funcionaram.
+- [ ] Pedidos que não cabem num pacote só (o Melhor Envio calcula mais de um volume): o painel avisa e a etiqueta precisa ser feita direto no site do Melhor Envio (Correios não aceita vários volumes num envio só). Avaliar se vale tratar no painel quando houver pedidos grandes de atacado.
 - [ ] Pesar uma camiseta embalada e medir o pacote. Hoje o sistema usa uma estimativa provisória de 300 g em 28 × 22 × 4 cm, gravada como padrão em cada produto.
 - [ ] Decidir se haverá frete grátis e com qual regra. Hoje não há.
 - [ ] Se houver dias de manuseio ou produção, configurar no painel do Melhor Envio: o prazo mostrado no carrinho já usa os valores personalizados da conta.
@@ -73,7 +78,7 @@ Lista do que ficou para depois durante o desenvolvimento. Marque com `[x]` o que
 - [x] Apagar os dados de teste do pedido #1001 (pago no sandbox em 06/10/2026, com estoque baixado). Feito em 06/10/2026: pedido, itens, histórico e baixa de venda apagados, peça devolvida ao estoque e numeração de volta ao #1001. O pagamento continua aprovado na conta vendedora de teste do Mercado Pago, sem pedido ligado.
 - [ ] Estorno parcial (devolver só parte do valor, por exemplo uma peça em falta). Hoje o painel só faz o estorno total.
 - [ ] Estorno de pedido já enviado devolve as peças ao estoque automaticamente (mesma rotina dos estornos do Mercado Pago). Se as peças não voltarem para a loja, é preciso corrigir a contagem no Estoque; a tela de estorno avisa isso.
-- [ ] Etiqueta de envio pelo Melhor Envio (etapa 13b). Precisa de: token do Melhor Envio com permissões de carrinho, compra, geração, impressão e rastreio de etiquetas (o atual só cota frete); saldo na conta (no sandbox, saldo de teste); e os dados do remetente (nome, CPF ou CNPJ, telefone e endereço completo da loja).
+- [x] Etiqueta de envio pelo Melhor Envio (etapa 13b): gerar, comprar com o saldo da carteira (preço mostrado antes de confirmar), imprimir, atualizar e cancelar pela página do pedido no painel. Itens de configuração e teste em "Frete (Melhor Envio)".
 - [ ] E-mail de confirmação do pedido para o cliente (etapa 14). Hoje ele vê o pedido só na página do pedido e em "Minha conta".
 
 ### Atacado e orçamentos
@@ -90,7 +95,8 @@ Lista do que ficou para depois durante o desenvolvimento. Marque com `[x]` o que
 - [ ] Confirmar com o pai do Israel se ele consegue abrir arquivos `.cdr` (CorelDRAW), `.ai` (Illustrator) e `.psd` (Photoshop). Se não conseguir, tirar esses formatos de `FORMATOS_DE_ARTE` em `src/lib/personalizacao-regras.ts`.
 - [ ] Confirmar com o pai do Israel quais outras peças podem ser personalizadas (baby look, infantil etc.). Depois da confirmação, basta cadastrá-las em Produtos (`/admin/produtos`) na categoria "Camisetas Básicas", que é de onde a personalização tira as peças.
 - [ ] O pedido de personalização não confere o estoque das camisetas lisas: o cliente pode pedir mais peças do que há em estoque. A baixa acontece no pagamento, e se faltar peça o pedido fica Pago com alerta (opção C). Avaliar se o orçamento deve conferir o estoque antes de enviar a prévia.
-- [ ] Limpeza de arquivos abandonados no Storage (pasta privada `personalizacao`): artes enviadas em formulários que não foram concluídos, e arquivos de pedidos cancelados. Só o administrador pode apagar (regra do Storage); fazer junto com a tarefa agendada da etapa 13b ou por um botão no painel.
+- [x] Limpeza de arquivos esquecidos no Storage (pastas `personalizacao` e `produtos`): botão "Procurar arquivos esquecidos" em Manutenção, no início do painel (decisão: botão com a sessão do administrador, sem chave secreta do Supabase). Apaga só arquivos com mais de um dia que não estão ligados a nenhuma foto de produto nem a nenhum pedido de personalização.
+- [ ] Artes e prévias de pedidos de personalização cancelados ou recusados continuam guardadas. Definir na política de privacidade (etapa 15) por quanto tempo guardar e então incluir na limpeza.
 
 ### Conteúdo da loja
 
@@ -147,7 +153,7 @@ Desde a etapa 12, produtos, preços, cores, tamanhos, descrições e fotos são 
 - [ ] Painel de produtos: reduzir as fotos no navegador antes de enviar. Hoje vão no tamanho original (até 10 MB); o site já mostra versões otimizadas, mas o original ocupa espaço no Storage (1 GB no plano gratuito do Supabase).
 - [ ] Painel de produtos: arrastar para reordenar fotos (hoje são botões "Subir" e "Descer") e editar ou esconder cores e tamanhos já criados (hoje só dá para criar).
 - [ ] Estoque: lançar a chegada de um lote com vários tamanhos numa tela só. Hoje é um tamanho por vez.
-- [ ] Limpeza de fotos órfãs na pasta `produtos` do Storage: arquivo enviado sem chegar a ser registrado (por exemplo, internet caiu no meio). Fazer junto com a limpeza da pasta `personalizacao`.
+- [x] Limpeza de fotos órfãs na pasta `produtos` do Storage: mesmo botão de Manutenção do painel (etapa 13b).
 - [ ] Avaliar se o texto do hero e do menu deve dizer que a loja é de camisetas cristãs.
 - [ ] Depoimentos de clientes, quando houver avaliações reais.
 
