@@ -9,7 +9,17 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 const API = "https://api.mercadopago.com";
 const TEMPO_LIMITE_MS = 10_000;
 
-export class ErroMercadoPago extends Error {}
+export class ErroMercadoPago extends Error {
+  constructor(
+    mensagem: string,
+    /** Código HTTP da resposta (ausente em falha de rede). */
+    readonly status?: number,
+    /** Mensagem original do Mercado Pago, para o log e para diagnóstico. */
+    readonly detalhe?: string,
+  ) {
+    super(mensagem);
+  }
+}
 
 /** O recurso pedido não existe no Mercado Pago (HTTP 404). */
 export class NaoEncontradoNoMercadoPago extends ErroMercadoPago {}
@@ -39,14 +49,24 @@ async function chamar<T>(caminho: string, opcoes: RequestInit = {}): Promise<T> 
   }
 
   if (!resposta.ok) {
-    console.error(
-      `[mercado-pago] ${opcoes.method ?? "GET"} ${caminho} respondeu ${resposta.status}:`,
-      (await resposta.text()).slice(0, 800),
-    );
-    if (resposta.status === 404) {
-      throw new NaoEncontradoNoMercadoPago("Não encontrado no Mercado Pago.");
+    const corpo = (await resposta.text()).slice(0, 800);
+    console.error(`[mercado-pago] ${opcoes.method ?? "GET"} ${caminho} respondeu ${resposta.status}:`, corpo);
+    let detalhe = corpo;
+    try {
+      const json = JSON.parse(corpo) as { message?: string; cause?: { code?: unknown; description?: string }[] };
+      const causa = json.cause?.[0];
+      detalhe = [json.message, causa?.code !== undefined && `código ${causa.code}`].filter(Boolean).join(", ") || corpo;
+    } catch {
+      // Corpo não é JSON: fica o texto.
     }
-    throw new ErroMercadoPago("Não conseguimos falar com o Mercado Pago agora. Tente de novo em instantes.");
+    if (resposta.status === 404) {
+      throw new NaoEncontradoNoMercadoPago("Não encontrado no Mercado Pago.", 404, detalhe);
+    }
+    throw new ErroMercadoPago(
+      "Não conseguimos falar com o Mercado Pago agora. Tente de novo em instantes.",
+      resposta.status,
+      detalhe,
+    );
   }
   return resposta.json() as Promise<T>;
 }

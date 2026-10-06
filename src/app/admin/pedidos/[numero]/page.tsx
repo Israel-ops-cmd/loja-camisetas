@@ -281,6 +281,14 @@ export default async function PaginaAdminPedido({ params }: PageProps<"/admin/pe
                 })}
               </ul>
             )}
+            {pedido.status !== "AGUARDANDO_PAGAMENTO" && pagamentos.length > 0 && (
+              <div className="mt-4 border-t border-borda pt-4">
+                <p className="mb-3 text-[14px] text-apoio">
+                  Estornou ou mudou algo direto no Mercado Pago? Confira aqui para o pedido acompanhar.
+                </p>
+                <BotaoConferirPagamento numero={pedido.numero} />
+              </div>
+            )}
           </Painel>
 
           <Painel titulo="Histórico">

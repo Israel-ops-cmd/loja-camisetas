@@ -206,11 +206,19 @@ export async function estornarPagamento(numero: unknown, dados: unknown): Promis
   try {
     await estornarPagamentoNoMercadoPago(pagamentoId);
   } catch (erro) {
-    console.error(`[pedidos] estorno do pagamento ${pagamentoId} falhou:`, erro);
-    return {
-      ok: false,
-      erro: "O Mercado Pago não aceitou o estorno. Pode faltar saldo na conta ou o prazo para estorno ter passado. Confira no painel do Mercado Pago.",
-    };
+    const status = erro instanceof ErroMercadoPago ? erro.status : undefined;
+    const detalhe = erro instanceof ErroMercadoPago ? erro.detalhe : undefined;
+    console.error(`[pedidos] estorno do pagamento ${pagamentoId} recusado: HTTP ${status ?? "sem resposta"}, ${detalhe ?? erro}`);
+    await prisma.$transaction((tx) =>
+      registrar(
+        tx,
+        pedido.id,
+        `Estorno do pagamento ${pagamentoId} recusado pelo Mercado Pago (${status ? `HTTP ${status}` : "sem resposta"}${detalhe ? `: ${detalhe}` : ""}). Nada foi devolvido.`,
+        admin.nome,
+      ),
+    );
+    refresh();
+    return { ok: false, erro: mensagemDoEstornoRecusado(status, detalhe) };
   }
 
   const ehDoPedido = pedido.mercadoPagoPagamentoId === pagamentoId;
@@ -239,6 +247,17 @@ export async function estornarPagamento(numero: unknown, dados: unknown): Promis
       ? "Estorno feito. O pedido foi cancelado e as peças voltaram para o estoque."
       : "Estorno feito. O valor volta para o cliente pelo Mercado Pago.",
   };
+}
+
+/** O que dizer a quem tentou estornar, conforme a resposta do Mercado Pago. */
+function mensagemDoEstornoRecusado(status?: number, detalhe?: string) {
+  const final = "Nada foi devolvido e o pedido não mudou.";
+  if (status === undefined) return `O Mercado Pago não respondeu. Tente de novo em instantes. ${final}`;
+  if (status === 401 || status === 403) {
+    return `O Mercado Pago recusou o estorno por falta de permissão das credenciais da loja (erro ${status}). ${final} Faça o estorno pelo site ou app do Mercado Pago e depois toque em “Conferir pagamento” aqui.`;
+  }
+  if (status >= 500) return `O Mercado Pago está com problemas agora (erro ${status}). Tente de novo mais tarde. ${final}`;
+  return `O Mercado Pago não aceitou o estorno (erro ${status}${detalhe ? `: ${detalhe}` : ""}). Pode faltar saldo disponível na conta ou o prazo para estorno ter passado. ${final}`;
 }
 
 /** O administrador já tratou o alerta: some do destaque e fica no histórico. */
