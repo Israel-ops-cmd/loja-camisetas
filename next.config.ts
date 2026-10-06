@@ -8,6 +8,8 @@ const supabase = process.env.NEXT_PUBLIC_SUPABASE_URL
 
 const nextConfig: NextConfig = {
   images: {
+    // AVIF é bem menor que WebP; WebP fica de reserva para navegadores antigos.
+    formats: ["image/avif", "image/webp"],
     remotePatterns: supabase
       ? [new URL(`${supabase}/storage/v1/object/public/produtos/**`)]
       : [],

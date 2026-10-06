@@ -4,6 +4,7 @@ import { PerguntasFrequentes } from "@/components/inicio/PerguntasFrequentes";
 import { LOJA } from "@/lib/loja";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/perguntas-frequentes" },
   title: "Perguntas frequentes",
   description: `Pagamento, entrega, trocas, personalização e atacado na ${LOJA.nome}.`,
 };

@@ -1,0 +1,3 @@
+Fontes usadas só para gerar a imagem de compartilhamento (src/app/opengraph-image.tsx).
+No site, as mesmas fontes vêm do next/font/google.
+Archivo e Manrope: SIL Open Font License 1.1 (arquivos OFL-*.txt), baixadas do Google Fonts.

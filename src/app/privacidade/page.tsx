@@ -6,6 +6,7 @@ import { identificacaoDaLoja, linkDoWhatsapp, LOJA, ou, whatsappLegivel } from "
 import { GUARDA } from "@/lib/politicas";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/privacidade" },
   title: "Privacidade",
   description: `Como a ${LOJA.nome} usa, guarda e protege os seus dados, de acordo com a LGPD.`,
 };

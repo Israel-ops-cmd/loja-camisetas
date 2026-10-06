@@ -8,6 +8,7 @@ import { obterUsuario } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/atacado" },
   title: "Atacado",
   description:
     "Camisetas em quantidade para empresas, igrejas, eventos e revenda, com desconto progressivo e orçamento sob medida.",

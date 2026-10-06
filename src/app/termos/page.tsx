@@ -7,6 +7,7 @@ import { MAXIMO_DE_PARCELAS, PRAZO_DE_PAGAMENTO_DIAS } from "@/lib/pagamento";
 import { DECLARACAO_DE_DIREITOS } from "@/lib/personalizacao-regras";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/termos" },
   title: "Termos de uso",
   description: `Regras de compra na ${LOJA.nome}: conta, preços, pagamento, entrega, atacado e personalização.`,
 };

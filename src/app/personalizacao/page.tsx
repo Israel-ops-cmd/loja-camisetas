@@ -7,6 +7,7 @@ import { obterUsuario } from "@/lib/auth";
 import { listarPecasPersonalizaveis } from "@/lib/personalizacao";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/personalizacao" },
   title: "Personalização",
   description:
     "Envie a sua estampa ou conte a ideia. A gente prepara a prévia, aprova com você e produz.",
