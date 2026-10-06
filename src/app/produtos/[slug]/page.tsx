@@ -91,12 +91,14 @@ export default async function PaginaProduto({
                 </Link>
               </p>
             )}
-            <div className="mt-10 border-t border-borda pt-8">
-              <h2 className="sobretitulo">Descrição</h2>
-              <p className="mt-3 whitespace-pre-line text-apoio">
-                {produto.descricao ?? "[DESCRIÇÃO DO PRODUTO]"}
-              </p>
-            </div>
+            {/* Sem descrição cadastrada, o bloco não aparece (o comando
+                conferir-marcadores avisa quais produtos estão sem). */}
+            {produto.descricao && (
+              <div className="mt-10 border-t border-borda pt-8">
+                <h2 className="sobretitulo">Descrição</h2>
+                <p className="mt-3 whitespace-pre-line text-apoio">{produto.descricao}</p>
+              </div>
+            )}
 
             <details className="group mt-8 border-y border-borda">
               <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-4 font-semibold [&::-webkit-details-marker]:hidden">

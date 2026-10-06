@@ -33,7 +33,7 @@ export function temMiniatura(nome: string) {
 
 export function formatarTamanhoDoArquivo(bytes: number) {
   if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1).replace(".", ",")} MB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1).replace(".", ",").replace(/,0$/, "")} MB`;
 }
 
 export const rotulosDePosicao: Record<PosicaoEstampa, { titulo: string; detalhe: string }> = {

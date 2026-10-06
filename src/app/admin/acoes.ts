@@ -3,6 +3,7 @@
 import { listarArquivosEsquecidos } from "@/lib/arquivos-esquecidos";
 import { formatarTamanhoDoArquivo } from "@/lib/personalizacao-regras";
 import { administradorDaAcao, SEM_PERMISSAO } from "@/lib/painel";
+import { prisma } from "@/lib/prisma";
 import { criarClienteSupabase } from "@/lib/supabase/servidor";
 
 // Manutenção do painel. Apagar usa a sessão do administrador (as regras do
@@ -42,6 +43,9 @@ export async function apagarArquivosEsquecidos(): Promise<{ ok: true; mensagem: 
       }
       const apagadosAgora = new Set(data.map((d) => d.name));
       apagados += apagadosAgora.size;
+      // Artes de personalizações canceladas/recusadas: some também o registro.
+      const vencidos = lote.filter((a) => a.prazoVencido && apagadosAgora.has(a.caminho)).map((a) => a.caminho);
+      if (vencidos.length > 0) await prisma.personalizacaoArquivo.deleteMany({ where: { caminho: { in: vencidos } } });
       bytes += lote.filter((a) => apagadosAgora.has(a.caminho)).reduce((soma, a) => soma + a.bytes, 0);
     }
   }

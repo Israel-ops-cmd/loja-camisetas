@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { Shirt } from "lucide-react";
 import Link from "next/link";
 
 import type { ProdutoResumo } from "@/lib/catalogo";
@@ -30,9 +31,7 @@ export function ProdutoCartao({ produto, sizes }: ProdutoCartaoProps) {
             }
           />
         ) : (
-          <span className="text-[12px] font-semibold tracking-[0.2em] text-secundario">
-            [FOTO]
-          </span>
+          <Shirt aria-hidden="true" className="size-16 text-secundario/40" strokeWidth={1} />
         )}
         {produto.esgotado && (
           <span className="absolute top-3 left-3 rounded-full bg-tinta px-3 py-1 text-[11px] font-bold tracking-[0.16em] text-papel uppercase">

@@ -4,6 +4,7 @@ import { enviarEmails, reenviarEmailsAtrasados } from "@/lib/emails/envio";
 import { emailDeCancelamento, emailDeLembrete, urlDoSite } from "@/lib/emails/eventos";
 import { expirarCobranca } from "@/lib/mercado-pago";
 import { conferirPagamentosDoPedido, prazoDePagamento, PRAZO_DE_PAGAMENTO_DIAS, registrar } from "@/lib/pagamento";
+import { GUARDA } from "@/lib/politicas";
 import { prisma } from "@/lib/prisma";
 
 // Tarefa diária (Vercel Cron): rede de segurança do webhook e limpeza dos
@@ -34,6 +35,8 @@ export type ResumoDaTarefa = {
   esperandoCompensacao: number[];
   lembretes: number[];
   emails: { tentados: number; enviados: number };
+  /** Apagados por terem passado do prazo de guarda (política de privacidade). */
+  apagados: { emails: number; orcamentos: number };
   erros: { numero: number; erro: string }[];
 };
 
@@ -142,6 +145,25 @@ async function lembrarPagamentos(resumo: ResumoDaTarefa, agora: Date, site: stri
   }
 }
 
+function mesesAtras(agora: Date, meses: number) {
+  const data = new Date(agora);
+  data.setMonth(data.getMonth() - meses);
+  return data;
+}
+
+/**
+ * Prazos de guarda da política de privacidade que só dependem do banco.
+ * Artes e prévias ficam no Storage e são apagadas pelo botão de manutenção
+ * do painel (ver src/lib/arquivos-esquecidos.ts).
+ */
+async function apagarDadosVencidos(agora: Date) {
+  const [emails, orcamentos] = await Promise.all([
+    prisma.email.deleteMany({ where: { criadoEm: { lt: mesesAtras(agora, GUARDA.emailsEmMeses) } } }),
+    prisma.orcamento.deleteMany({ where: { criadoEm: { lt: mesesAtras(agora, GUARDA.orcamentosEmMeses) } } }),
+  ]);
+  return { emails: emails.count, orcamentos: orcamentos.count };
+}
+
 export async function executarTarefaDiaria(agora = new Date()): Promise<ResumoDaTarefa> {
   const resumo: ResumoDaTarefa = {
     conferidos: 0,
@@ -150,6 +172,7 @@ export async function executarTarefaDiaria(agora = new Date()): Promise<ResumoDa
     esperandoCompensacao: [],
     lembretes: [],
     emails: { tentados: 0, enviados: 0 },
+    apagados: { emails: 0, orcamentos: 0 },
     erros: [],
   };
   const site = await urlDoSite();
@@ -158,5 +181,6 @@ export async function executarTarefaDiaria(agora = new Date()): Promise<ResumoDa
   await cancelarVencidos(resumo, agora, site);
   await lembrarPagamentos(resumo, agora, site);
   resumo.emails = await reenviarEmailsAtrasados();
+  resumo.apagados = await apagarDadosVencidos(agora);
   return resumo;
 }

@@ -9,9 +9,13 @@ import { Aviso } from "@/components/formulario/Aviso";
 const botao =
   "inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-tinta px-5 text-[15px] font-semibold hover:bg-fundo disabled:opacity-50";
 
-/** Manutenção: arquivos enviados ao site que não ficaram ligados a nada. */
-export function LimpezaDeArquivos() {
-  const [encontrados, setEncontrados] = useState<{ quantidade: number; tamanho: string } | null>(null);
+/**
+ * Manutenção: arquivos que não ficaram ligados a nada e artes de
+ * personalizações canceladas ou recusadas que passaram do prazo de guarda.
+ * `pendentes` vem da página (contado ao abrir o painel).
+ */
+export function LimpezaDeArquivos({ pendentes }: { pendentes: { quantidade: number; tamanho: string } | null }) {
+  const [encontrados, setEncontrados] = useState<{ quantidade: number; tamanho: string } | null>(pendentes);
   const [mensagem, setMensagem] = useState<{ tipo: "erro" | "sucesso" | "info"; texto: string } | null>(null);
   const [ocupado, iniciar] = useTransition();
 
@@ -38,14 +42,15 @@ export function LimpezaDeArquivos() {
   return (
     <div className="space-y-3">
       <p className="text-[15px] text-apoio">
-        Fotos e artes que foram enviadas mas não ficaram ligadas a nenhum produto ou pedido (por exemplo, quando a internet
-        caiu no meio). Ocupam espaço à toa. Vale conferir uma vez por mês.
+        Fotos e artes que não ficaram ligadas a nenhum produto ou pedido (por exemplo, quando a internet caiu no meio) e artes
+        de personalizações canceladas ou recusadas que já passaram do prazo de guarda prometido na política de privacidade.
+        Quando houver arquivos assim, eles aparecem aqui sozinhos.
       </p>
       {encontrados ? (
         <div role="alert" className="space-y-3 rounded-xl border border-tinta p-4">
           <p className="text-[15px] font-semibold">
             {encontrados.quantidade === 1 ? "1 arquivo esquecido" : `${encontrados.quantidade} arquivos esquecidos`} ({encontrados.tamanho}).
-            Apagar? Não dá para desfazer, mas nenhum produto ou pedido usa esses arquivos.
+            Apagar? Não dá para desfazer, e nenhum produto ou pedido em andamento usa esses arquivos.
           </p>
           <div className="flex flex-wrap gap-2">
             <button type="button" onClick={apagar} disabled={ocupado} className={botao}>
