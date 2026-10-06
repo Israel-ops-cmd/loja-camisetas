@@ -531,6 +531,11 @@ export function FormularioCheckout({
         <p className="mt-3 text-center text-[13px] text-secundario">
           O estoque é reservado quando o pagamento for confirmado.
         </p>
+        <p className="mt-2 text-center text-[13px] text-secundario">
+          Ao finalizar, você concorda com os{" "}
+          <Link href="/termos" target="_blank" className="underline underline-offset-4">termos de uso</Link> e com a{" "}
+          <Link href="/politica-de-troca" target="_blank" className="underline underline-offset-4">política de trocas</Link>.
+        </p>
         <Link
           href={voltar.href}
           className="mt-2 flex min-h-11 items-center justify-center text-[14px] underline underline-offset-4 hover:text-secundario"

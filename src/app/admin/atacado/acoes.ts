@@ -74,6 +74,9 @@ export async function salvarTabelaDeAtacado(
   // O aviso "a partir de N peças" nas páginas de produto vem da tabela.
   revalidatePath("/produtos/[slug]", "page");
   revalidatePath("/atacado");
+  // A resposta sobre o mínimo do atacado nas perguntas frequentes vem da tabela.
+  revalidatePath("/");
+  revalidatePath("/perguntas-frequentes");
   refresh();
   return {
     ok: true,

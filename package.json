@@ -13,7 +13,8 @@
     "db:studio": "prisma studio",
     "db:seed": "prisma db seed",
     "postdb:migrate": "prisma generate",
-    "admin:promover": "tsx scripts/promover-admin.ts"
+    "admin:promover": "tsx scripts/promover-admin.ts",
+    "conferir-marcadores": "node scripts/conferir-marcadores.mjs"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.0",

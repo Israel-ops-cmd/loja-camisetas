@@ -74,10 +74,16 @@ export function FormularioCadastro() {
           erro={estado.campos?.confirmacao}
         />
 
-        {/* Link para /privacidade entra quando a página existir (etapa 15). */}
         <p className="text-[13px] text-secundario">
-          Ao criar a conta, você concorda com a Política de Privacidade da Carta
-          Viva Camisetas.
+          Ao criar a conta, você concorda com os{" "}
+          <Link href="/termos" target="_blank" className="underline underline-offset-4">
+            termos de uso
+          </Link>{" "}
+          e com a{" "}
+          <Link href="/privacidade" target="_blank" className="underline underline-offset-4">
+            política de privacidade
+          </Link>{" "}
+          da Carta Viva Camisetas.
         </p>
 
         <button

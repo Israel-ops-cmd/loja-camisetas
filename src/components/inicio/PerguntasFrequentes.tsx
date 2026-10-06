@@ -1,25 +1,16 @@
+import Link from "next/link";
 import { ChevronDown } from "lucide-react";
 
-// Respostas ainda não fornecidas (prazos, trocas, atacado):
-// os marcadores entre colchetes são trocados quando chegarem.
-const perguntas = [
-  {
-    pergunta: "Quais são as formas de pagamento?",
-    resposta: "Pix, cartão e boleto.",
-  },
-  { pergunta: "Qual é o prazo de entrega?", resposta: "[RESPOSTA]" },
-  { pergunta: "Como funciona a troca?", resposta: "[RESPOSTA]" },
-  {
-    pergunta: "Como envio a minha arte para personalizar?",
-    resposta: "[RESPOSTA]",
-  },
-  {
-    pergunta: "Qual é a quantidade mínima no atacado?",
-    resposta: "[RESPOSTA]",
-  },
-];
+import { listarPerguntasFrequentes } from "@/lib/perguntas-frequentes";
 
-export function PerguntasFrequentes() {
+/**
+ * Lista em sanfona. Na página inicial mostra só as perguntas em destaque,
+ * com link para a página completa.
+ */
+export async function PerguntasFrequentes({ todas = false }: { todas?: boolean }) {
+  const perguntas = (await listarPerguntasFrequentes()).filter((p) => todas || p.destaque);
+  const Titulo = todas ? "h1" : "h2";
+
   return (
     <section
       id="perguntas-frequentes"
@@ -27,9 +18,9 @@ export function PerguntasFrequentes() {
       className="secao scroll-mt-18 bg-papel"
     >
       <div className="mx-auto max-w-3xl">
-        <h2 id="titulo-perguntas" className="titulo-listagem">
+        <Titulo id="titulo-perguntas" className={todas ? "titulo-destaque" : "titulo-listagem"}>
           Perguntas frequentes
-        </h2>
+        </Titulo>
         <div className="mt-12 border-t border-borda">
           {perguntas.map((item) => (
             <details key={item.pergunta} className="group border-b border-borda">
@@ -41,10 +32,24 @@ export function PerguntasFrequentes() {
                   strokeWidth={1.6}
                 />
               </summary>
-              <p className="pb-5 text-apoio">{item.resposta}</p>
+              <p className="pb-5 text-apoio [&_a]:font-semibold [&_a]:text-tinta [&_a]:underline [&_a]:underline-offset-4">
+                {item.resposta}
+              </p>
             </details>
           ))}
         </div>
+        {todas ? (
+          <p className="mt-10 text-apoio">
+            Não achou a resposta? <Link href="/contato" className="font-semibold text-tinta underline underline-offset-4">Fale com a gente</Link>.
+          </p>
+        ) : (
+          <Link
+            href="/perguntas-frequentes"
+            className="mt-8 inline-flex min-h-11 items-center font-semibold underline underline-offset-4"
+          >
+            Ver todas as perguntas
+          </Link>
+        )}
       </div>
     </section>
   );

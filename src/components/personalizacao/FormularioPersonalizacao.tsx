@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Check } from "lucide-react";
 import { useState, useTransition, type FormEvent, type ReactNode } from "react";
 
@@ -260,6 +261,11 @@ export function FormularioPersonalizacao({
             />
             <span>{DECLARACAO_DE_DIREITOS}</span>
           </label>
+          <p className="mt-2 pl-8 text-[13px]">
+            <Link href="/termos#personalizacao" target="_blank" className="inline-flex min-h-11 items-center underline underline-offset-4">
+              Ver os termos da personalização
+            </Link>
+          </p>
           {erros.declaracao && (
             <p id="erro-declaracao" className="mt-2 text-[13px] font-semibold">
               {erros.declaracao}

@@ -17,7 +17,7 @@ Lista do que ficou para depois durante o desenvolvimento. Marque com `[x]` o que
 - [ ] Preencher na Vercel `RESEND_API_KEY`, `EMAIL_DA_LOJA` (e-mail que o pai do Israel lê, para os avisos de pedido pago, alertas, personalização e orçamento), `EMAIL_RESPONDER_PARA` (opcional) e `SITE_URL` com o endereço definitivo (os links dos e-mails enviados pela tarefa diária e pelo webhook usam o endereço da requisição se `SITE_URL` estiver vazia).
 - [ ] Abrir no celular (Gmail e o app de e-mail do iPhone) os 13 tipos de e-mail recebidos no teste de 06/10/2026 e ajustar o que ficar ruim. Os modelos ficam em `src/lib/emails/modelos.ts`.
 - [ ] Depois do domínio: colocar o logo como imagem no topo dos e-mails (hoje o nome da loja é escrito em texto, porque não há endereço definitivo para hospedar a imagem).
-- [ ] Na política de privacidade (etapa 15): a tabela `emails` guarda o conteúdo de cada e-mail enviado (nome, endereço e itens do pedido). Definir por quanto tempo guardar e apagar os antigos na tarefa diária.
+- [x] Prazo de guarda dos e-mails enviados: 12 meses, dito na política de privacidade e apagado pela tarefa diária (etapa 15).
 - [ ] O e-mail de confirmação do orçamento diz que a loja vai responder pelo WhatsApp ou por e-mail, sem prazo. Se o pai do Israel quiser prometer um prazo (ex.: "em até 2 dias úteis"), acrescentar em `emailOrcamentoRecebido`.
 - [ ] Configurar o SMTP do Supabase com o Resend (a conta já existe e manda os e-mails da loja desde a etapa 14), depois de verificar o domínio. Sem SMTP próprio, o Supabase só entrega e-mails para os membros da equipe do projeto e com um limite baixo por hora: clientes de verdade não recebem a confirmação de cadastro nem o link de nova senha.
 - [ ] Editar os modelos de e-mail no Supabase (Authentication > Emails), que só são liberados com SMTP próprio:
@@ -92,18 +92,20 @@ Lista do que ficou para depois durante o desenvolvimento. Marque com `[x]` o que
 
 - [x] Editar a tabela de desconto do atacado pelo painel (etapa 12, `/admin/atacado`): faixas, percentuais e ligar/desligar. Travas: até 5 faixas, de 1% a 50%, a partir de 2 peças, desconto maior para quantidade maior.
 - [x] Aviso por e-mail para a loja quando chega um pedido de orçamento, e confirmação para quem pediu (etapa 14).
-- [ ] Na política de privacidade (etapa 15), dizer por quanto tempo os dados dos orçamentos ficam guardados e como pedir a exclusão. O formulário avisa: "Usamos seus dados só para responder a este orçamento".
+- [x] Prazo de guarda dos orçamentos: 12 meses, dito na política de privacidade (que também explica como pedir a exclusão) e apagado pela tarefa diária. O aviso do formulário tem link para a política (etapa 15).
 - [ ] O limite de 3 orçamentos por hora usa o IP informado pela Vercel (`x-forwarded-for`). Conferir em produção que ele vem preenchido; no computador local, todos os envios contam como o mesmo IP.
 
 ### Personalização
 
 - [x] Avisos por e-mail (etapa 14): para a loja quando chega um pedido de personalização ou um pedido de ajuste; para o cliente quando o pedido é recebido, quando a prévia fica pronta e quando o pedido é recusado.
-- [ ] Revisar o texto da declaração de direito de uso da arte (`DECLARACAO_DE_DIREITOS` em `src/lib/personalizacao-regras.ts`) e ligá-lo aos termos de uso quando as páginas institucionais existirem (etapa 15). Hoje o site grava a data e a hora em que o cliente confirmou a declaração.
+- [ ] Revisar o texto da declaração de direito de uso da arte (`DECLARACAO_DE_DIREITOS` em `src/lib/personalizacao-regras.ts`) na revisão jurídica. Ele já aparece nos termos de uso (`/termos#personalizacao`), com link a partir do formulário de personalização (etapa 15).
 - [ ] Confirmar com o pai do Israel se ele consegue abrir arquivos `.cdr` (CorelDRAW), `.ai` (Illustrator) e `.psd` (Photoshop). Se não conseguir, tirar esses formatos de `FORMATOS_DE_ARTE` em `src/lib/personalizacao-regras.ts`.
 - [ ] Confirmar com o pai do Israel quais outras peças podem ser personalizadas (baby look, infantil etc.). Depois da confirmação, basta cadastrá-las em Produtos (`/admin/produtos`) na categoria "Camisetas Básicas", que é de onde a personalização tira as peças.
 - [ ] O pedido de personalização não confere o estoque das camisetas lisas: o cliente pode pedir mais peças do que há em estoque. A baixa acontece no pagamento, e se faltar peça o pedido fica Pago com alerta (opção C). Avaliar se o orçamento deve conferir o estoque antes de enviar a prévia.
 - [x] Limpeza de arquivos esquecidos no Storage (pastas `personalizacao` e `produtos`): botão "Procurar arquivos esquecidos" em Manutenção, no início do painel (decisão: botão com a sessão do administrador, sem chave secreta do Supabase). Apaga só arquivos com mais de um dia que não estão ligados a nenhuma foto de produto nem a nenhum pedido de personalização.
-- [ ] Artes e prévias de pedidos de personalização cancelados ou recusados continuam guardadas. Definir na política de privacidade (etapa 15) por quanto tempo guardar e então incluir na limpeza.
+- [x] Artes e prévias de personalizações canceladas ou recusadas: guardadas por 90 dias (política de privacidade). Depois disso entram no botão de Manutenção do painel, que mostra sozinho quantos arquivos estão para limpar (etapa 15).
+- [ ] A remoção das artes vencidas depende de alguém tocar em "Sim, apagar" na Manutenção do painel: a tarefa diária não tem permissão para apagar arquivos do Storage (decisão da etapa 13b, sem chave secreta do Supabase). Se o painel ficar muito tempo sem ser aberto, a loja guarda as artes por mais tempo do que a política promete. Se isso virar problema, avaliar usar a Secret key só na tarefa diária.
+- [ ] Pedidos guardados por 5 anos (política de privacidade): quando a loja tiver pedidos com mais de 5 anos, criar a limpeza (ou anonimização) deles. Hoje nada é apagado.
 
 ### Conteúdo da loja
 
@@ -111,22 +113,33 @@ Desde a etapa 12, produtos, preços, cores, tamanhos, descrições e fotos são 
 
 - [ ] Preços reais de cada produto.
 - [ ] Cores e tamanhos disponíveis de cada produto, com o estoque real. Combinação nova criada pelo painel começa com estoque 0; o estoque real é lançado em Estoque (`/admin/estoque`), com "Chegaram peças" ou "Corrigir contagem". Hoje todas as variações de exemplo estão com 10 peças.
-- [ ] Descrição de cada produto. Hoje a página mostra o marcador `[DESCRIÇÃO DO PRODUTO]`.
+- [ ] Descrição de cada produto, pelo painel. Sem descrição, a página do produto não mostra o bloco; `npm run conferir-marcadores` lista os produtos à venda sem descrição ou sem foto.
 - [ ] Esconder pelo painel (desligar "Mostrar na loja") os produtos de exemplo que não forem vendidos de verdade.
 - [ ] Tabela de medidas por tamanho. Hoje a página mostra o marcador `[TABELA DE MEDIDAS]`.
 - [ ] Produtos reais da categoria "Camisetas Básicas". Hoje ela tem só a "Camiseta lisa" de exemplo (seed: branca, preta, azul-marinho e off-white, P a GG, preço de teste R$ 1,00), que também é a peça base da personalização.
 - [ ] **Confirmar com o pai do Israel a tabela de desconto do atacado.** Hoje está a tabela PROVISÓRIA: 10 a 19 peças, 5%; 20 a 49, 10%; 50 ou mais, 15% (total de peças do carrinho, produtos misturados). Os valores ficam na tabela `faixas_atacado` do banco (criada pelo seed em `prisma/seed.ts`, `FAIXAS_ATACADO_PROVISORIAS`) e são editáveis pelo painel em Atacado (`/admin/atacado`).
-- [ ] CNPJ, cidade, WhatsApp, e-mail, horário de atendimento e Instagram para o rodapé.
-- [ ] Respostas das perguntas frequentes, prazos de produção e entrega.
-- [ ] Política de troca e devolução.
-- [ ] Página de política de privacidade. Depois de criada, ligar o texto do cadastro a ela.
-- [ ] Conferir que não sobrou nenhum marcador entre colchetes (`[PREÇO]`, `[FOTO]`, `[RESPOSTA]` etc.) nem link para página inexistente (`/personalizacao`, `/atacado`, `/politica-de-troca`, `/privacidade`).
+- [x] Dados da loja num lugar só (`src/lib/loja.ts`), usados no rodapé, no contato e nas políticas. Cidade (Natal/RN) e WhatsApp ((84) 98713-7644) preenchidos.
+- [ ] **CNPJ e razão social (obrigatório antes de publicar).** A empresa ainda vai ser aberta. O decreto do comércio eletrônico (Decreto 7.962/2013) exige que o site identifique quem vende: nome, CNPJ, endereço e contato. Hoje aparecem `[RAZÃO SOCIAL]` e `[CNPJ]` no rodapé, na privacidade e nos termos.
+- [ ] **Endereço da loja (obrigatório antes de publicar),** pelo mesmo decreto. Hoje aparece `[ENDEREÇO]`.
+- [ ] Trocar o e-mail de atendimento provisório (`israellipe2020@gmail.com`) por um e-mail da loja, em `src/lib/loja.ts` (e conferir `EMAIL_DA_LOJA` e `EMAIL_RESPONDER_PARA`).
+- [ ] Horário de atendimento (confirmar com o pai do Israel). Hoje aparece `[HORÁRIO]`.
+- [ ] Criar o Instagram e colocar o endereço em `src/lib/loja.ts`. Enquanto estiver vazio, ele não aparece no site.
+- [ ] Preencher `ATUALIZACAO_DAS_POLITICAS` em `src/lib/loja.ts` com a data de publicação das políticas. Hoje aparece `[DATA DA PUBLICAÇÃO]`.
+- [x] Perguntas frequentes em `/perguntas-frequentes` (a página inicial mostra 5, com link). As respostas usam os números do código e a tabela de atacado do banco.
+- [ ] **Prazo de despacho** de um pedido pago e **prazo de produção** da personalização (confirmar com o pai do Israel; não inventar). Hoje aparecem `[PRAZO DE DESPACHO]` e `[PRAZO DE PRODUÇÃO DA PERSONALIZAÇÃO]` nos termos e nas perguntas frequentes.
+- [x] Política de troca e devolução em `/politica-de-troca` (rascunho): arrependimento em 7 dias, troca de tamanho ou cor, defeito em 90 dias, personalizadas, como pedir e como o dinheiro volta.
+- [ ] **Confirmar com o pai do Israel** os pontos provisórios da troca: **prazo de 30 dias** para trocar tamanho ou cor e **quem paga o frete da troca** (hoje: a loja paga a primeira troca de tamanho; nas seguintes, o cliente paga o envio). Também: peça sem uso, sem lavar e com etiqueta; personalizadas sem troca por tamanho, cor ou mudança de ideia, só por defeito. Os números ficam em `src/lib/politicas.ts`.
+- [ ] Definir na revisão jurídica se o arrependimento de 7 dias vale para peças personalizadas. Hoje aparece `[REGRA DO ARREPENDIMENTO PARA PEÇAS PERSONALIZADAS, A DEFINIR NA REVISÃO JURÍDICA]`.
+- [x] Política de privacidade em `/privacidade` (rascunho, LGPD) e termos de uso em `/termos`, com links no cadastro, no checkout, no formulário de orçamento e no de personalização. Página de contato em `/contato`, só com os canais.
+- [ ] **Revisão por advogado ou contador antes de publicar:** política de troca, política de privacidade e termos de uso. Pontos de atenção: arrependimento nas peças personalizadas, prazo de 90 dias para defeito (bem durável), prazo de 15 dias para responder pedidos da LGPD, bases legais e a declaração de direito de uso da arte. Se a política mudar, a tarefa diária e `src/lib/politicas.ts` mudam junto.
+- [ ] Se um dia o site usar ferramenta de análise de visitas ou de anúncios, atualizar a parte de cookies da política de privacidade antes.
+- [ ] Antes de publicar, rodar `npm run conferir-marcadores` e resolver tudo o que ele listar: marcadores no código, dados da loja vazios e produtos à venda sem foto ou sem descrição. Ele sai com erro enquanto faltar algo.
 
 ### Fotos
 
 - [ ] Fotos para os cartões de categoria "Básicas", "Personalizadas" e "Atacado".
 - [ ] Pelo menos uma foto da peça real em cada página de produto. As fotos atuais são montagens digitais da estampa sobre modelos.
-- [ ] Fotos da "Camiseta lisa" (uma por cor). Hoje a página dela mostra o marcador `[FOTO]`.
+- [ ] Fotos da "Camiseta lisa" (uma por cor), pelo painel. Produto sem foto mostra um ícone de camiseta no lugar.
 - [ ] Testar o envio de fotos pelo celular do pai do Israel. O painel aceita JPG, PNG e WebP até 10 MB. Fotos HEIC (formato do iPhone) são recusadas com uma mensagem; o Safari costuma converter para JPG ao escolher a foto, mas isso precisa ser confirmado no aparelho dele.
 - [ ] As fotos de exemplo ficam em `public/fotos`, não no Storage. Ao removê-las pelo painel, sai só o registro; apagar os arquivos de `public/fotos` que não forem mais usados.
 

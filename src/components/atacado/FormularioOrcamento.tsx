@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useTransition, type FormEvent } from "react";
 
 import { enviarOrcamento } from "@/app/atacado/acoes";
@@ -154,7 +155,12 @@ export function FormularioOrcamento({ inicial, hoje }: Props) {
         <button type="submit" disabled={enviando} className={`${classesBotao("principal")} w-full sm:w-auto`}>
           {enviando ? "Enviando…" : "Pedir orçamento"}
         </button>
-        <p className="mt-3 text-[13px] text-secundario">{AVISO_DE_DADOS}</p>
+        <p className="mt-3 text-[13px] text-secundario">
+          {AVISO_DE_DADOS}{" "}
+          <Link href="/privacidade" target="_blank" className="underline underline-offset-4">
+            Política de privacidade
+          </Link>
+        </p>
       </div>
     </form>
   );

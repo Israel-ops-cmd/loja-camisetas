@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { CircleAlert } from "lucide-react";
+import { CircleAlert, Shirt } from "lucide-react";
 import { useState, useTransition, type ReactNode } from "react";
 
 import { adicionarAoCarrinho } from "@/app/carrinho/acoes";
@@ -124,9 +124,7 @@ export function DetalheProduto({
               className="object-contain"
             />
           ) : (
-            <span className="text-[12px] font-semibold tracking-[0.2em] text-secundario">
-              [FOTO]
-            </span>
+            <Shirt aria-hidden="true" className="size-24 text-secundario/40" strokeWidth={1} />
           )}
         </div>
 

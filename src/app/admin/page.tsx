@@ -2,7 +2,9 @@ import Link from "next/link";
 import { Boxes, ClipboardList, Package, Palette, Percent, Shirt } from "lucide-react";
 
 import { LimpezaDeArquivos } from "@/components/admin/LimpezaDeArquivos";
+import { listarArquivosEsquecidos } from "@/lib/arquivos-esquecidos";
 import { exigirAdministrador } from "@/lib/auth";
+import { formatarTamanhoDoArquivo } from "@/lib/personalizacao-regras";
 import { LIMITE_ULTIMAS_UNIDADES } from "@/lib/estoque-regras";
 import { prisma } from "@/lib/prisma";
 
@@ -17,10 +19,18 @@ export default async function PaginaPainel() {
     prisma.variacao.count({ where: { ...aVendaNaLoja, estoque: { lt: 0 } } }),
     prisma.faixaAtacado.count({ where: { ativo: true } }),
   ]);
-  const [paraSeparar, comAlerta] = await Promise.all([
+  const [paraSeparar, comAlerta, arquivosParaLimpar] = await Promise.all([
     prisma.pedido.count({ where: { status: { in: ["PAGO", "EM_SEPARACAO"] } } }),
     prisma.pedido.count({ where: { alerta: { not: null } } }),
+    listarArquivosEsquecidos(),
   ]);
+  const pendentes =
+    arquivosParaLimpar.length > 0
+      ? {
+          quantidade: arquivosParaLimpar.length,
+          tamanho: formatarTamanhoDoArquivo(arquivosParaLimpar.reduce((soma, a) => soma + a.bytes, 0)),
+        }
+      : null;
 
   return (
     <div className="secao">
@@ -137,7 +147,7 @@ export default async function PaginaPainel() {
         <section className="mt-10 rounded-[20px] bg-papel p-6 sm:p-8">
           <h2 className="sobretitulo">Manutenção</h2>
           <div className="mt-4">
-            <LimpezaDeArquivos />
+            <LimpezaDeArquivos pendentes={pendentes} />
           </div>
         </section>
       </div>
