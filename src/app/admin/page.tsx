@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Boxes, ClipboardList, Palette, Percent, Shirt } from "lucide-react";
+import { Boxes, ClipboardList, Package, Palette, Percent, Shirt } from "lucide-react";
 
 import { exigirAdministrador } from "@/lib/auth";
 import { LIMITE_ULTIMAS_UNIDADES } from "@/lib/estoque-regras";
@@ -16,17 +16,36 @@ export default async function PaginaPainel() {
     prisma.variacao.count({ where: { ...aVendaNaLoja, estoque: { lt: 0 } } }),
     prisma.faixaAtacado.count({ where: { ativo: true } }),
   ]);
+  const [paraSeparar, comAlerta] = await Promise.all([
+    prisma.pedido.count({ where: { status: { in: ["PAGO", "EM_SEPARACAO"] } } }),
+    prisma.pedido.count({ where: { alerta: { not: null } } }),
+  ]);
 
   return (
     <div className="secao">
       <div className="mx-auto max-w-5xl">
         <p className="sobretitulo text-secundario">Painel</p>
         <h1 className="titulo-destaque mt-4">Olá, {usuario.nome}.</h1>
-        <p className="texto-destaque mt-6 max-w-xl text-apoio">
-          A lista de pedidos chega na próxima etapa.
-        </p>
-
         <ul className="mt-10 grid gap-4 sm:grid-cols-2">
+          <li>
+            <Link
+              href="/admin/pedidos"
+              className={`flex min-h-28 items-start gap-4 rounded-[20px] p-6 transition hover:ring-2 hover:ring-tinta ${paraSeparar + comAlerta > 0 ? "bg-tinta text-papel" : "bg-papel"}`}
+            >
+              <Package aria-hidden="true" className="size-7 shrink-0" strokeWidth={1.5} />
+              <span>
+                <span className="block font-titulo text-[20px] font-bold uppercase">Pedidos</span>
+                <span className={`mt-1 block text-[14px] ${paraSeparar + comAlerta > 0 ? "" : "text-apoio"}`}>
+                  {paraSeparar === 0
+                    ? "Nenhum pedido para separar."
+                    : paraSeparar === 1
+                      ? "1 pedido para separar e enviar."
+                      : `${paraSeparar} pedidos para separar e enviar.`}
+                  {comAlerta > 0 && (comAlerta === 1 ? " 1 precisa de decisão." : ` ${comAlerta} precisam de decisão.`)}
+                </span>
+              </span>
+            </Link>
+          </li>
           <li>
             <Link
               href="/admin/produtos"

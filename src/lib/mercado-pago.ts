@@ -137,6 +137,19 @@ export async function criarCobranca(dados: DadosDaCobranca) {
   return { preferenciaId: preferencia.id, link: preferencia.init_point };
 }
 
+/** Encerra o link de pagamento (pedido cancelado). Falha aqui não impede o cancelamento. */
+export async function expirarCobranca(preferenciaId: string) {
+  try {
+    await chamar(`/checkout/preferences/${encodeURIComponent(preferenciaId)}`, {
+      method: "PUT",
+      body: JSON.stringify({ expires: true, expiration_date_to: new Date().toISOString() }),
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /** Soma cobrada por uma cobrança já criada, em centavos (ou null se não der para ler). */
 export async function valorDaCobranca(preferenciaId: string) {
   try {
@@ -165,10 +178,27 @@ export type PagamentoMercadoPago = {
   payment_type_id: string;
   payment_method_id: string;
   date_approved: string | null;
+  date_created: string;
 };
 
 export function buscarPagamento(id: string) {
   return chamar<PagamentoMercadoPago>(`/v1/payments/${encodeURIComponent(id)}`);
+}
+
+/**
+ * Devolve ao comprador o valor total do pagamento. A chave de idempotência
+ * faz um segundo clique não gerar um segundo estorno.
+ * https://www.mercadopago.com.br/developers/pt/reference/chargebacks/_payments_id_refunds/post
+ */
+export function estornarPagamentoNoMercadoPago(id: string) {
+  return chamar<{ id: number; status: string; amount: number }>(
+    `/v1/payments/${encodeURIComponent(id)}/refunds`,
+    {
+      method: "POST",
+      headers: { "X-Idempotency-Key": `estorno-total-${id}` },
+      body: JSON.stringify({}),
+    },
+  );
 }
 
 /** Pagamentos ligados a um pedido (pela referência externa). */

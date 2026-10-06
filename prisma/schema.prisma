@@ -257,7 +257,17 @@ model Pedido {
   /// divergente). Nulo quando está tudo certo.
   alerta String?
 
+  /// Última conferência do pagamento na API (limita a uma por minuto na
+  /// página do pedido).
+  pagamentoConferidoEm DateTime?
+  enviadoEm            DateTime?
+  entregueEm           DateTime?
+  canceladoEm          DateTime?
+  /// Motivo do cancelamento, mostrado ao cliente.
+  motivoCancelamento   String?
+
   itens          ItemPedido[]
+  historico      PedidoHistorico[]
   movimentacoes  MovimentacaoEstoque[]
   /// Preenchido quando o pedido nasce de uma personalização aprovada.
   personalizacao Personalizacao?
@@ -267,6 +277,20 @@ model Pedido {
   @@index([clienteId])
   @@index([status])
   @@map("pedidos")
+}
+
+/// O que aconteceu com o pedido e quem fez (só o painel mostra).
+model PedidoHistorico {
+  id       String   @id @default(uuid(7)) @db.Uuid
+  texto    String
+  /// Nome de quem fez a mudança; nulo quando foi o sistema (pagamento, tarefa).
+  autor    String?
+  pedidoId String   @db.Uuid
+  pedido   Pedido   @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+  criadoEm DateTime @default(now())
+
+  @@index([pedidoId])
+  @@map("pedido_historico")
 }
 
 /// Guarda uma cópia de nome, cor, tamanho e preço: mudanças no catálogo

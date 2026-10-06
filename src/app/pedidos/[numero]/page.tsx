@@ -6,10 +6,15 @@ import { BotaoPagar } from "@/components/pedido/BotaoPagar";
 import { Botao } from "@/components/ui/Botao";
 import { exigirUsuario } from "@/lib/auth";
 import { formatarPreco } from "@/lib/formatacao";
-import { conferirPagamentosDoPedido, prazoDePagamento } from "@/lib/pagamento";
+import {
+  conferirPagamentoSeLiberado,
+  conferirPagamentosDoPedido,
+  prazoDePagamento,
+} from "@/lib/pagamento";
 import {
   formatarData,
   formatarNumeroDoPedido,
+  linkDeRastreio,
   rotulosDeStatus,
 } from "@/lib/pedidos";
 import { prisma } from "@/lib/prisma";
@@ -46,12 +51,16 @@ export default async function PaginaPedido({
   let pedido = await buscar();
   if (!pedido) notFound();
 
-  // Volta do Mercado Pago: confere o pagamento na hora, sem esperar o webhook.
-  // Os dados da URL não são usados; a situação vem da API do Mercado Pago.
-  if (retorno && pedido.status === "AGUARDANDO_PAGAMENTO") {
+  // Pedido pendente: confere o pagamento na API, sem depender só do webhook
+  // (rede de segurança). Na volta do Mercado Pago confere sempre; nas outras
+  // visitas, no máximo uma vez por minuto por pedido. Os dados da URL não são
+  // usados; a situação vem da API do Mercado Pago.
+  if (pedido.status === "AGUARDANDO_PAGAMENTO") {
     try {
-      await conferirPagamentosDoPedido(pedido.id);
-      pedido = (await buscar())!;
+      const conferiu = retorno
+        ? (await conferirPagamentosDoPedido(pedido.id), true)
+        : await conferirPagamentoSeLiberado(pedido.id);
+      if (conferiu) pedido = (await buscar())!;
     } catch (erro) {
       console.error("[pedido] não foi possível conferir o pagamento:", erro);
     }
@@ -93,8 +102,46 @@ export default async function PaginaPedido({
               pedido vai para separação.
             </Aviso>
           )}
+          {pedido.status === "EM_SEPARACAO" && (
+            <Aviso tipo="info">
+              Estamos separando as peças do seu pedido. Assim que for postado,
+              o código de rastreio aparece aqui.
+            </Aviso>
+          )}
+          {pedido.status === "ENVIADO" && (
+            <Aviso tipo="sucesso">
+              Pedido enviado
+              {pedido.enviadoEm && ` em ${formatarData(pedido.enviadoEm)}`}.
+              {pedido.codigoRastreio && (
+                <>
+                  {" "}
+                  Acompanhe pelo código{" "}
+                  <a
+                    href={linkDeRastreio(pedido.codigoRastreio)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-semibold underline underline-offset-4"
+                  >
+                    {pedido.codigoRastreio}
+                  </a>
+                  .
+                </>
+              )}
+            </Aviso>
+          )}
+          {pedido.status === "ENTREGUE" && (
+            <Aviso tipo="sucesso">
+              Pedido entregue. Obrigado por comprar com a gente!
+            </Aviso>
+          )}
           {pedido.status === "CANCELADO" && (
-            <Aviso tipo="info">Este pedido foi cancelado.</Aviso>
+            <Aviso tipo="info">
+              Este pedido foi cancelado
+              {pedido.canceladoEm && ` em ${formatarData(pedido.canceladoEm)}`}.
+              {pedido.motivoCancelamento && ` Motivo: ${pedido.motivoCancelamento}`}
+              {pedido.mercadoPagoStatus === "refunded" &&
+                " O valor pago foi devolvido pelo Mercado Pago, na mesma forma de pagamento."}
+            </Aviso>
           )}
           {pedido.status === "AGUARDANDO_PAGAMENTO" && vencido && (
             <Aviso tipo="info">
@@ -238,7 +285,14 @@ export default async function PaginaPedido({
           {pedido.codigoRastreio && (
             <p className="mt-3 text-[15px]">
               Código de rastreio:{" "}
-              <span className="font-semibold">{pedido.codigoRastreio}</span>
+              <a
+                href={linkDeRastreio(pedido.codigoRastreio)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold underline underline-offset-4"
+              >
+                {pedido.codigoRastreio}
+              </a>
             </p>
           )}
         </section>

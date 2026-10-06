@@ -1,5 +1,6 @@
 import "server-only";
 
+import { rotulosDeStatus } from "@/lib/pedidos";
 import { prisma } from "@/lib/prisma";
 import {
   buscarPagamento,
@@ -91,8 +92,13 @@ async function aplicar(pagamento: PagamentoMercadoPago) {
       }
       await tx.pedido.update({
         where: { id: pedidoId },
-        data: { status: "CANCELADO", mercadoPagoStatus: status },
+        data: { status: "CANCELADO", mercadoPagoStatus: status, canceladoEm: new Date() },
       });
+      await registrar(
+        tx,
+        pedidoId,
+        `Pagamento ${idDoPagamento} ${status === "refunded" ? "estornado" : "contestado pelo comprador"} no Mercado Pago. Pedido cancelado e peças devolvidas ao estoque.`,
+      );
       return;
     }
 
@@ -112,6 +118,8 @@ async function aplicar(pagamento: PagamentoMercadoPago) {
 
     if (pedido.status !== "AGUARDANDO_PAGAMENTO") {
       // Pagamento aprovado em pedido cancelado ou já pago por outro pagamento.
+      if (await jaAvisado(tx, pedidoId, idDoPagamento)) return;
+      await registrar(tx, pedidoId, `Pagamento ${idDoPagamento} aprovado com o pedido já "${rotulosDeStatus[pedido.status]}". Gerou um alerta.`);
       await tx.pedido.update({
         where: { id: pedidoId },
         data: {
@@ -126,6 +134,8 @@ async function aplicar(pagamento: PagamentoMercadoPago) {
 
     const valorPago = Math.round(pagamento.transaction_amount * 100);
     if (pagamento.currency_id !== "BRL" || valorPago !== pedido.totalEmCentavos) {
+      if (await jaAvisado(tx, pedidoId, idDoPagamento)) return;
+      await registrar(tx, pedidoId, `Pagamento ${idDoPagamento} aprovado com valor diferente do total. Gerou um alerta.`);
       await tx.pedido.update({
         where: { id: pedidoId },
         data: {
@@ -183,7 +193,44 @@ async function aplicar(pagamento: PagamentoMercadoPago) {
             : pedido.alerta,
       },
     });
+    const forma = FORMAS[pagamento.payment_type_id] ?? pagamento.payment_type_id;
+    await registrar(
+      tx,
+      pedidoId,
+      `Pagamento ${idDoPagamento} aprovado (${forma}). Estoque baixado${faltas.length > 0 ? ", mas faltou peça: gerou um alerta" : ""}.`,
+    );
   });
+}
+
+type Transacao = Parameters<Parameters<typeof prisma.$transaction>[0]>[0];
+
+/** O alerta deste pagamento já foi gerado (mesmo que depois resolvido)? */
+async function jaAvisado(tx: Transacao, pedidoId: string, idDoPagamento: string) {
+  const linha = await tx.pedidoHistorico.findFirst({
+    where: { pedidoId, texto: { startsWith: `Pagamento ${idDoPagamento} aprovado` }, AND: { texto: { contains: "Gerou um alerta" } } },
+    select: { id: true },
+  });
+  return linha !== null;
+}
+
+/** Linha do histórico do pedido. Sem autor: foi o sistema. */
+export function registrar(tx: Transacao, pedidoId: string, texto: string, autor?: string) {
+  return tx.pedidoHistorico.create({ data: { pedidoId, texto, autor: autor ?? null } });
+}
+
+/**
+ * Para a página do pedido do cliente: confere o pagamento na API no máximo
+ * uma vez por minuto por pedido (marca a hora antes, de forma atômica, para
+ * recargas seguidas não chamarem a API várias vezes).
+ */
+export async function conferirPagamentoSeLiberado(pedidoId: string) {
+  const liberado = await prisma.$executeRaw`
+    update pedidos set "pagamentoConferidoEm" = now()
+    where id = ${pedidoId}::uuid and status = 'AGUARDANDO_PAGAMENTO'
+      and ("pagamentoConferidoEm" is null or "pagamentoConferidoEm" < now() - interval '1 minute')`;
+  if (liberado === 0) return false;
+  await conferirPagamentosDoPedido(pedidoId);
+  return true;
 }
 
 function juntarAlerta(atual: string | null, novo: string) {
