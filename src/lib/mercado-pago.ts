@@ -9,7 +9,17 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 const API = "https://api.mercadopago.com";
 const TEMPO_LIMITE_MS = 10_000;
 
-export class ErroMercadoPago extends Error {}
+export class ErroMercadoPago extends Error {
+  constructor(
+    mensagem: string,
+    /** Código HTTP da resposta (ausente em falha de rede). */
+    readonly status?: number,
+    /** Mensagem original do Mercado Pago, para o log e para diagnóstico. */
+    readonly detalhe?: string,
+  ) {
+    super(mensagem);
+  }
+}
 
 /** O recurso pedido não existe no Mercado Pago (HTTP 404). */
 export class NaoEncontradoNoMercadoPago extends ErroMercadoPago {}
@@ -39,14 +49,24 @@ async function chamar<T>(caminho: string, opcoes: RequestInit = {}): Promise<T> 
   }
 
   if (!resposta.ok) {
-    console.error(
-      `[mercado-pago] ${opcoes.method ?? "GET"} ${caminho} respondeu ${resposta.status}:`,
-      (await resposta.text()).slice(0, 800),
-    );
-    if (resposta.status === 404) {
-      throw new NaoEncontradoNoMercadoPago("Não encontrado no Mercado Pago.");
+    const corpo = (await resposta.text()).slice(0, 800);
+    console.error(`[mercado-pago] ${opcoes.method ?? "GET"} ${caminho} respondeu ${resposta.status}:`, corpo);
+    let detalhe = corpo;
+    try {
+      const json = JSON.parse(corpo) as { message?: string; cause?: { code?: unknown; description?: string }[] };
+      const causa = json.cause?.[0];
+      detalhe = [json.message, causa?.code !== undefined && `código ${causa.code}`].filter(Boolean).join(", ") || corpo;
+    } catch {
+      // Corpo não é JSON: fica o texto.
     }
-    throw new ErroMercadoPago("Não conseguimos falar com o Mercado Pago agora. Tente de novo em instantes.");
+    if (resposta.status === 404) {
+      throw new NaoEncontradoNoMercadoPago("Não encontrado no Mercado Pago.", 404, detalhe);
+    }
+    throw new ErroMercadoPago(
+      "Não conseguimos falar com o Mercado Pago agora. Tente de novo em instantes.",
+      resposta.status,
+      detalhe,
+    );
   }
   return resposta.json() as Promise<T>;
 }
@@ -137,6 +157,19 @@ export async function criarCobranca(dados: DadosDaCobranca) {
   return { preferenciaId: preferencia.id, link: preferencia.init_point };
 }
 
+/** Encerra o link de pagamento (pedido cancelado). Falha aqui não impede o cancelamento. */
+export async function expirarCobranca(preferenciaId: string) {
+  try {
+    await chamar(`/checkout/preferences/${encodeURIComponent(preferenciaId)}`, {
+      method: "PUT",
+      body: JSON.stringify({ expires: true, expiration_date_to: new Date().toISOString() }),
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /** Soma cobrada por uma cobrança já criada, em centavos (ou null se não der para ler). */
 export async function valorDaCobranca(preferenciaId: string) {
   try {
@@ -165,10 +198,27 @@ export type PagamentoMercadoPago = {
   payment_type_id: string;
   payment_method_id: string;
   date_approved: string | null;
+  date_created: string;
 };
 
 export function buscarPagamento(id: string) {
   return chamar<PagamentoMercadoPago>(`/v1/payments/${encodeURIComponent(id)}`);
+}
+
+/**
+ * Devolve ao comprador o valor total do pagamento. A chave de idempotência
+ * faz um segundo clique não gerar um segundo estorno.
+ * https://www.mercadopago.com.br/developers/pt/reference/chargebacks/_payments_id_refunds/post
+ */
+export function estornarPagamentoNoMercadoPago(id: string) {
+  return chamar<{ id: number; status: string; amount: number }>(
+    `/v1/payments/${encodeURIComponent(id)}/refunds`,
+    {
+      method: "POST",
+      headers: { "X-Idempotency-Key": `estorno-total-${id}` },
+      body: JSON.stringify({}),
+    },
+  );
 }
 
 /** Pagamentos ligados a um pedido (pela referência externa). */
