@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ChevronDown } from "lucide-react";
 
+import { DadosEstruturados, textoDe } from "@/components/seo/DadosEstruturados";
 import { listarPerguntasFrequentes } from "@/lib/perguntas-frequentes";
 
 /**
@@ -17,6 +18,19 @@ export async function PerguntasFrequentes({ todas = false }: { todas?: boolean }
       aria-labelledby="titulo-perguntas"
       className="secao scroll-mt-18 bg-papel"
     >
+      {todas && (
+        <DadosEstruturados
+          dados={{
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: perguntas.map((p) => ({
+              "@type": "Question",
+              name: p.pergunta,
+              acceptedAnswer: { "@type": "Answer", text: textoDe(p.resposta).replace(/s+/g, " ").trim() },
+            })),
+          }}
+        />
+      )}
       <div className="mx-auto max-w-3xl">
         <Titulo id="titulo-perguntas" className={todas ? "titulo-destaque" : "titulo-listagem"}>
           Perguntas frequentes

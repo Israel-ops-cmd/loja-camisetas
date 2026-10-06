@@ -1,6 +1,6 @@
 # Pendências da Carta Viva Camisetas
 
-Lista do que ficou para depois durante o desenvolvimento. Marque com `[x]` o que for resolvido e acrescente o que surgir.
+Lista do que ficou para depois durante o desenvolvimento. A ordem para pôr o site no ar está em `docs/publicacao.md`. Marque com `[x]` o que for resolvido e acrescente o que surgir.
 
 ## Obrigatório antes de publicar
 
@@ -11,7 +11,7 @@ Lista do que ficou para depois durante o desenvolvimento. Marque com `[x]` o que
 
 ### E-mails
 
-- [ ] Definir e registrar o domínio da loja.
+- [ ] Registrar o domínio da loja. Sugestão aceita: `cartavivacamisetas.com.br` (sem registro no Registro.br em 06/10/2026; `cartaviva.com.br` já tem dono). Depois, `SITE_URL` na Vercel com o domínio: sem ela, o site não é indexado pelo Google, de propósito.
 - [ ] Verificar o domínio no Resend (Domains > Add domain, registros DNS) e preencher `EMAIL_REMETENTE` (ex.: `Carta Viva Camisetas <pedidos@dominio>`) no `.env.local` e na Vercel. Sem domínio verificado, o Resend só entrega para o e-mail da própria conta: clientes não recebem nada.
 - [ ] **Antes de publicar: deixar `EMAIL_DESTINO_TESTE` vazio na Vercel.** Preenchido, todos os e-mails dos clientes vão para esse endereço (modo de teste).
 - [ ] Preencher na Vercel `RESEND_API_KEY`, `EMAIL_DA_LOJA` (e-mail que o pai do Israel lê, para os avisos de pedido pago, alertas, personalização e orçamento), `EMAIL_RESPONDER_PARA` (opcional) e `SITE_URL` com o endereço definitivo (os links dos e-mails enviados pela tarefa diária e pelo webhook usam o endereço da requisição se `SITE_URL` estiver vazia).
@@ -36,7 +36,7 @@ Lista do que ficou para depois durante o desenvolvimento. Marque com `[x]` o que
 - [ ] Cadastrar `CRON_SECRET` na Vercel (texto aleatório com 16 caracteres ou mais; o `.env.example` mostra como gerar). Sem ele, a tarefa diária responde 401 e não roda. Para testar no computador, colocar também no `.env.local`.
 - [ ] Depois de publicar, conferir na Vercel (Settings > Cron Jobs) que a tarefa diária aparece e, no dia seguinte, ver no log a linha `[tarefa diária]` com o resumo. As tarefas agendadas só rodam na produção (`main`), não nas prévias.
 - [ ] Na Vercel, cadastrar a `NEXT_PUBLIC_SUPABASE_URL` só com o endereço base (`https://<projeto>.supabase.co`), sem `/rest/v1/`.
-- [ ] Configurar a região das funções na Vercel para São Paulo (`gru1`), perto do banco. Na região padrão (Estados Unidos), cada consulta fica mais lenta.
+- [x] Região das funções na Vercel em São Paulo (`gru1`, no `vercel.json`), a mesma do banco (`sa-east-1`). Etapa 16. Conferir em Settings > Functions depois do primeiro deploy.
 
 ### Frete (Melhor Envio)
 
@@ -156,7 +156,10 @@ Desde a etapa 12, produtos, preços, cores, tamanhos, descrições e fotos são 
 - [ ] Testar uma compra completa de ponta a ponta: cadastro, carrinho, frete, pagamento, e-mail e baixa de estoque.
 - [ ] Testar no celular, de verdade, os fluxos que só foram testados pelo servidor: escolha de cor, tamanho e quantidade, carrinho, cálculo de frete, cadastro e login.
 - [ ] Ver o pai do Israel cadastrar um produto completo pelo celular (dados, cores e tamanhos, fotos), lançar o estoque dele ("Chegaram peças" e "Corrigir contagem") e ajustar textos e botões do painel conforme as dúvidas dele.
-- [ ] Fazer o merge de `dev` em `main`.
+- [ ] Fazer o merge de `dev` em `main` (seguir `docs/publicacao.md`).
+- [ ] Depois de publicar: medir no PageSpeed Insights (celular) as páginas inicial, listagem e produto. Localmente (06/10/2026) o desempenho variou de 77 a 96 entre rodadas, porque o Lighthouse roda no mesmo computador do servidor; o número que vale é o de produção. O que mais pesa hoje é o JavaScript das páginas interativas (escolha de cor, tamanho e quantidade) num celular lento.
+- [ ] Depois de publicar: mandar um link de produto e o da página inicial no WhatsApp e conferir a prévia (foto, título e descrição). A imagem do produto sai em JPEG (~110 KB) para o WhatsApp mostrar; a das outras páginas é gerada com a marca.
+- [ ] Depois de publicar: verificar o domínio no Google Search Console e enviar o `sitemap.xml`.
 
 ## Melhorias para depois
 
@@ -180,6 +183,6 @@ Desde a etapa 12, produtos, preços, cores, tamanhos, descrições e fotos são 
 ## Limpeza
 
 - [x] Apagar a pasta `public/hero`, substituída por `public/fotos`. Feito na etapa 1.
-- [ ] Apagar os arquivos do modelo inicial do Next: `src/app/favicon.ico` (o ícone da loja é o `src/app/icon.svg`) e os SVGs de exemplo em `public/` (`file.svg`, `globe.svg`, `next.svg`, `vercel.svg`, `window.svg`).
+- [x] Apagados os arquivos do modelo inicial do Next (`src/app/favicon.ico` e os SVGs de exemplo em `public/`). Etapa 16.
 - [ ] Apagar a pasta `Claude outputs` da raiz do projeto.
 - [ ] Instalar o GitHub CLI (`winget install GitHub.cli`) para o Claude Code abrir os PRs sozinho.

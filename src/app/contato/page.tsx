@@ -5,6 +5,7 @@ import { Clock, Mail, MapPin, MessageCircle } from "lucide-react";
 import { linkDoWhatsapp, LOJA, ou, whatsappLegivel } from "@/lib/loja";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/contato" },
   title: "Contato",
   description: `Fale com a ${LOJA.nome} pelo WhatsApp ou por e-mail.`,
 };

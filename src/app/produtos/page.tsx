@@ -14,6 +14,7 @@ import {
 import { hrefCatalogo } from "@/lib/url-catalogo";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/produtos" },
   title: "Produtos",
   description:
     "Camisetas lisas e estampas da casa da Carta Viva. Filtre por categoria, cor e tamanho.",
@@ -74,6 +75,8 @@ export default async function PaginaProdutos({
               <FiltrosAtivos filtros={filtros} opcoes={opcoes} />
             </div>
 
+            {/* Título para leitores de tela: os cartões usam h3. */}
+            <h2 className="sr-only">Lista de produtos</h2>
             {produtos.length > 0 ? (
               <div className="mt-8 grid gap-x-5 gap-y-10 sm:grid-cols-2 xl:grid-cols-3">
                 {produtos.map((produto) => (

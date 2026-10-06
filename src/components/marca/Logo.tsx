@@ -46,7 +46,7 @@ export function Logo({ escuro = false, className = "" }: LogoProps) {
       <span className="flex flex-col leading-none">
         <span className="font-titulo text-[17px] font-extrabold tracking-[0.2em]">
           CARTA VIVA
-        </span>
+        </span>{" "}
         <span
           className={`mt-1 text-[10px] font-semibold tracking-[0.42em] ${escuro ? "text-secundario-escuro" : "text-secundario"}`}
         >

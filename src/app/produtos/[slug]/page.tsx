@@ -7,7 +7,9 @@ import { DetalheProduto } from "@/components/produto/DetalheProduto";
 import { ProdutoCartao } from "@/components/produto/ProdutoCartao";
 import { listarFaixasDeAtacado } from "@/lib/atacado";
 import { listarRelacionados } from "@/lib/catalogo";
+import { DadosEstruturados } from "@/components/seo/DadosEstruturados";
 import { LIMITE_ULTIMAS_UNIDADES, obterProduto } from "@/lib/produto";
+import { enderecoDoSite } from "@/lib/site";
 
 // Cada produto é gerado na primeira visita e refeito a cada minuto.
 // O estoque é conferido de novo no carrinho e no checkout.
@@ -17,6 +19,12 @@ export async function generateStaticParams() {
   return [];
 }
 
+/** Descrição para o Google: uma linha, até 160 caracteres. */
+function resumir(texto: string) {
+  const linha = texto.replace(/s+/g, " ").trim();
+  return linha.length <= 160 ? linha : `${linha.slice(0, 157).replace(/s+S*$/, "")}…`;
+}
+
 export async function generateMetadata({
   params,
 }: PageProps<"/produtos/[slug]">): Promise<Metadata> {
@@ -24,15 +32,23 @@ export async function generateMetadata({
   const produto = await obterProduto(slug);
   if (!produto) return {};
 
+  // Ao compartilhar, a foto principal em JPEG otimizado (cerca de 100 KB: o
+  // WhatsApp não mostra prévias pesadas). Sem foto, vale a imagem da marca
+  // (gerada em src/app/opengraph-image.tsx; precisa ser dita aqui, porque a
+  // página define o openGraph e deixa de herdar a do site).
   const foto = produto.imagens[0];
+  const imagem = foto
+    ? [{ url: `/_next/image?url=${encodeURIComponent(foto.url)}&w=1200&q=75`, width: 1200, alt: foto.alt }]
+    : [{ url: "/opengraph-image", width: 1200, height: 630, alt: "Carta Viva Camisetas" }];
+  const descricao = resumir(
+    produto.descricao ?? `Camiseta ${produto.nome}, da linha ${produto.categoria.nome} da Carta Viva.`,
+  );
   return {
     title: produto.nome,
-    description:
-      produto.descricao ??
-      `Camiseta ${produto.nome}, da linha ${produto.categoria.nome} da Carta Viva.`,
-    openGraph: foto
-      ? { images: [{ url: foto.url, alt: foto.alt }] }
-      : undefined,
+    description: descricao,
+    alternates: { canonical: `/produtos/${produto.slug}` },
+    openGraph: { title: produto.nome, description: descricao, url: `/produtos/${produto.slug}`, images: imagem },
+    twitter: { card: "summary_large_image", images: imagem },
   };
 }
 
@@ -50,8 +66,50 @@ export default async function PaginaProduto({
     listarFaixasDeAtacado(),
   ]);
 
+  const site = enderecoDoSite();
+  const url = `${site}/produtos/${produto.slug}`;
+  const precos = produto.variacoes.map((v) => v.precoEmCentavos / 100);
+  const disponivel = produto.variacoes.some((v) => v.estoque > 0);
+  const disponibilidade = `https://schema.org/${disponivel ? "InStock" : "OutOfStock"}`;
+
   return (
     <>
+      <DadosEstruturados
+        dados={{
+          "@context": "https://schema.org",
+          "@type": "Product",
+          name: produto.nome,
+          url,
+          ...(produto.descricao && { description: produto.descricao }),
+          image: produto.imagens.map((i) => (i.url.startsWith("http") ? i.url : `${site}${i.url}`)),
+          brand: { "@type": "Brand", name: "Carta Viva Camisetas" },
+          category: produto.categoria.nome,
+          offers:
+            Math.min(...precos) === Math.max(...precos)
+              ? { "@type": "Offer", url, priceCurrency: "BRL", price: precos[0].toFixed(2), availability: disponibilidade }
+              : {
+                  "@type": "AggregateOffer",
+                  url,
+                  priceCurrency: "BRL",
+                  lowPrice: Math.min(...precos).toFixed(2),
+                  highPrice: Math.max(...precos).toFixed(2),
+                  offerCount: precos.length,
+                  availability: disponibilidade,
+                },
+        }}
+      />
+      <DadosEstruturados
+        dados={{
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Início", item: site },
+            { "@type": "ListItem", position: 2, name: "Produtos", item: `${site}/produtos` },
+            { "@type": "ListItem", position: 3, name: produto.categoria.nome, item: `${site}/produtos?categoria=${produto.categoria.slug}` },
+            { "@type": "ListItem", position: 4, name: produto.nome, item: url },
+          ],
+        }}
+      />
       <div className="secao">
         <div className="mx-auto max-w-7xl">
           <nav aria-label="Trilha de navegação" className="mb-8">

@@ -38,7 +38,8 @@ function ComposicaoDeFotos() {
           src="/fotos/nao-temas-creia-casal.jpg"
           alt="Casal com a camiseta azul-marinho “Não temas, creia”: ela mostra a estampa pequena no peito e ele, de costas, a estampa grande com Marcos 5:36"
           fill
-          preload
+          loading="eager"
+          fetchPriority="high"
           sizes="(min-width: 1280px) 520px, (min-width: 1024px) 40vw, 88vw"
           className="object-cover object-[50%_35%]"
         />

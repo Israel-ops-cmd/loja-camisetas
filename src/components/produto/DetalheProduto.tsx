@@ -119,7 +119,8 @@ export function DetalheProduto({
               src={foto.url}
               alt={foto.alt}
               fill
-              preload={fotoAtiva === 0}
+              loading={fotoAtiva === 0 ? "eager" : undefined}
+              fetchPriority={fotoAtiva === 0 ? "high" : undefined}
               sizes="(min-width: 1280px) 600px, (min-width: 1024px) 50vw, 100vw"
               className="object-contain"
             />

@@ -16,7 +16,7 @@ export function Cabecalho() {
       <div className="mx-auto flex h-18 max-w-7xl items-center justify-between gap-4 px-[clamp(20px,5vw,80px)]">
         <div className="flex items-center gap-1">
           <MenuCelular />
-          <Link href="/" aria-label="Carta Viva Camisetas, página inicial">
+          <Link href="/" aria-label="Carta Viva Camisetas: página inicial">
             <Logo />
           </Link>
         </div>

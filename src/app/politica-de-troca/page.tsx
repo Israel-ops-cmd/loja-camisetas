@@ -6,6 +6,7 @@ import { linkDoWhatsapp, LOJA, whatsappLegivel } from "@/lib/loja";
 import { DIAS_PARA_ARREPENDIMENTO, DIAS_PARA_DEFEITO, DIAS_PARA_TROCA } from "@/lib/politicas";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/politica-de-troca" },
   title: "Trocas e devoluções",
   description: `Como trocar ou devolver uma compra da ${LOJA.nome}: arrependimento em ${DIAS_PARA_ARREPENDIMENTO} dias, troca de tamanho e defeito.`,
 };
