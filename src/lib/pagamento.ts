@@ -1,5 +1,7 @@
 import "server-only";
 
+import { enviarDepois } from "@/lib/emails/envio";
+import { emailDeAlerta, emailDeCancelamento, emailsDePedidoPago, urlDoSite } from "@/lib/emails/eventos";
 import { rotulosDeStatus } from "@/lib/pedidos";
 import { prisma } from "@/lib/prisma";
 import {
@@ -50,6 +52,10 @@ async function aplicar(pagamento: PagamentoMercadoPago) {
   const pedidoId = pagamento.external_reference;
   if (!pedidoId || !/^[0-9a-f-]{36}$/i.test(pedidoId)) return;
 
+  // E-mails entram na fila dentro da transação e saem depois do commit.
+  const site = await urlDoSite();
+  const emails: string[] = [];
+
   await prisma.$transaction(async (tx) => {
     // Trava a linha do pedido: dois avisos ao mesmo tempo esperam um pelo outro.
     const travado = await tx.$queryRaw<{ id: string }[]>`
@@ -99,6 +105,7 @@ async function aplicar(pagamento: PagamentoMercadoPago) {
         pedidoId,
         `Pagamento ${idDoPagamento} ${status === "refunded" ? "estornado" : "contestado pelo comprador"} no Mercado Pago. Pedido cancelado e peças devolvidas ao estoque.`,
       );
+      emails.push(...(await emailDeCancelamento(tx, pedido, status === "refunded" ? "estorno" : "contestacao", site)));
       return;
     }
 
@@ -120,15 +127,9 @@ async function aplicar(pagamento: PagamentoMercadoPago) {
       // Pagamento aprovado em pedido cancelado ou já pago por outro pagamento.
       if (await jaAvisado(tx, pedidoId, idDoPagamento)) return;
       await registrar(tx, pedidoId, `Pagamento ${idDoPagamento} aprovado com o pedido já "${rotulosDeStatus[pedido.status]}". Gerou um alerta.`);
-      await tx.pedido.update({
-        where: { id: pedidoId },
-        data: {
-          alerta: juntarAlerta(
-            pedido.alerta,
-            `Pagamento ${idDoPagamento} aprovado com o pedido em "${pedido.status}". Verifique e estorne se for o caso.`,
-          ),
-        },
-      });
+      const alerta = `Pagamento ${idDoPagamento} aprovado com o pedido em "${pedido.status}". Verifique e estorne se for o caso.`;
+      await tx.pedido.update({ where: { id: pedidoId }, data: { alerta: juntarAlerta(pedido.alerta, alerta) } });
+      emails.push(...(await emailDeAlerta(tx, pedido, idDoPagamento, alerta, site)));
       return;
     }
 
@@ -136,16 +137,12 @@ async function aplicar(pagamento: PagamentoMercadoPago) {
     if (pagamento.currency_id !== "BRL" || valorPago !== pedido.totalEmCentavos) {
       if (await jaAvisado(tx, pedidoId, idDoPagamento)) return;
       await registrar(tx, pedidoId, `Pagamento ${idDoPagamento} aprovado com valor diferente do total. Gerou um alerta.`);
+      const alerta = `Pagamento ${idDoPagamento} aprovado com valor ${pagamento.currency_id} ${valorPago / 100}, diferente do total do pedido. Pedido NÃO foi marcado como pago.`;
       await tx.pedido.update({
         where: { id: pedidoId },
-        data: {
-          mercadoPagoStatus: "valor_divergente",
-          alerta: juntarAlerta(
-            pedido.alerta,
-            `Pagamento ${idDoPagamento} aprovado com valor ${pagamento.currency_id} ${valorPago / 100}, diferente do total do pedido. Pedido NÃO foi marcado como pago.`,
-          ),
-        },
+        data: { mercadoPagoStatus: "valor_divergente", alerta: juntarAlerta(pedido.alerta, alerta) },
       });
+      emails.push(...(await emailDeAlerta(tx, pedido, idDoPagamento, alerta, site)));
       console.error(`[pagamento] valor divergente no pedido ${pedido.numero}`);
       return;
     }
@@ -199,7 +196,12 @@ async function aplicar(pagamento: PagamentoMercadoPago) {
       pedidoId,
       `Pagamento ${idDoPagamento} aprovado (${forma}). Estoque baixado${faltas.length > 0 ? ", mas faltou peça: gerou um alerta" : ""}.`,
     );
+    emails.push(...(await emailsDePedidoPago(tx, { ...pedido, metodoPagamento: forma }, site)));
+    if (faltas.length > 0) {
+      emails.push(...(await emailDeAlerta(tx, pedido, idDoPagamento, `Pago sem estoque suficiente: ${faltas.join("; ")}. Decida entre produzir ou estornar.`, site)));
+    }
   });
+  enviarDepois(emails);
 }
 
 type Transacao = Parameters<Parameters<typeof prisma.$transaction>[0]>[0];

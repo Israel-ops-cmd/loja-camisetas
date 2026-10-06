@@ -12,7 +12,14 @@ Lista do que ficou para depois durante o desenvolvimento. Marque com `[x]` o que
 ### E-mails
 
 - [ ] Definir e registrar o domínio da loja.
-- [ ] Configurar um serviço de envio próprio (SMTP), como o Resend, com o domínio da loja. Sem SMTP próprio, o Supabase só entrega e-mails para os membros da equipe do projeto e com um limite baixo por hora: clientes de verdade não recebem a confirmação de cadastro nem o link de nova senha.
+- [ ] Verificar o domínio no Resend (Domains > Add domain, registros DNS) e preencher `EMAIL_REMETENTE` (ex.: `Carta Viva Camisetas <pedidos@dominio>`) no `.env.local` e na Vercel. Sem domínio verificado, o Resend só entrega para o e-mail da própria conta: clientes não recebem nada.
+- [ ] **Antes de publicar: deixar `EMAIL_DESTINO_TESTE` vazio na Vercel.** Preenchido, todos os e-mails dos clientes vão para esse endereço (modo de teste).
+- [ ] Preencher na Vercel `RESEND_API_KEY`, `EMAIL_DA_LOJA` (e-mail que o pai do Israel lê, para os avisos de pedido pago, alertas, personalização e orçamento), `EMAIL_RESPONDER_PARA` (opcional) e `SITE_URL` com o endereço definitivo (os links dos e-mails enviados pela tarefa diária e pelo webhook usam o endereço da requisição se `SITE_URL` estiver vazia).
+- [ ] Abrir no celular (Gmail e o app de e-mail do iPhone) os 13 tipos de e-mail recebidos no teste de 06/10/2026 e ajustar o que ficar ruim. Os modelos ficam em `src/lib/emails/modelos.ts`.
+- [ ] Depois do domínio: colocar o logo como imagem no topo dos e-mails (hoje o nome da loja é escrito em texto, porque não há endereço definitivo para hospedar a imagem).
+- [ ] Na política de privacidade (etapa 15): a tabela `emails` guarda o conteúdo de cada e-mail enviado (nome, endereço e itens do pedido). Definir por quanto tempo guardar e apagar os antigos na tarefa diária.
+- [ ] O e-mail de confirmação do orçamento diz que a loja vai responder pelo WhatsApp ou por e-mail, sem prazo. Se o pai do Israel quiser prometer um prazo (ex.: "em até 2 dias úteis"), acrescentar em `emailOrcamentoRecebido`.
+- [ ] Configurar o SMTP do Supabase com o Resend (a conta já existe e manda os e-mails da loja desde a etapa 14), depois de verificar o domínio. Sem SMTP próprio, o Supabase só entrega e-mails para os membros da equipe do projeto e com um limite baixo por hora: clientes de verdade não recebem a confirmação de cadastro nem o link de nova senha.
 - [ ] Editar os modelos de e-mail no Supabase (Authentication > Emails), que só são liberados com SMTP próprio:
   - Confirm signup: link `{{ .SiteURL }}/auth/confirmar?token_hash={{ .TokenHash }}&type=email`
   - Reset password: link `{{ .SiteURL }}/auth/confirmar?token_hash={{ .TokenHash }}&type=recovery&next=/redefinir-senha`
@@ -79,18 +86,18 @@ Lista do que ficou para depois durante o desenvolvimento. Marque com `[x]` o que
 - [ ] Estorno parcial (devolver só parte do valor, por exemplo uma peça em falta). Hoje o painel só faz o estorno total.
 - [ ] Estorno de pedido já enviado devolve as peças ao estoque automaticamente (mesma rotina dos estornos do Mercado Pago). Se as peças não voltarem para a loja, é preciso corrigir a contagem no Estoque; a tela de estorno avisa isso.
 - [x] Etiqueta de envio pelo Melhor Envio (etapa 13b): gerar, comprar com o saldo da carteira (preço mostrado antes de confirmar), imprimir, atualizar e cancelar pela página do pedido no painel. Itens de configuração e teste em "Frete (Melhor Envio)".
-- [ ] E-mail de confirmação do pedido para o cliente (etapa 14). Hoje ele vê o pedido só na página do pedido e em "Minha conta".
+- [x] E-mails do pedido para o cliente (etapa 14): pagamento aprovado, pedido enviado com rastreio, pedido cancelado (pela loja, por falta de pagamento, por estorno ou contestação) e lembrete de pagamento no dia seguinte (uma vez por pedido, pela tarefa diária). A loja recebe pedido pago e alertas.
 
 ### Atacado e orçamentos
 
 - [x] Editar a tabela de desconto do atacado pelo painel (etapa 12, `/admin/atacado`): faixas, percentuais e ligar/desligar. Travas: até 5 faixas, de 1% a 50%, a partir de 2 peças, desconto maior para quantidade maior.
-- [ ] Aviso por e-mail para a loja quando chega um pedido de orçamento (etapa 14). Hoje a loja precisa abrir o painel (o início mostra quantos orçamentos novos há).
+- [x] Aviso por e-mail para a loja quando chega um pedido de orçamento, e confirmação para quem pediu (etapa 14).
 - [ ] Na política de privacidade (etapa 15), dizer por quanto tempo os dados dos orçamentos ficam guardados e como pedir a exclusão. O formulário avisa: "Usamos seus dados só para responder a este orçamento".
 - [ ] O limite de 3 orçamentos por hora usa o IP informado pela Vercel (`x-forwarded-for`). Conferir em produção que ele vem preenchido; no computador local, todos os envios contam como o mesmo IP.
 
 ### Personalização
 
-- [ ] Avisos por e-mail (etapa 14): para a loja quando chega um pedido de personalização ou um pedido de ajuste; para o cliente quando a prévia é enviada. Hoje ninguém é avisado: a loja precisa abrir o painel (o início do painel mostra quantos pedidos esperam prévia) e o cliente precisa abrir "Minha conta".
+- [x] Avisos por e-mail (etapa 14): para a loja quando chega um pedido de personalização ou um pedido de ajuste; para o cliente quando o pedido é recebido, quando a prévia fica pronta e quando o pedido é recusado.
 - [ ] Revisar o texto da declaração de direito de uso da arte (`DECLARACAO_DE_DIREITOS` em `src/lib/personalizacao-regras.ts`) e ligá-lo aos termos de uso quando as páginas institucionais existirem (etapa 15). Hoje o site grava a data e a hora em que o cliente confirmou a declaração.
 - [ ] Confirmar com o pai do Israel se ele consegue abrir arquivos `.cdr` (CorelDRAW), `.ai` (Illustrator) e `.psd` (Photoshop). Se não conseguir, tirar esses formatos de `FORMATOS_DE_ARTE` em `src/lib/personalizacao-regras.ts`.
 - [ ] Confirmar com o pai do Israel quais outras peças podem ser personalizadas (baby look, infantil etc.). Depois da confirmação, basta cadastrá-las em Produtos (`/admin/produtos`) na categoria "Camisetas Básicas", que é de onde a personalização tira as peças.
