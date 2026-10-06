@@ -66,6 +66,65 @@ function configuracao() {
   };
 }
 
+/** Erro de uma chamada ao Melhor Envio, com o código HTTP e as mensagens da API. */
+export class ErroDoMelhorEnvio extends Error {
+  constructor(
+    mensagem: string,
+    readonly status?: number,
+    readonly detalhe?: string,
+  ) {
+    super(mensagem);
+  }
+}
+
+/** Chamada à API do Melhor Envio (etiquetas). Lança `ErroDoMelhorEnvio`. */
+export async function chamarMelhorEnvio<T>(metodo: "GET" | "POST", caminho: string, corpo?: unknown): Promise<T> {
+  const config = configuracao();
+  let resposta: Response;
+  try {
+    resposta = await fetch(`${config.url}${caminho}`, {
+      method: metodo,
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${config.token}`,
+        "User-Agent": `Carta Viva Camisetas (${config.email})`,
+      },
+      body: corpo === undefined ? undefined : JSON.stringify(corpo),
+      signal: AbortSignal.timeout(15_000),
+      cache: "no-store",
+    });
+  } catch (erro) {
+    console.error(`[melhor-envio] falha de rede em ${metodo} ${caminho}:`, erro);
+    throw new ErroDoMelhorEnvio("O Melhor Envio não respondeu. Tente de novo em instantes.");
+  }
+
+  const texto = await resposta.text();
+  if (!resposta.ok) {
+    console.error(`[melhor-envio] ${metodo} ${caminho} respondeu ${resposta.status}:`, texto.slice(0, 800));
+    let detalhe = texto.slice(0, 300);
+    try {
+      const json = JSON.parse(texto) as { message?: string; error?: string; errors?: Record<string, string[] | string> };
+      const erros = Object.values(json.errors ?? {}).flat();
+      detalhe = erros.length > 0 ? erros.join(" ") : (json.error ?? json.message ?? detalhe);
+    } catch {
+      // Corpo não é JSON: fica o texto.
+    }
+    throw new ErroDoMelhorEnvio(`O Melhor Envio recusou o pedido (erro ${resposta.status}): ${detalhe}`, resposta.status, detalhe);
+  }
+  if (!texto.trim()) return {} as T;
+  try {
+    return JSON.parse(texto) as T;
+  } catch {
+    console.error(`[melhor-envio] ${metodo} ${caminho} respondeu ${resposta.status} sem JSON:`, texto.slice(0, 300));
+    throw new ErroDoMelhorEnvio("Resposta inesperada do Melhor Envio. Tente de novo.", resposta.status, texto.slice(0, 300));
+  }
+}
+
+export function cepDeOrigem() {
+  return configuracao().cepOrigem;
+}
+
 function emCentavos(valor: string | undefined) {
   const numero = Number(valor);
   return Number.isFinite(numero) ? Math.round(numero * 100) : null;
