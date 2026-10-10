@@ -89,7 +89,7 @@ export default async function PaginaAdminPedido({ params }: PageProps<"/admin/pe
   const pecas = pedido.itens.reduce((soma, i) => soma + i.quantidade, 0);
   const primeiroNome = pedido.compradorNome.split(" ")[0];
   const whatsapp = `https://wa.me/55${pedido.compradorTelefone}?text=${encodeURIComponent(
-    `Olá, ${primeiroNome}! Aqui é da Carta Viva Camisetas, sobre o seu pedido #${pedido.numero}.`,
+    `Olá, ${primeiroNome}! Aqui é da Carta Viva, sobre o seu pedido #${pedido.numero}.`,
   )}`;
   const venceEm = prazoDePagamento(pedido.criadoEm);
   const enviado = pedido.status === "ENVIADO" || pedido.status === "ENTREGUE";
@@ -234,7 +234,7 @@ export default async function PaginaAdminPedido({ params }: PageProps<"/admin/pe
                 WhatsApp {mascararTelefone(pedido.compradorTelefone)}
               </a>
               <a
-                href={`mailto:${pedido.compradorEmail}?subject=${encodeURIComponent(`Pedido #${pedido.numero} - Carta Viva Camisetas`)}`}
+                href={`mailto:${pedido.compradorEmail}?subject=${encodeURIComponent(`Pedido #${pedido.numero} - Carta Viva`)}`}
                 className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-tinta px-6 text-[14px] font-bold hover:bg-fundo"
               >
                 <Mail aria-hidden="true" className="size-5" strokeWidth={1.6} />

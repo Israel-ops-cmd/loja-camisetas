@@ -39,7 +39,7 @@ export async function generateMetadata({
   const foto = produto.imagens[0];
   const imagem = foto
     ? [{ url: `/_next/image?url=${encodeURIComponent(foto.url)}&w=1200&q=75`, width: 1200, alt: foto.alt }]
-    : [{ url: "/opengraph-image", width: 1200, height: 630, alt: "Carta Viva Camisetas" }];
+    : [{ url: "/opengraph-image", width: 1200, height: 630, alt: "Carta Viva" }];
   const descricao = resumir(
     produto.descricao ?? `Camiseta ${produto.nome}, da linha ${produto.categoria.nome} da Carta Viva.`,
   );
@@ -82,7 +82,7 @@ export default async function PaginaProduto({
           url,
           ...(produto.descricao && { description: produto.descricao }),
           image: produto.imagens.map((i) => (i.url.startsWith("http") ? i.url : `${site}${i.url}`)),
-          brand: { "@type": "Brand", name: "Carta Viva Camisetas" },
+          brand: { "@type": "Brand", name: "Carta Viva" },
           category: produto.categoria.nome,
           offers:
             Math.min(...precos) === Math.max(...precos)

@@ -10,7 +10,7 @@ import { enderecoDoSite } from "@/lib/site";
 // produto usa a foto do produto. Gerada no build, com as cores e as fontes
 // da identidade (assets/fontes).
 
-export const alt = "Carta Viva Camisetas: vista o que você quer dizer.";
+export const alt = "Carta Viva: camisetas e personalizados.";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -45,16 +45,13 @@ export default async function Imagem() {
             <path d="M5 12 L22 26 L39 12" stroke={COR.papel} strokeWidth="2.5" strokeLinejoin="round" />
             <circle cx="22" cy="27" r="4.5" fill={COR.lacre} />
           </svg>
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <span style={{ fontFamily: "Archivo", fontSize: 44, letterSpacing: "0.2em" }}>CARTA VIVA</span>
-            <span style={{ fontSize: 22, letterSpacing: "0.42em", color: COR.secundarioEscuro, marginTop: 6 }}>CAMISETAS</span>
-          </div>
+          <span style={{ fontFamily: "Archivo", fontSize: 48, letterSpacing: "0.2em" }}>CARTA VIVA</span>
         </div>
 
         <div style={{ display: "flex", flexDirection: "column" }}>
           <span style={{ fontFamily: "Archivo", fontSize: 76, lineHeight: 1.02 }}>Vista o que você quer dizer.</span>
           <span style={{ fontSize: 30, fontWeight: 500, color: COR.apoioEscuro, marginTop: 24, maxWidth: 900, lineHeight: 1.35 }}>
-            Camisetas lisas, estampas da casa e peças personalizadas com a sua arte.
+            Camisetas e personalizados: estampas da casa, peças lisas e produtos com a sua arte.
           </span>
         </div>
 

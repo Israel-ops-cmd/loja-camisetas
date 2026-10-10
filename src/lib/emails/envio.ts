@@ -13,7 +13,7 @@ import { prisma } from "@/lib/prisma";
 
 const API_DO_RESEND = "https://api.resend.com/emails";
 /** Remetente enquanto não há domínio verificado no Resend. */
-const REMETENTE_PADRAO = "Carta Viva Camisetas <onboarding@resend.dev>";
+const REMETENTE_PADRAO = "Carta Viva <onboarding@resend.dev>";
 export const MAXIMO_DE_TENTATIVAS = 3;
 
 type Transacao = Parameters<Parameters<typeof prisma.$transaction>[0]>[0];

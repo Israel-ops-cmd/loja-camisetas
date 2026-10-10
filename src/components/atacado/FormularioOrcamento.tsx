@@ -14,6 +14,7 @@ import {
   QUANTIDADE_MAXIMA_DO_ORCAMENTO,
   rotulosDeTipoDePeca,
 } from "@/lib/orcamento-regras";
+import { PRAZO_DE_RESPOSTA_DO_ORCAMENTO } from "@/lib/politicas";
 import { mascararTelefone, UFS } from "@/lib/validacao-br";
 
 type Props = {
@@ -69,7 +70,7 @@ export function FormularioOrcamento({ inicial, hoje }: Props) {
     return (
       <Aviso tipo="sucesso">
         Recebemos o seu pedido de orçamento
-        {enviado.numero !== null && ` nº ${enviado.numero}`}. A gente responde pelo
+        {enviado.numero !== null && ` nº ${enviado.numero}`}. Respondemos em {PRAZO_DE_RESPOSTA_DO_ORCAMENTO}, pelo
         WhatsApp ou pelo e-mail que você informou.
       </Aviso>
     );

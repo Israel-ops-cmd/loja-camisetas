@@ -21,7 +21,7 @@ export default async function PaginaAdminOrcamento({ params }: PageProps<"/admin
 
   const primeiroNome = o.nome.split(" ")[0];
   const whatsapp = `https://wa.me/55${o.telefone}?text=${encodeURIComponent(
-    `Olá, ${primeiroNome}! Aqui é da Carta Viva Camisetas, sobre o seu pedido de orçamento nº ${o.numero}.`,
+    `Olá, ${primeiroNome}! Aqui é da Carta Viva, sobre o seu pedido de orçamento nº ${o.numero}.`,
   )}`;
 
   return (
@@ -56,7 +56,7 @@ export default async function PaginaAdminOrcamento({ params }: PageProps<"/admin
                 WhatsApp {mascararTelefone(o.telefone)}
               </a>
               <a
-                href={`mailto:${o.email}?subject=${encodeURIComponent(`Orçamento nº ${o.numero} - Carta Viva Camisetas`)}`}
+                href={`mailto:${o.email}?subject=${encodeURIComponent(`Orçamento nº ${o.numero} - Carta Viva`)}`}
                 className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-tinta px-6 text-[14px] font-bold hover:bg-fundo"
               >
                 <Mail aria-hidden="true" className="size-5" strokeWidth={1.6} />

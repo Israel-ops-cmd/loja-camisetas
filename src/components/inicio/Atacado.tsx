@@ -14,8 +14,8 @@ export function Atacado() {
             Comprando em quantidade?
           </h2>
           <p className="texto-destaque mt-6 text-apoio">
-            Camisetas para empresas, igrejas, eventos e revenda, com preço menor
-            por quantidade. Conte o que você precisa e a gente monta o
+            Camisetas e personalizados para empresas, igrejas, eventos e revenda,
+            com preço menor por quantidade. Conte o que você precisa e a gente monta o
             orçamento.
           </p>
         </div>

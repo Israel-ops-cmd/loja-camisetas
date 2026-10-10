@@ -1,4 +1,4 @@
-// Schema do banco da Carta Viva Camisetas.
+// Schema do banco da Carta Viva.
 // Preços sempre em centavos (Int). Estoque controlado por variação (produto + cor + tamanho).
 
 generator client {

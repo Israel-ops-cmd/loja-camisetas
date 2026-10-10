@@ -3,6 +3,7 @@ import "server-only";
 import { formatarPreco } from "@/lib/formatacao";
 import { formatarData } from "@/lib/pedidos";
 import type { ConteudoDoEmail } from "@/lib/emails/envio";
+import { PRAZO_DE_DESPACHO, PRAZO_DE_PRODUCAO, PRAZO_DE_RESPOSTA_DO_ORCAMENTO } from "@/lib/politicas";
 
 // Modelos dos e-mails. HTML simples em tabelas (o que os programas de e-mail
 // entendem), com as cores da identidade e fontes de reserva (e-mail não carrega
@@ -53,8 +54,7 @@ function layout({ titulo, blocos, rodape }: { titulo: string; blocos: Bloco[]; r
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${COR.fundo}"><tr><td align="center" style="padding:24px 12px">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px">
 <tr><td style="padding:8px 4px 20px;font-family:${FONTE}">
-<span style="font-size:18px;font-weight:800;letter-spacing:.2em;color:${COR.tinta}">CARTA VIVA</span><span style="display:inline-block;width:8px;height:8px;margin:0 0 2px 6px;border-radius:50%;background:${COR.lacre}"></span><br>
-<span style="font-size:10px;font-weight:600;letter-spacing:.42em;color:${COR.secundario}">CAMISETAS</span>
+<span style="font-size:20px;font-weight:800;letter-spacing:.2em;color:${COR.tinta}">CARTA VIVA</span><span style="display:inline-block;width:8px;height:8px;margin:0 0 3px 6px;border-radius:50%;background:${COR.lacre}"></span>
 </td></tr>
 <tr><td style="background:${COR.papel};border-radius:20px;padding:32px 28px;font-family:${FONTE}">
 <h1 style="margin:0 0 20px;font-size:24px;line-height:1.2;font-weight:800;color:${COR.tinta}">${escapar(titulo)}</h1>
@@ -65,7 +65,7 @@ ${html}
 </body></html>`;
 
   const texto = [
-    "CARTA VIVA CAMISETAS",
+    "CARTA VIVA",
     "",
     titulo,
     "",
@@ -88,8 +88,8 @@ ${html}
   return { html: documento, texto };
 }
 
-const RODAPE_CLIENTE = "Carta Viva Camisetas. Você recebeu este e-mail por causa de um pedido feito no nosso site. Dúvidas? É só responder este e-mail.";
-const RODAPE_LOJA = "Aviso automático do site da Carta Viva Camisetas.";
+const RODAPE_CLIENTE = "Carta Viva. Você recebeu este e-mail por causa de um pedido feito no nosso site. Dúvidas? É só responder este e-mail.";
+const RODAPE_LOJA = "Aviso automático do site da Carta Viva.";
 
 // ---------------------------------------------------------------- Pedidos
 
@@ -157,7 +157,7 @@ export function emailPagamentoAprovado(p: PedidoParaEmail, site: string): Conteu
       titulo: `Pagamento aprovado, ${primeiroNome(p.compradorNome)}!`,
       blocos: [
         { tipo: "texto", texto: `Recebemos o pagamento do seu pedido #${p.numero}${p.metodoPagamento ? ` (${p.metodoPagamento})` : ""}. Agora vamos separar as peças com carinho.` },
-        { tipo: "texto", texto: `Quando o pedido for postado, mandamos outro e-mail com o código de rastreio.${prazo ? ` O frete leva ${prazo}.` : ""}` },
+        { tipo: "texto", texto: `Despachamos em ${PRAZO_DE_DESPACHO}. Quando o pedido for postado, mandamos outro e-mail com o código de rastreio.${prazo ? ` O frete leva ${prazo}.` : ""}` },
         resumoDoPedido(p),
         enderecoDoPedido(p),
         { tipo: "botao", texto: "Ver meu pedido", url: urlDoPedido(site, p.numero) },
@@ -306,7 +306,7 @@ export function emailPreviaPronta(x: PersonalizacaoParaEmail, site: string, prec
       blocos: [
         { tipo: "texto", texto: `Oi, ${primeiroNome(x.nomeDoCliente)}! Preparamos a prévia do pedido de personalização nº ${x.numero}. O preço ficou em ${formatarPreco(precoUnitario)} por peça.` },
         ...(recado ? [{ tipo: "caixa", titulo: "Recado da loja", texto: recado } as Bloco] : []),
-        { tipo: "texto", texto: "Veja a prévia no site: se estiver tudo certo, é só aprovar e escolher a entrega. Se quiser mudar algo, peça um ajuste por lá." },
+        { tipo: "texto", texto: `Veja a prévia no site: se estiver tudo certo, é só aprovar e escolher a entrega. Se quiser mudar algo, peça um ajuste por lá. A produção leva ${PRAZO_DE_PRODUCAO} depois da confirmação do pagamento, conforme a quantidade.` },
         { tipo: "botao", texto: "Ver a prévia", url: `${site}/conta/personalizacoes/${x.numero}` },
       ],
       rodape: RODAPE_CLIENTE,
@@ -383,9 +383,9 @@ export function emailOrcamentoRecebido(o: OrcamentoParaEmail): ConteudoDoEmail {
       titulo: "Recebemos seu pedido de orçamento",
       blocos: [
         { tipo: "texto", texto: `Oi, ${primeiroNome(o.nome)}! Recebemos o pedido de orçamento nº ${o.numero}: ${o.quantidade} peças (${o.tipoDePeca}).` },
-        { tipo: "texto", texto: `Vamos montar o orçamento e responder pelo WhatsApp ${telefoneLegivel(o.telefone)} ou por este e-mail. Se quiser acrescentar alguma informação, é só responder esta mensagem.` },
+        { tipo: "texto", texto: `Vamos montar o orçamento e responder em ${PRAZO_DE_RESPOSTA_DO_ORCAMENTO}, pelo WhatsApp ${telefoneLegivel(o.telefone)} ou por este e-mail. Se quiser acrescentar alguma informação, é só responder esta mensagem.` },
       ],
-      rodape: "Carta Viva Camisetas. Você recebeu este e-mail porque pediu um orçamento no nosso site.",
+      rodape: "Carta Viva. Você recebeu este e-mail porque pediu um orçamento no nosso site.",
     }),
   };
 }

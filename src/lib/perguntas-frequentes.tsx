@@ -6,11 +6,18 @@ import type { ReactNode } from "react";
 import { listarFaixasDeAtacado } from "@/lib/atacado";
 import { MAXIMO_DE_PARCELAS, PRAZO_DE_PAGAMENTO_DIAS } from "@/lib/pagamento";
 import { FORMATOS_DE_ARTE, formatarTamanhoDoArquivo, MAXIMO_DE_ARQUIVOS, TAMANHO_MAXIMO_BYTES } from "@/lib/personalizacao-regras";
-import { DIAS_PARA_ARREPENDIMENTO, DIAS_PARA_DEFEITO, DIAS_PARA_TROCA } from "@/lib/politicas";
+import {
+  DIAS_PARA_ARREPENDIMENTO,
+  DIAS_PARA_DEFEITO,
+  DIAS_PARA_TROCA,
+  PRAZO_DE_DESPACHO,
+  PRAZO_DE_PRODUCAO,
+  PRAZO_DE_RESPOSTA_DO_ORCAMENTO,
+} from "@/lib/politicas";
 
 // Perguntas frequentes: a página inicial mostra as marcadas com `destaque`;
 // /perguntas-frequentes mostra todas. Os números vêm do código e do banco
-// (atacado). Prazos de despacho e de produção ainda são marcadores.
+// (atacado). Prazos de despacho e de produção ficam em src/lib/politicas.ts.
 
 export type Pergunta = { pergunta: string; resposta: ReactNode; destaque?: boolean };
 
@@ -34,7 +41,7 @@ export async function listarPerguntasFrequentes(): Promise<Pergunta[]> {
       pergunta: "Qual é o prazo de entrega?",
       resposta: (
         <>
-          Despachamos o pedido em até [PRAZO DE DESPACHO] depois da confirmação do pagamento. O prazo da transportadora
+          Despachamos os pedidos com peças em estoque em {PRAZO_DE_DESPACHO} depois da confirmação do pagamento. O prazo da transportadora
           aparece no carrinho, quando você calcula o frete pelo CEP, e conta a partir da postagem. Quando o pedido sai, você
           recebe o código de rastreio por e-mail.
         </>
@@ -69,7 +76,7 @@ export async function listarPerguntasFrequentes(): Promise<Pergunta[]> {
           Na página de <Link href="/personalizacao">personalização</Link>, escolha a peça, a cor, os tamanhos e onde vai a
           estampa, e envie até {MAXIMO_DE_ARQUIVOS} arquivos ({formatos}, até {formatarTamanhoDoArquivo(TAMANHO_MAXIMO_BYTES)}{" "}
           cada) ou descreva a sua ideia. A loja manda uma prévia com o preço; você aprova ou pede ajustes, e só então paga. A
-          produção leva [PRAZO DE PRODUÇÃO DA PERSONALIZAÇÃO] depois do pagamento.
+          produção leva {PRAZO_DE_PRODUCAO} depois da confirmação do pagamento, conforme a quantidade.
         </>
       ),
     },
@@ -81,12 +88,12 @@ export async function listarPerguntasFrequentes(): Promise<Pergunta[]> {
           <>
             O desconto por quantidade começa em {faixas[0].minimoDePecas} peças ({faixas[0].percentual}% de desconto) e
             entra sozinho no carrinho, somando qualquer produto da loja. Para pedidos maiores ou sob medida, peça um{" "}
-            <Link href="/atacado#orcamento">orçamento</Link>.
+            <Link href="/atacado#orcamento">orçamento</Link>: respondemos em {PRAZO_DE_RESPOSTA_DO_ORCAMENTO}.
           </>
         ) : (
           <>
-            Para comprar em quantidade, peça um <Link href="/atacado#orcamento">orçamento</Link>: a gente responde com as
-            condições para o seu pedido.
+            Para comprar em quantidade, peça um <Link href="/atacado#orcamento">orçamento</Link>: respondemos em{" "}
+            {PRAZO_DE_RESPOSTA_DO_ORCAMENTO} com as condições para o seu pedido.
           </>
         ),
     },

@@ -21,22 +21,22 @@ const manrope = Manrope({
 });
 
 const DESCRICAO =
-  "Camisetas lisas, estampas da casa e peças personalizadas com a sua arte. Para usar, presentear ou vestir a sua equipe.";
+  "Camisetas e personalizados: estampas da casa, peças lisas e produtos com a sua arte. Para usar, presentear ou vestir a sua equipe.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(enderecoDoSite()),
   title: {
-    default: "Carta Viva Camisetas",
-    template: "%s | Carta Viva Camisetas",
+    default: "Carta Viva",
+    template: "%s | Carta Viva",
   },
   description: DESCRICAO,
-  applicationName: "Carta Viva Camisetas",
+  applicationName: "Carta Viva",
   // Cartão ao compartilhar o link (a imagem vem de opengraph-image.tsx).
   openGraph: {
     type: "website",
     locale: "pt_BR",
-    siteName: "Carta Viva Camisetas",
-    title: "Carta Viva Camisetas",
+    siteName: "Carta Viva",
+    title: "Carta Viva",
     description: DESCRICAO,
   },
   twitter: { card: "summary_large_image" },

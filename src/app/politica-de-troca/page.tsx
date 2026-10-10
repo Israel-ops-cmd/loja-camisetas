@@ -65,7 +65,11 @@ export default function PaginaPoliticaDeTroca() {
               </p>
               <ul>
                 <li>A peça precisa estar sem uso, sem lavar e com a etiqueta.</li>
-                <li>A loja paga o frete da primeira troca de tamanho. Nas trocas seguintes, o frete de envio da peça é por sua conta.</li>
+                <li>
+                  A loja paga o frete da primeira troca quando ela acontece por erro nosso (peça, cor ou tamanho diferente do
+                  pedido) ou por defeito. Nos outros casos, como um tamanho que não serviu, o frete da troca (envio e volta) é por
+                  sua conta.
+                </li>
                 <li>
                   A troca depende de termos a peça no tamanho ou na cor que você quer. Se não tivermos, você escolhe outra peça
                   ou recebe o valor de volta.

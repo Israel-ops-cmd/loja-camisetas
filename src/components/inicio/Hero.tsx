@@ -8,12 +8,12 @@ export function Hero() {
       <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[1.1fr_1fr]">
         <div>
           <p className="sobretitulo text-secundario-escuro">
-            Carta Viva Camisetas
+            Carta Viva · Camisetas e personalizados
           </p>
           <h1 className="titulo-hero mt-5">Vista o que você quer dizer.</h1>
           <p className="texto-destaque mt-6 max-w-xl text-apoio-escuro">
-            Camisetas lisas, estampas da casa e peças personalizadas com a sua
-            arte. Para usar, presentear ou vestir a sua equipe.
+            Camisetas e personalizados: estampas da casa, peças lisas e produtos
+            com a sua arte. Para usar, presentear ou vestir a sua equipe.
           </p>
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">
             <Botao href="/produtos">Ver produtos</Botao>

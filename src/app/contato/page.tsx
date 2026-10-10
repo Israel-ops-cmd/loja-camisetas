@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Clock, Mail, MapPin, MessageCircle } from "lucide-react";
 
-import { linkDoWhatsapp, LOJA, ou, whatsappLegivel } from "@/lib/loja";
+import { comMaiuscula, enderecoCompleto, linkDoWhatsapp, LOJA, ou, whatsappLegivel } from "@/lib/loja";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/contato" },
@@ -50,7 +50,7 @@ export default function PaginaContato() {
                 <Clock aria-hidden="true" className="mt-0.5 size-5 shrink-0" strokeWidth={1.6} />
                 <span>
                   <span className="block text-[13px] text-secundario">Horário de atendimento</span>
-                  <span className="font-semibold">{ou(LOJA.horario, "HORÁRIO")}</span>
+                  <span className="font-semibold">{comMaiuscula(ou(LOJA.horario, "HORÁRIO"))}</span>
                 </span>
               </li>
               <li className="flex items-start gap-3">
@@ -58,6 +58,7 @@ export default function PaginaContato() {
                 <span>
                   <span className="block text-[13px] text-secundario">Onde estamos</span>
                   <span className="font-semibold">{LOJA.cidade}</span>
+                  <span className="block text-[14px] text-apoio">{enderecoCompleto()}</span>
                   <span className="block text-[14px] text-apoio">Loja on-line: enviamos para todo o Brasil.</span>
                 </span>
               </li>
