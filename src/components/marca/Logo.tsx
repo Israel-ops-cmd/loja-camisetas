@@ -43,15 +43,8 @@ export function Logo({ escuro = false, className = "" }: LogoProps) {
       className={`inline-flex items-center gap-2.5 ${escuro ? "text-papel" : "text-tinta"} ${className}`}
     >
       <Marca className="size-11 shrink-0" />
-      <span className="flex flex-col leading-none">
-        <span className="font-titulo text-[17px] font-extrabold tracking-[0.2em]">
-          CARTA VIVA
-        </span>{" "}
-        <span
-          className={`mt-1 text-[10px] font-semibold tracking-[0.42em] ${escuro ? "text-secundario-escuro" : "text-secundario"}`}
-        >
-          CAMISETAS
-        </span>
+      <span className="font-titulo text-[19px] leading-none font-extrabold tracking-[0.2em]">
+        CARTA VIVA
       </span>
     </span>
   );

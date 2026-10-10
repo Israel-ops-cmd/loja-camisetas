@@ -5,13 +5,14 @@ import { FormularioOrcamento } from "@/components/atacado/FormularioOrcamento";
 import { listarFaixasDeAtacado } from "@/lib/atacado";
 import { descreverFaixa } from "@/lib/atacado-regras";
 import { obterUsuario } from "@/lib/auth";
+import { PRAZO_DE_RESPOSTA_DO_ORCAMENTO } from "@/lib/politicas";
 import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/atacado" },
   title: "Atacado",
   description:
-    "Camisetas em quantidade para empresas, igrejas, eventos e revenda, com desconto progressivo e orçamento sob medida.",
+    "Camisetas e personalizados em quantidade para empresas, igrejas, eventos e revenda, com desconto progressivo e orçamento sob medida.",
 };
 
 function hojeEmSaoPaulo() {
@@ -31,8 +32,8 @@ export default async function PaginaAtacado() {
           <p className="sobretitulo text-secundario-escuro">Atacado</p>
           <h1 className="titulo-destaque mt-5">Comprando em quantidade?</h1>
           <p className="texto-destaque mt-6 max-w-2xl text-apoio-escuro">
-            Camisetas para empresas, igrejas, eventos e revenda, com preço menor por
-            quantidade. Conte o que você precisa e a gente monta o orçamento.
+            Camisetas e personalizados para empresas, igrejas, eventos e revenda, com
+            preço menor por quantidade. Conte o que você precisa e a gente monta o orçamento.
           </p>
         </div>
       </section>
@@ -67,6 +68,7 @@ export default async function PaginaAtacado() {
           <h2 id="titulo-orcamento" className="titulo-listagem">Pedir orçamento</h2>
           <p className="mx-auto mt-4 max-w-xl text-center text-apoio">
             Para quantidades maiores, revenda ou um pedido diferente do que está no site.
+            Respondemos em {PRAZO_DE_RESPOSTA_DO_ORCAMENTO}.
           </p>
           <div className="mt-10">
             <FormularioOrcamento

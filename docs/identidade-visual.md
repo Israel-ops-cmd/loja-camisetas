@@ -1,16 +1,16 @@
-# Identidade visual da Carta Viva Camisetas
+# Identidade visual da Carta Viva
 
 Identidade aprovada pelo Israel. Vale para todas as telas da loja.
 
 ## Conceito
 
-"Carta Viva": a camiseta como mensagem. O logo é um envelope cuja aba forma o "V", fechado com um lacre. O lacre é o único ponto de cor da marca.
+"Carta Viva": a peça como mensagem. A loja vende camisetas e personalizados (canecas, caixinhas e bonés também estão nos planos), por isso o nome é só "Carta Viva". O logo é um envelope cuja aba forma o "V", fechado com um lacre. O lacre é o único ponto de cor da marca.
 
 O clima é direto e contrastado: preto, branco e cinza claro, títulos pesados em maiúsculas, botões em formato de pílula e cantos bem arredondados.
 
 ## Logo
 
-Marca (envelope com lacre) à esquerda e o nome à direita, em duas linhas: `CARTA VIVA` e, abaixo, `CAMISETAS`.
+Marca (envelope com lacre) à esquerda e o nome à direita, em uma linha: `CARTA VIVA`. (Até outubro de 2026 havia uma segunda linha, `CAMISETAS`, retirada quando a loja passou a vender outros produtos.)
 
 ```svg
 <svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -22,7 +22,6 @@ Marca (envelope com lacre) à esquerda e o nome à direita, em duas linhas: `CAR
 
 - O traço usa `currentColor`: preto sobre fundo claro, branco sobre fundo escuro. O lacre é sempre vermelho.
 - `CARTA VIVA`: Archivo 800, espaçamento entre letras de 0,2em.
-- `CAMISETAS`: Manrope 600, tamanho menor, espaçamento de 0,42em, na cor de texto secundário.
 - Crie um componente `Logo` e use a marca também como favicon.
 
 ## Cores
@@ -79,11 +78,11 @@ De cima para baixo:
 
 1. **Faixa de aviso** (fundo Tinta, texto branco de 12px): "ENVIAMOS PARA TODO O BRASIL · PIX, CARTÃO E BOLETO".
 2. **Cabeçalho** (fundo Papel, borda inferior): logo, menu (Início, Produtos, Personalização, Atacado) e ícones de conta e carrinho.
-3. **Hero** (fundo Tinta): sobretítulo "CARTA VIVA CAMISETAS", título "Vista o que você quer dizer.", parágrafo "Camisetas lisas, estampas da casa e peças personalizadas com a sua arte. Para usar, presentear ou vestir a sua equipe.", botões "VER PRODUTOS" (principal) e "PERSONALIZAR" (contorno). À direita, uma composição de duas fotos sobrepostas, descrita em "Composição do hero" abaixo.
+3. **Hero** (fundo Tinta): sobretítulo "CARTA VIVA · CAMISETAS E PERSONALIZADOS", título "Vista o que você quer dizer.", parágrafo "Camisetas e personalizados: estampas da casa, peças lisas e produtos com a sua arte. Para usar, presentear ou vestir a sua equipe.", botões "VER PRODUTOS" (principal) e "PERSONALIZAR" (contorno). À direita, uma composição de duas fotos sobrepostas, descrita em "Composição do hero" abaixo.
 4. **Categorias** (4 cartões): Camisetas Básicas, Estampas da Casa, Personalizadas (com a sua arte), Atacado (em quantidade).
 5. **Produtos Carta Viva:** grade de produtos e botão "VER TODOS".
 6. **Personalização** (fundo Tinta): título "Sua arte, na sua camiseta.", texto "Envie a sua estampa ou conte a ideia. A gente prepara, aprova com você e produz.", três passos (01 Escolha a peça, 02 Envie a sua arte, 03 Aprove e receba) e botão "QUERO PERSONALIZAR".
-7. **Atacado** (painel branco): título "Comprando em quantidade?", texto sobre empresas, igrejas, eventos e revenda, e botão "PEDIR ORÇAMENTO".
+7. **Atacado** (painel branco): título "Comprando em quantidade?", texto sobre camisetas e personalizados para empresas, igrejas, eventos e revenda, e botão "PEDIR ORÇAMENTO".
 8. **Vantagens** (fundo Tinta, 4 ícones): Enviamos para todo o Brasil, Compra segura, Pix, cartão e boleto, Troca fácil.
 9. **Perguntas frequentes** (fundo Papel): lista em sanfona.
 10. **Rodapé** (fundo Fundo): marca, Atendimento, Políticas e Contato.

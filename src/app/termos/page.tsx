@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { Documento } from "@/components/institucional/Documento";
-import { identificacaoDaLoja, linkDoWhatsapp, LOJA, ou, whatsappLegivel } from "@/lib/loja";
+import { enderecoCompleto, identificacaoDaLoja, linkDoWhatsapp, LOJA, ou, whatsappLegivel } from "@/lib/loja";
 import { MAXIMO_DE_PARCELAS, PRAZO_DE_PAGAMENTO_DIAS } from "@/lib/pagamento";
 import { DECLARACAO_DE_DIREITOS } from "@/lib/personalizacao-regras";
+import { PRAZO_DE_DESPACHO, PRAZO_DE_PRODUCAO, PRAZO_DE_RESPOSTA_DO_ORCAMENTO } from "@/lib/politicas";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/termos" },
@@ -13,8 +14,8 @@ export const metadata: Metadata = {
 };
 
 // RASCUNHO: passa por revisão jurídica antes de publicar. Os números vêm do
-// código (prazo de pagamento, parcelas); prazos de despacho e de produção
-// ainda dependem do pai do Israel.
+// código (prazo de pagamento, parcelas, prazos de despacho e de produção em
+// src/lib/politicas.ts).
 
 export default function PaginaTermos() {
   return (
@@ -28,7 +29,7 @@ export default function PaginaTermos() {
           titulo: "Quem vende",
           conteudo: (
             <p>
-              Este site é da {identificacaoDaLoja()}, com endereço em {ou(LOJA.endereco, "ENDEREÇO")}, {LOJA.cidade}.
+              Este site é da {identificacaoDaLoja()}, com endereço em {enderecoCompleto()}.
               Atendimento pelo{" "}
               <a href={linkDoWhatsapp()} target="_blank" rel="noopener noreferrer">WhatsApp {whatsappLegivel()}</a> e pelo
               e-mail <a href={`mailto:${LOJA.email}`}>{LOJA.email}</a>, {ou(LOJA.horario, "HORÁRIO")}.
@@ -87,7 +88,7 @@ export default function PaginaTermos() {
             <p>
               Comprando várias peças, o desconto por quantidade entra sozinho no carrinho, conforme a tabela da página{" "}
               <Link href="/atacado">Atacado</Link> no momento do pedido. Pedidos maiores ou diferentes do que está no site são
-              combinados por orçamento.
+              combinados por orçamento, que respondemos em {PRAZO_DE_RESPOSTA_DO_ORCAMENTO}.
             </p>
           ),
         },
@@ -97,7 +98,9 @@ export default function PaginaTermos() {
           conteudo: (
             <ul>
               <li>Enviamos para todo o Brasil pelas transportadoras do Melhor Envio (como os Correios).</li>
-              <li>Despachamos o pedido em até [PRAZO DE DESPACHO] depois da confirmação do pagamento.</li>
+              <li>
+                Despachamos os pedidos com peças em estoque em {PRAZO_DE_DESPACHO} depois da confirmação do pagamento.
+              </li>
               <li>
                 O prazo de entrega aparece no carrinho, ao calcular o frete pelo CEP, e conta a partir da postagem. Quando o
                 pedido sai, você recebe um e-mail com o código de rastreio.
@@ -114,7 +117,10 @@ export default function PaginaTermos() {
               <ul>
                 <li>Você envia a arte ou descreve a ideia. A loja prepara uma prévia com o preço por peça.</li>
                 <li>Você aprova a prévia ou pede ajustes. A produção só começa depois da aprovação e do pagamento.</li>
-                <li>O prazo de produção é de [PRAZO DE PRODUÇÃO DA PERSONALIZAÇÃO], contado da confirmação do pagamento.</li>
+                <li>
+                  A produção leva {PRAZO_DE_PRODUCAO} depois da confirmação do pagamento, conforme a quantidade. Depois, o pedido é
+                  despachado e segue o prazo do frete.
+                </li>
                 <li>As cores impressas podem variar um pouco em relação às da tela.</li>
               </ul>
               <p>Ao enviar a arte, você confirma esta declaração:</p>

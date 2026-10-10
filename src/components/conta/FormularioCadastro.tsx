@@ -83,7 +83,7 @@ export function FormularioCadastro() {
           <Link href="/privacidade" target="_blank" className="underline underline-offset-4">
             política de privacidade
           </Link>{" "}
-          da Carta Viva Camisetas.
+          da Carta Viva.
         </p>
 
         <button

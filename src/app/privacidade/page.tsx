@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { Documento } from "@/components/institucional/Documento";
-import { identificacaoDaLoja, linkDoWhatsapp, LOJA, ou, whatsappLegivel } from "@/lib/loja";
+import { enderecoCompleto, identificacaoDaLoja, linkDoWhatsapp, LOJA, whatsappLegivel } from "@/lib/loja";
 import { GUARDA } from "@/lib/politicas";
 
 export const metadata: Metadata = {
@@ -34,7 +34,7 @@ export default function PaginaPrivacidade() {
             <>
               <p>
                 A responsável pelos dados pessoais tratados neste site é a {identificacaoDaLoja()}, com endereço em{" "}
-                {ou(LOJA.endereco, "ENDEREÇO")}, {LOJA.cidade}.
+                {enderecoCompleto()}.
               </p>
               <p>
                 Para qualquer assunto sobre os seus dados, fale com a gente pelo e-mail{" "}

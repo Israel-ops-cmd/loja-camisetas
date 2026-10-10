@@ -219,7 +219,7 @@ export async function comprarEtiqueta(pedidoId: string, autor: string) {
         reverse: false,
         // Declaração de conteúdo (sem nota fiscal). Ver docs/pendencias.md.
         non_commercial: true,
-        platform: "Carta Viva Camisetas",
+        platform: "Carta Viva",
         tags: [{ tag: `Pedido #${pedido.numero}`, url: null }],
       },
     });

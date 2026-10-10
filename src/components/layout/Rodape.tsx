@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { Logo } from "@/components/marca/Logo";
-import { identificacaoDaLoja, linkDoWhatsapp, LOJA, ou, whatsappLegivel } from "@/lib/loja";
+import { enderecoCompleto, identificacaoDaLoja, linkDoWhatsapp, LOJA, ou, whatsappLegivel } from "@/lib/loja";
 
 // Contatos vêm de src/lib/loja.ts. O que ainda não foi definido aparece
 // como marcador entre colchetes; o Instagram só aparece quando existir.
@@ -42,8 +42,8 @@ export function Rodape() {
         <div>
           <Logo />
           <p className="mt-5 max-w-xs text-[15px] text-apoio">
-            Camisetas lisas, estampas da casa e peças personalizadas com a sua
-            arte.
+            Camisetas e personalizados: estampas da casa, peças lisas e produtos
+            com a sua arte.
           </p>
         </div>
 
@@ -84,7 +84,7 @@ export function Rodape() {
       <p className="mx-auto mt-12 max-w-7xl border-t border-borda pt-6 text-[13px] text-secundario">
         © {new Date().getFullYear()} {identificacaoDaLoja()}
         <br />
-        {ou(LOJA.endereco, "ENDEREÇO")} · {LOJA.cidade}
+        {enderecoCompleto()}
       </p>
     </footer>
   );

@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/produtos" },
   title: "Produtos",
   description:
-    "Camisetas lisas e estampas da casa da Carta Viva. Filtre por categoria, cor e tamanho.",
+    "Camisetas e personalizados da Carta Viva. Filtre por categoria, cor e tamanho.",
 };
 
 export default async function PaginaProdutos({

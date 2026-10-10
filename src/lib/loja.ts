@@ -4,18 +4,21 @@
 // `npm run conferir-marcadores` lista o que falta. Ver docs/pendencias.md.
 
 export const LOJA = {
-  nome: "Carta Viva Camisetas",
+  nome: "Carta Viva",
   /** Razão social do CNPJ (a empresa ainda vai ser aberta). */
   razaoSocial: null as string | null,
   cnpj: null as string | null,
-  /** Endereço completo de quem vende (o decreto do comércio eletrônico exige). */
-  endereco: null as string | null,
+  /** Endereço de quem vende (o decreto do comércio eletrônico exige). */
+  endereco: "Avenida Interventor Mário Câmara, 2038, Dix-Sept Rosado",
   cidade: "Natal/RN",
+  /** Só os 8 números. */
+  cep: "59054-600" as string | null,
   /** Só os números, com DDD. */
   whatsapp: "84987137644",
-  /** PROVISÓRIO: trocar por um e-mail da loja. */
-  email: "israellipe2020@gmail.com",
-  horario: null as string | null,
+  /** A caixa ainda está sendo criada (ver docs/pendencias.md). */
+  email: "contato@lojacartaviva.com.br",
+  /** Começa com minúscula: aparece no meio de frases. */
+  horario: "todos os dias, das 8h às 18h" as string | null,
   /** Endereço do perfil (https://instagram.com/...). Nulo: não aparece. */
   instagram: null as string | null,
 };
@@ -36,6 +39,17 @@ export function whatsappLegivel(numero = LOJA.whatsapp) {
 
 export function linkDoWhatsapp(mensagem?: string) {
   return `https://wa.me/55${LOJA.whatsapp}${mensagem ? `?text=${encodeURIComponent(mensagem)}` : ""}`;
+}
+
+/** "Avenida ..., Natal/RN, CEP 59000-000" (com marcador no que faltar). */
+export function enderecoCompleto() {
+  const cep = LOJA.cep ? `${LOJA.cep.slice(0, 5)}-${LOJA.cep.slice(5)}` : null;
+  return `${ou(LOJA.endereco, "ENDEREÇO")}, ${LOJA.cidade}, CEP ${ou(cep, "CEP")}`;
+}
+
+/** Primeira letra maiúscula (ex.: horário sozinho numa linha). */
+export function comMaiuscula(texto: string) {
+  return texto.charAt(0).toUpperCase() + texto.slice(1);
 }
 
 /** Nome, razão social e CNPJ (com marcador no que faltar). */

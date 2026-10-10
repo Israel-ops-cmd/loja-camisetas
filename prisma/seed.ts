@@ -35,10 +35,10 @@ const cores = [
 
 const tamanhos = ["P", "M", "G", "GG"];
 
-// Tabela de desconto do atacado. PROVISÓRIA: confirmar com o pai do Israel
-// antes de publicar (docs/pendencias.md). Depois de criada, a tabela é
-// editada no banco (painel, etapa 12); o seed não sobrescreve valores existentes.
-const FAIXAS_ATACADO_PROVISORIAS = [
+// Tabela de desconto do atacado, confirmada pelo pai do Israel em 10/10/2026.
+// Depois de criada, a tabela é editada pelo painel (/admin/atacado); o seed
+// não sobrescreve valores existentes.
+const FAIXAS_ATACADO = [
   { minimoDePecas: 10, percentual: 5 },
   { minimoDePecas: 20, percentual: 10 },
   { minimoDePecas: 50, percentual: 15 },
@@ -249,7 +249,7 @@ async function main() {
     }
   }
 
-  for (const faixa of FAIXAS_ATACADO_PROVISORIAS) {
+  for (const faixa of FAIXAS_ATACADO) {
     await prisma.faixaAtacado.upsert({
       where: { minimoDePecas: faixa.minimoDePecas },
       update: {},

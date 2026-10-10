@@ -88,7 +88,7 @@ export async function chamarMelhorEnvio<T>(metodo: "GET" | "POST", caminho: stri
         Accept: "application/json",
         "Content-Type": "application/json",
         Authorization: `Bearer ${config.token}`,
-        "User-Agent": `Carta Viva Camisetas (${config.email})`,
+        "User-Agent": `Carta Viva (${config.email})`,
       },
       body: corpo === undefined ? undefined : JSON.stringify(corpo),
       signal: AbortSignal.timeout(15_000),
@@ -149,7 +149,7 @@ export async function cotarNoMelhorEnvio(
         Accept: "application/json",
         "Content-Type": "application/json",
         Authorization: `Bearer ${config.token}`,
-        "User-Agent": `Carta Viva Camisetas (${config.email})`,
+        "User-Agent": `Carta Viva (${config.email})`,
       },
       body: JSON.stringify({
         from: { postal_code: config.cepOrigem },
