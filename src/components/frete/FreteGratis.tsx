@@ -28,7 +28,7 @@ export function AvisoFreteGratis({
         <Truck aria-hidden="true" className="mt-0.5 size-4 shrink-0" strokeWidth={1.8} />
         {falta === 0 ? (
           <span>
-            <strong>Você ganhou frete grátis</strong> para todo o Brasil.
+            <strong>Você ganhou frete grátis</strong> na opção mais econômica.
           </span>
         ) : (
           <span>

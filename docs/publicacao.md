@@ -33,7 +33,7 @@ Passos para pôr o site no ar em **https://lojacartaviva.com.br**, na ordem. Cad
 
 - [x] Projeto de produção criado na região São Paulo (`sa-east-1`) (10/10/2026). O antigo fica para testes.
 - [x] Migrations aplicadas (incluem as pastas do Storage e as regras de acesso).
-- [ ] Migrations novas desde a criação do projeto (a partir de `20261010120000_frete_gratis`) aplicadas com `npx prisma migrate deploy` e o `DIRECT_URL` de produção, antes do deploy.
+- [ ] **Migration nova no banco de produção (obrigatório antes de publicar):** `20261010120000_frete_gratis` (campo `freteDescontoEmCentavos` do pedido) e as que vierem depois. Rodar `npx prisma migrate deploy` com o `DATABASE_URL` e o `DIRECT_URL` de produção. Sem ela, nenhum pedido é criado no site publicado.
 - [x] Seed aplicado: categorias, cores, tamanhos, tabela de atacado **e os produtos de exemplo** (preço de teste R$ 1,00, 10 peças por variação). Trocar ou esconder pelo painel antes de abrir a loja.
 - [x] Authentication > URL Configuration: Site URL e Redirect URLs com `https://lojacartaviva.com.br`.
 - [x] Authentication > SMTP: Resend, remetente `nao-responda@lojacartaviva.com.br`. Modelos de confirmação e de nova senha em português, com os links de `/auth/confirmar`.
@@ -58,6 +58,7 @@ Passos para pôr o site no ar em **https://lojacartaviva.com.br**, na ordem. Cad
 
 ## 6. Publicar
 
+- [ ] Conferir antes que `npx prisma migrate deploy` já rodou no banco de produção (item da seção 3).
 - [ ] Merge de `dev` em `main`, só quando o Israel pedir. A Vercel publica sozinha.
 
 ## 7. Depois de publicar
