@@ -82,6 +82,6 @@ Uma branch por etapa, nesta ordem. Marque com `[x]` ao concluir o merge em `dev`
 - [x] 13. `feat/admin-pedidos`: lista de pedidos, pedidos de personalização e orçamentos, status e etiqueta de envio
 - [x] 14. `feat/emails`: confirmação de pedido e aviso de envio
 - [x] 15. `feat/paginas-institucionais`: política de troca, privacidade, contato e perguntas frequentes
-- [ ] 16. `feat/seo-e-ajustes`: SEO, desempenho e domínio próprio
+- [x] 16. `feat/seo-e-ajustes`: SEO, desempenho e domínio próprio
 
 A identidade visual já entra na etapa 1: o tema do Tailwind, o cabeçalho, o rodapé e a página inicial seguem `docs/identidade-visual.md`. Cores e fontes ficam centralizadas no tema, nunca soltas nos componentes.
