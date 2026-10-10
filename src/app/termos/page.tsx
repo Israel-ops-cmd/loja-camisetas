@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { Documento } from "@/components/institucional/Documento";
+import { formatarPreco } from "@/lib/formatacao";
+import { FRETE_GRATIS_A_PARTIR_DE_EM_CENTAVOS } from "@/lib/frete-regras";
 import { enderecoCompleto, identificacaoDaLoja, linkDoWhatsapp, LOJA, ou, whatsappLegivel } from "@/lib/loja";
 import { MAXIMO_DE_PARCELAS, PRAZO_DE_PAGAMENTO_DIAS } from "@/lib/pagamento";
 import { DECLARACAO_DE_DIREITOS } from "@/lib/personalizacao-regras";
@@ -98,6 +100,10 @@ export default function PaginaTermos() {
           conteudo: (
             <ul>
               <li>Enviamos para todo o Brasil pelas transportadoras do Melhor Envio (como os Correios).</li>
+              <li>
+                Frete grátis para todo o Brasil em compras a partir de {formatarPreco(FRETE_GRATIS_A_PARTIR_DE_EM_CENTAVOS)} em produtos, já com o
+                desconto de atacado: a opção de entrega mais barata sai de graça, e nas mais rápidas você paga só a diferença.
+              </li>
               <li>
                 Despachamos os pedidos com peças em estoque em {PRAZO_DE_DESPACHO} depois da confirmação do pagamento.
               </li>

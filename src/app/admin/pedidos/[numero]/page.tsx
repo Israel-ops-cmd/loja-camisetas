@@ -14,6 +14,7 @@ import { Painel } from "@/components/ui/Painel";
 import { exigirAdministrador } from "@/lib/auth";
 import { remetenteIncompleto, situacaoDaEtiqueta } from "@/lib/etiquetas";
 import { formatarPreco } from "@/lib/formatacao";
+import { textoDoFrete } from "@/lib/frete-regras";
 import { buscarPagamentosDoPedido, type PagamentoMercadoPago } from "@/lib/mercado-pago";
 import { prazoDePagamento } from "@/lib/pagamento";
 import { formatarData, formatarDataHora, linkDeRastreio, rotulosDeStatus } from "@/lib/pedidos";
@@ -173,6 +174,7 @@ export default async function PaginaAdminPedido({ params }: PageProps<"/admin/pe
                 numero={pedido.numero}
                 servico={[pedido.freteTransportadora, pedido.freteServico].filter(Boolean).join(" ") || "frete escolhido"}
                 freteCobrado={pedido.freteEmCentavos}
+                freteDaLoja={pedido.freteDescontoEmCentavos}
                 etiqueta={etiqueta}
                 erroAoLer={erroNaEtiqueta}
                 podeComprar={["PAGO", "EM_SEPARACAO"].includes(pedido.status)}
@@ -211,7 +213,7 @@ export default async function PaginaAdminPedido({ params }: PageProps<"/admin/pe
               )}
               <div className="flex justify-between">
                 <dt className="text-apoio">Frete</dt>
-                <dd>{formatarPreco(pedido.freteEmCentavos)}</dd>
+                <dd>{textoDoFrete(pedido.freteEmCentavos, pedido.freteDescontoEmCentavos)}</dd>
               </div>
               <div className="flex justify-between text-[17px] font-bold">
                 <dt>Total</dt>
@@ -255,7 +257,8 @@ export default async function PaginaAdminPedido({ params }: PageProps<"/admin/pe
             {pedido.freteServico && (
               <p className="mt-3 text-[15px] text-apoio">
                 Frete escolhido: <strong>{pedido.freteServico}</strong>
-                {pedido.freteTransportadora && ` (${pedido.freteTransportadora})`} · {formatarPreco(pedido.freteEmCentavos)}
+                {pedido.freteTransportadora && ` (${pedido.freteTransportadora})`} · {textoDoFrete(pedido.freteEmCentavos, pedido.freteDescontoEmCentavos)}
+                {pedido.freteDescontoEmCentavos > 0 && ` · frete grátis: a loja paga ${formatarPreco(pedido.freteDescontoEmCentavos)} da etiqueta`}
                 {pedido.fretePrazoDias && ` · até ${pedido.fretePrazoDias} dias úteis`}
               </p>
             )}

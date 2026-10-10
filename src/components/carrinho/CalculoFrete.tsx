@@ -4,7 +4,7 @@ import { CircleAlert, Truck } from "lucide-react";
 import { useState, useTransition, type FormEvent } from "react";
 
 import { calcularFrete, escolherFrete, limparFrete } from "@/app/carrinho/acoes";
-import { formatarPreco } from "@/lib/formatacao";
+import { PrecoDaOpcao } from "@/components/frete/FreteGratis";
 import type { CotacaoDoCarrinho } from "@/lib/frete";
 
 function mascararCep(valor: string) {
@@ -100,8 +100,8 @@ export function CalculoFrete({
                       {prazo(opcao.prazoMinimoDias, opcao.prazoMaximoDias)}
                     </span>
                   </span>
-                  <span className="text-[15px] font-bold">
-                    {formatarPreco(opcao.precoEmCentavos)}
+                  <span className="text-[15px]">
+                    <PrecoDaOpcao opcao={opcao} />
                   </span>
                 </label>
               );

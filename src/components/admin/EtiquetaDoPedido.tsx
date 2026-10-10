@@ -26,6 +26,7 @@ export function EtiquetaDoPedido({
   numero,
   servico,
   freteCobrado,
+  freteDaLoja,
   etiqueta,
   erroAoLer,
   podeComprar,
@@ -34,6 +35,8 @@ export function EtiquetaDoPedido({
   numero: number;
   servico: string;
   freteCobrado: number;
+  /** Parte do frete paga pela loja (frete grátis). */
+  freteDaLoja: number;
   etiqueta: Etiqueta | null;
   erroAoLer: boolean;
   podeComprar: boolean;
@@ -47,6 +50,8 @@ export function EtiquetaDoPedido({
 
   const ativa = etiqueta && !["pending", "canceled", "expired"].includes(etiqueta.status);
   const interrompida = etiqueta?.status === "pending";
+  // Cotação do frete na hora da compra: o que o cliente pagou mais o frete grátis.
+  const freteCotado = freteCobrado + freteDaLoja;
 
   function preparar() {
     setMensagem(null);
@@ -208,7 +213,12 @@ export function EtiquetaDoPedido({
         <Aviso tipo="info">A compra da etiqueta começou, mas não terminou. Toque em “Terminar compra”.</Aviso>
       )}
       <p className="text-[15px]">
-        Frete escolhido pelo cliente: <strong>{servico}</strong>, pago {formatarPreco(freteCobrado)}.
+        Frete escolhido pelo cliente: <strong>{servico}</strong>,{" "}
+        {freteDaLoja === 0
+          ? `pago ${formatarPreco(freteCobrado)}.`
+          : freteCobrado === 0
+            ? `com frete grátis (cotado em ${formatarPreco(freteCotado)} na compra; a loja paga a etiqueta).`
+            : `pago ${formatarPreco(freteCobrado)}, com ${formatarPreco(freteDaLoja)} de frete grátis pago pela loja.`}
       </p>
       {interrompida ? (
         <button type="button" onClick={() => comprar(etiqueta!.precoEmCentavos)} disabled={ocupado} className={botaoPrincipal}>
@@ -225,9 +235,9 @@ export function EtiquetaDoPedido({
           <p className="text-[16px] font-semibold">
             A etiqueta custa {formatarPreco(preco)}, pagos com o saldo da carteira do Melhor Envio.
           </p>
-          {preco > freteCobrado && (
+          {preco > freteCotado && (
             <p className="text-[14px] text-apoio">
-              É {formatarPreco(preco - freteCobrado)} a mais do que o cliente pagou de frete (o preço do Melhor Envio mudou desde a compra).
+              É {formatarPreco(preco - freteCotado)} a mais do que o frete cotado na compra (o preço do Melhor Envio mudou desde então).
             </p>
           )}
           <div className="flex flex-wrap gap-2">

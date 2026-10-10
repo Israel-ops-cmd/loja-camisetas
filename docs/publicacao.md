@@ -16,6 +16,7 @@ Passos para pôr o site no ar em **https://lojacartaviva.com.br**, na ordem. Cad
   - despacho em até 2 dias úteis; produção da personalização de 1 a 5 dias úteis depois da confirmação do pagamento;
   - resposta do orçamento em até 2 dias úteis;
   - atendimento todos os dias, das 8h às 18h.
+- [ ] Redesign visual aprovado em protótipo e implementado na `feat/redesign` (sem mudar funcionalidades).
 - [ ] Revisão por advogado ou contador da política de troca, da privacidade e dos termos.
 - [ ] Produtos de exemplo trocados pelos reais no painel (preços, fotos, descrições e estoque), e os que não serão vendidos escondidos. **Vale também para o banco de produção, onde o seed já criou os produtos de exemplo.**
 - [ ] Pacote real pesado e medido (peso e medidas de cada produto no painel).
@@ -32,6 +33,7 @@ Passos para pôr o site no ar em **https://lojacartaviva.com.br**, na ordem. Cad
 
 - [x] Projeto de produção criado na região São Paulo (`sa-east-1`) (10/10/2026). O antigo fica para testes.
 - [x] Migrations aplicadas (incluem as pastas do Storage e as regras de acesso).
+- [ ] Migrations novas desde a criação do projeto (a partir de `20261010120000_frete_gratis`) aplicadas com `npx prisma migrate deploy` e o `DIRECT_URL` de produção, antes do deploy.
 - [x] Seed aplicado: categorias, cores, tamanhos, tabela de atacado **e os produtos de exemplo** (preço de teste R$ 1,00, 10 peças por variação). Trocar ou esconder pelo painel antes de abrir a loja.
 - [x] Authentication > URL Configuration: Site URL e Redirect URLs com `https://lojacartaviva.com.br`.
 - [x] Authentication > SMTP: Resend, remetente `nao-responda@lojacartaviva.com.br`. Modelos de confirmação e de nova senha em português, com os links de `/auth/confirmar`.

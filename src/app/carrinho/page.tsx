@@ -3,6 +3,7 @@ import Link from "next/link";
 import { CircleAlert } from "lucide-react";
 
 import { CalculoFrete } from "@/components/carrinho/CalculoFrete";
+import { AvisoFreteGratis } from "@/components/frete/FreteGratis";
 import { ItemCarrinho } from "@/components/carrinho/ItemCarrinho";
 import { SincronizarCarrinho } from "@/components/carrinho/SincronizarCarrinho";
 import { Botao } from "@/components/ui/Botao";
@@ -114,10 +115,17 @@ export default async function PaginaCarrinho() {
                         : "font-semibold"
                     }
                   >
-                    {frete === null ? "Informe o CEP" : formatarPreco(frete)}
+                    {frete === null ? "Informe o CEP" : frete === 0 ? "Grátis" : formatarPreco(frete)}
                   </dd>
                 </div>
               </dl>
+
+              {carrinho.quantidadeDePecas > 0 && (
+                <AvisoFreteGratis
+                  totalDosProdutosEmCentavos={carrinho.subtotalEmCentavos - carrinho.atacado.descontoEmCentavos}
+                  className="mt-5"
+                />
+              )}
 
               {carrinho.quantidadeDePecas > 0 && (
                 <div className="mt-5 border-t border-borda pt-5">

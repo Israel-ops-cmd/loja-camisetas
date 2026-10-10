@@ -6,6 +6,7 @@ import { cookies } from "next/headers";
 import { precoComDesconto } from "@/lib/atacado-regras";
 import type { Carrinho } from "@/lib/carrinho";
 import { buscarCep, normalizarCep, type EnderecoDoCep } from "@/lib/cep";
+import { aplicarFreteGratis, faltaParaFreteGratis } from "@/lib/frete-regras";
 import {
   cotarNoMelhorEnvio,
   ErroDeFrete,
@@ -80,6 +81,8 @@ export type CotacaoDoCarrinho =
       endereco: EnderecoDoCep | null;
       opcoes: OpcaoDeFrete[];
       escolhida: OpcaoDeFrete;
+      /** Quanto falta em produtos para o frete grátis (0 = já ganhou). */
+      faltaParaFreteGratis: number;
     }
   | { ok: false; cep: string; erro: string };
 
@@ -91,7 +94,11 @@ export function cotarFreteDoCarrinho(
   return cotarFrete(pacotesDoCarrinho(carrinho), cep, servicoId);
 }
 
-/** Cota qualquer conjunto de pacotes (carrinho ou personalização). */
+/**
+ * Cota qualquer conjunto de pacotes (carrinho ou personalização), já com o
+ * frete grátis aplicado. O total dos produtos sai dos próprios pacotes (valor
+ * de cada peça com o desconto de atacado), igual ao total do pedido.
+ */
 export async function cotarFrete(
   pacotes: PacoteDoItem[],
   cep: string,
@@ -114,10 +121,18 @@ export async function cotarFrete(
   }
 
   try {
-    const opcoes = await cotarComCache(cep, pacotes);
+    const totalDosProdutos = pacotes.reduce((t, p) => t + p.valorEmCentavos * p.quantidade, 0);
+    const opcoes = aplicarFreteGratis(await cotarComCache(cep, pacotes), totalDosProdutos);
     const escolhida =
       opcoes.find((opcao) => opcao.servicoId === servicoId) ?? opcoes[0];
-    return { ok: true, cep, endereco, opcoes, escolhida };
+    return {
+      ok: true,
+      cep,
+      endereco,
+      opcoes,
+      escolhida,
+      faltaParaFreteGratis: faltaParaFreteGratis(totalDosProdutos),
+    };
   } catch (erro) {
     if (erro instanceof ErroDeFrete) {
       return { ok: false, cep, erro: erro.message };

@@ -8,6 +8,7 @@ Lista do que ficou para depois durante o desenvolvimento. A ordem para pôr o si
 
 - [x] Projeto de produção no Supabase criado na região São Paulo, com as migrations e o seed aplicados (10/10/2026). O projeto antigo fica para desenvolvimento e testes.
 - [ ] **Dados de exemplo no banco de produção:** o seed criou lá os produtos de exemplo, com preço de teste (R$ 1,00) e 10 peças por variação. Trocar pelos produtos reais ou esconder pelo painel, e lançar o estoque real, antes de abrir a loja.
+- [ ] **Migrations novas no banco de produção:** as que vierem depois da criação do projeto (a primeira é `20261010120000_frete_gratis`) precisam ser aplicadas lá com `npx prisma migrate deploy` e o `DIRECT_URL` de produção, antes do deploy que usa o código novo.
 
 ### E-mails
 
@@ -48,7 +49,8 @@ Lista do que ficou para depois durante o desenvolvimento. A ordem para pôr o si
 - [ ] Testar em produção (ou de novo no sandbox) a etiqueta chegando a "Pronta para imprimir", o PDF impresso e o código de rastreio preenchendo sozinho o campo de "Enviei o pedido". No sandbox, em 06/10/2026, a etiqueta ficou como "paga, sendo gerada" durante todo o teste; compra, toque duplo sem cobrar de novo, impressão (link), cancelamento com o saldo de volta e histórico funcionaram.
 - [ ] Pedidos que não cabem num pacote só (o Melhor Envio calcula mais de um volume): o painel avisa e a etiqueta precisa ser feita direto no site do Melhor Envio (Correios não aceita vários volumes num envio só). Avaliar se vale tratar no painel quando houver pedidos grandes de atacado.
 - [ ] Pesar uma camiseta embalada e medir o pacote. Hoje o sistema usa uma estimativa provisória de 300 g em 28 × 22 × 4 cm, gravada como padrão em cada produto (canecas, caixinhas e bonés vão precisar das próprias medidas).
-- [ ] Decidir se haverá frete grátis e com qual regra. Hoje não há.
+- [x] Frete grátis para todo o Brasil a partir de R$ 400,00 em produtos, já com o desconto de atacado (10/10/2026). O valor fica só em `FRETE_GRATIS_A_PARTIR_DE_EM_CENTAVOS` (`src/lib/frete-regras.ts`). A loja paga o valor da opção mais barata: ela sai de graça, e nas mais rápidas o cliente paga só a diferença. O pedido guarda a parte paga pela loja (`freteDescontoEmCentavos`) e a cobrança do Mercado Pago sai sem a linha de frete quando ele é zero. Vale também para os pedidos de personalização.
+- [ ] Acompanhar o custo do frete grátis nas etiquetas (o painel mostra, em cada pedido, quanto a loja paga). Se pesar para entregas longas, avaliar limitar por região ou por transportadora.
 - [ ] Se houver dias de manuseio ou produção, configurar no painel do Melhor Envio: o prazo mostrado no carrinho já usa os valores personalizados da conta.
 
 ### Pagamento (Mercado Pago)
@@ -165,6 +167,10 @@ Desde a etapa 12, produtos, preços, cores, tamanhos, descrições e fotos são 
 - [ ] Promover os administradores no projeto de produção do Supabase (já criado): criar as contas do Israel e do pai em `/cadastro` e rodar `npm run admin:promover -- email` com o `DIRECT_URL` de produção.
 - [ ] O site não usa a Secret key do Supabase: a promoção de administrador usa a conexão direta com o banco. Se um dia for preciso usá-la, ela fica só no `.env.local` e na Vercel, em variável sem o prefixo `NEXT_PUBLIC_`.
 - [ ] Analisar as vulnerabilidades de severidade alta apontadas pelo `npm audit`.
+
+### Visual
+
+- [ ] **Redesign visual do site**: mais minimalista, leve e dinâmico, **sem mudar nenhuma funcionalidade**. Primeiro um protótipo do visual para aprovação; depois de aprovado, a implementação numa branch própria, `feat/redesign`, atualizando também `docs/identidade-visual.md`.
 
 ### Publicação
 
