@@ -14,6 +14,9 @@ export type ValoresDoModelo = {
   larguraCm: string;
   alturaCm: string;
   comprimentoCm: string;
+  /** Preços de referência (R$), sugeridos ao ligar o modelo num produto. */
+  precoEstampada: string;
+  precoLisa: string;
 };
 
 const numero = (texto: string) => (texto.trim() === "" ? Number.NaN : Number(texto.replace(",", ".")));
@@ -38,6 +41,8 @@ export function FormularioModelo({ id, valores: iniciais }: { id: string | null;
       larguraCm: numero(v.larguraCm),
       alturaCm: numero(v.alturaCm),
       comprimentoCm: numero(v.comprimentoCm),
+      precoEstampada: v.precoEstampada,
+      precoLisa: v.precoLisa,
     };
     iniciar(async () => {
       const r = await salvarModelo(id, dados);
@@ -81,6 +86,34 @@ export function FormularioModelo({ id, valores: iniciais }: { id: string | null;
           </span>
         </span>
       </label>
+
+      <fieldset className="space-y-3">
+        <legend className="text-[16px] font-semibold">Preços de referência</legend>
+        <p className="text-[14px] text-apoio">
+          Sugeridos quando você liga este modelo num produto (dá para mudar em cada produto). Mudar aqui não altera
+          os produtos que já têm preço.
+        </p>
+        <div className="grid grid-cols-2 gap-4">
+          <Campo
+            name="precoEstampada"
+            rotulo="Estampada (R$)"
+            inputMode="decimal"
+            value={v.precoEstampada}
+            onChange={(e) => mudar("precoEstampada", e.target.value)}
+            erro={erros.precoEstampada}
+            ajuda="Ex.: 49,90"
+          />
+          <Campo
+            name="precoLisa"
+            rotulo="Camiseta lisa (R$)"
+            inputMode="decimal"
+            value={v.precoLisa}
+            onChange={(e) => mudar("precoLisa", e.target.value)}
+            erro={erros.precoLisa}
+            ajuda="Em branco: a camiseta lisa não usa este modelo."
+          />
+        </div>
+      </fieldset>
 
       <fieldset className="space-y-3">
         <legend className="text-[16px] font-semibold">Pacote para o frete</legend>

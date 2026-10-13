@@ -7,6 +7,7 @@ import { FormularioModelo } from "@/components/admin/FormularioModelo";
 import { Aviso } from "@/components/formulario/Aviso";
 import { Painel } from "@/components/ui/Painel";
 import { exigirAdministrador } from "@/lib/auth";
+import { centavosParaTexto } from "@/lib/formatacao";
 import { prisma } from "@/lib/prisma";
 
 export default async function PaginaEditarModelo({ params, searchParams }: PageProps<"/admin/modelos/[id]">) {
@@ -58,6 +59,12 @@ export default async function PaginaEditarModelo({ params, searchParams }: PageP
                 larguraCm: String(modelo.larguraCm),
                 alturaCm: String(modelo.alturaCm),
                 comprimentoCm: String(modelo.comprimentoCm),
+                precoEstampada: modelo.precoReferenciaEstampadaEmCentavos
+                  ? centavosParaTexto(modelo.precoReferenciaEstampadaEmCentavos)
+                  : "",
+                precoLisa: modelo.precoReferenciaLisaEmCentavos
+                  ? centavosParaTexto(modelo.precoReferenciaLisaEmCentavos)
+                  : "",
               }}
             />
           </Painel>

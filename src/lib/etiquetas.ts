@@ -4,6 +4,7 @@ import { precoComDesconto } from "@/lib/atacado-regras";
 import { buscarCep } from "@/lib/cep";
 import { cepDeOrigem, chamarMelhorEnvio, ErroDoMelhorEnvio } from "@/lib/melhor-envio";
 import { registrar } from "@/lib/pagamento";
+import { detalheDoItem } from "@/lib/pedidos";
 import { prisma } from "@/lib/prisma";
 
 // Etiqueta de envio pelo Melhor Envio: carrinho → compra (saldo da carteira)
@@ -207,7 +208,7 @@ export async function comprarEtiqueta(pedidoId: string, autor: string) {
         postal_code: pedido.entregaCep,
       },
       products: pedido.itens.map((item) => ({
-        name: `${item.nomeProduto} ${item.nomeCor} ${item.nomeTamanho}`.slice(0, 100),
+        name: `${item.nomeProduto} ${detalheDoItem(item, " ")}`.slice(0, 100),
         quantity: item.quantidade,
         unitary_value: precoComDesconto(item.precoUnitarioEmCentavos, pedido.descontoPercentual) / 100,
       })),

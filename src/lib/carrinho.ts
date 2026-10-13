@@ -17,6 +17,7 @@ import {
 } from "@/lib/atacado-regras";
 import { distribuirEstoque, ehCamisetaLisa, type Distribuicao } from "@/lib/estoque-regras";
 import { prisma } from "@/lib/prisma";
+import { fotosDaEscolha, precoDaVariacao } from "@/lib/produtos-regras";
 
 const TRINTA_DIAS = 60 * 60 * 24 * 30;
 
@@ -114,6 +115,8 @@ export type ItemDoCarrinho = {
     alturaCm: number;
     comprimentoCm: number;
   };
+  /** Nome do modelo (Tradicional, Baby Look...). */
+  modelo: string;
   cor: { nome: string; hex: string };
   tamanho: string;
   foto: { url: string; alt: string } | null;
@@ -184,19 +187,21 @@ export async function obterCarrinho(): Promise<Carrinho> {
       ...selecaoDoEstoque,
       sku: true,
       precoEmCentavos: true,
+      modeloId: true,
       corId: true,
       cor: { select: { nome: true, hex: true } },
       tamanho: { select: { nome: true } },
-      modelo: { select: { pesoEmGramas: true, larguraCm: true, alturaCm: true, comprimentoCm: true } },
+      modelo: { select: { nome: true, pesoEmGramas: true, larguraCm: true, alturaCm: true, comprimentoCm: true } },
       produto: {
         select: {
           nome: true,
           slug: true,
           precoBaseEmCentavos: true,
+          precosDosModelos: { select: { modeloId: true, precoEmCentavos: true } },
           categoria: { select: { slug: true } },
           imagens: {
             orderBy: { ordem: "asc" },
-            select: { url: true, alt: true, corId: true },
+            select: { url: true, alt: true, corId: true, modeloId: true },
           },
         },
       },
@@ -219,7 +224,7 @@ export async function obterCarrinho(): Promise<Carrinho> {
       continue;
     }
 
-    const nome = `${variacao.produto.nome} (${variacao.cor.nome}, ${variacao.tamanho.nome})`;
+    const nome = `${variacao.produto.nome} (${variacao.modelo.nome}, ${variacao.cor.nome}, ${variacao.tamanho.nome})`;
     const { possivel, prontas, limite } = divisao.get(variacaoId)!;
     const esgotado = possivel === 0;
     let quantidadeFinal = quantidade;
@@ -235,14 +240,9 @@ export async function obterCarrinho(): Promise<Carrinho> {
     }
     const aEstampar = esgotado || ehCamisetaLisa(variacao.produto.categoria.slug) ? 0 : quantidadeFinal - prontas;
 
-    const preco =
-      variacao.precoEmCentavos ?? variacao.produto.precoBaseEmCentavos;
-    const imagens = variacao.produto.imagens;
+    const preco = precoDaVariacao(variacao, variacao.produto);
     const foto =
-      imagens.find((i) => i.corId === variacao.corId) ??
-      imagens.find((i) => i.corId === null) ??
-      imagens[0] ??
-      null;
+      fotosDaEscolha(variacao.produto.imagens, { modeloId: variacao.modeloId, corId: variacao.corId })[0] ?? null;
 
     itens.push({
       variacaoId,
@@ -254,7 +254,13 @@ export async function obterCarrinho(): Promise<Carrinho> {
       precoUnitarioEmCentavos: preco,
       subtotalEmCentavos: esgotado ? 0 : preco * quantidadeFinal,
       produto: { nome: variacao.produto.nome, slug: variacao.produto.slug },
-      pacote: variacao.modelo,
+      pacote: {
+        pesoEmGramas: variacao.modelo.pesoEmGramas,
+        larguraCm: variacao.modelo.larguraCm,
+        alturaCm: variacao.modelo.alturaCm,
+        comprimentoCm: variacao.modelo.comprimentoCm,
+      },
+      modelo: variacao.modelo.nome,
       cor: variacao.cor,
       tamanho: variacao.tamanho.nome,
       foto: foto && { url: foto.url, alt: foto.alt },

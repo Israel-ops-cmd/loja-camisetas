@@ -21,7 +21,16 @@ export default async function PaginaNovoModelo() {
           <Painel titulo="Dados do modelo">
             <FormularioModelo
               id={null}
-              valores={{ nome: "", ativo: true, pesoEmGramas: "300", larguraCm: "22", alturaCm: "4", comprimentoCm: "28" }}
+              valores={{
+                nome: "",
+                ativo: true,
+                pesoEmGramas: "300",
+                larguraCm: "22",
+                alturaCm: "4",
+                comprimentoCm: "28",
+                precoEstampada: "",
+                precoLisa: "",
+              }}
             />
           </Painel>
         </div>

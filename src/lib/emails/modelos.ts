@@ -2,7 +2,7 @@ import "server-only";
 
 import { formatarPreco } from "@/lib/formatacao";
 import { textoDoFrete } from "@/lib/frete-regras";
-import { formatarData } from "@/lib/pedidos";
+import { detalheDoItem, formatarData } from "@/lib/pedidos";
 import type { ConteudoDoEmail } from "@/lib/emails/envio";
 import {
   PRAZO_DE_DESPACHO,
@@ -109,7 +109,14 @@ export type PedidoParaEmail = {
   compradorNome: string;
   compradorEmail: string;
   compradorTelefone: string;
-  itens: { quantidade: number; nomeProduto: string; nomeCor: string; nomeTamanho: string; precoUnitarioEmCentavos: number }[];
+  itens: {
+    quantidade: number;
+    nomeProduto: string;
+    nomeModelo: string | null;
+    nomeCor: string;
+    nomeTamanho: string;
+    precoUnitarioEmCentavos: number;
+  }[];
   subtotalEmCentavos: number;
   descontoEmCentavos: number;
   descontoPercentual: number;
@@ -138,7 +145,7 @@ const urlDoPedido = (site: string, numero: number) => `${site}/pedidos/${numero}
 
 function resumoDoPedido(p: PedidoParaEmail): Bloco {
   const linhas: [string, string][] = p.itens.map((i) => [
-    `${i.quantidade}× ${i.nomeProduto} (${i.nomeCor}, ${i.nomeTamanho})`,
+    `${i.quantidade}× ${i.nomeProduto} (${detalheDoItem(i)})`,
     formatarPreco(i.precoUnitarioEmCentavos * i.quantidade),
   ]);
   if (p.descontoEmCentavos > 0) linhas.push([`Desconto de atacado (${p.descontoPercentual}%)`, `−${formatarPreco(p.descontoEmCentavos)}`]);

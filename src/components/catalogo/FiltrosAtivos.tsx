@@ -15,6 +15,10 @@ export function FiltrosAtivos({ filtros, opcoes }: FiltrosAtivosProps) {
       rotulo: opcoes.categorias.find((c) => c.slug === filtros.categoria)?.nome,
       href: hrefCatalogo(filtros, { categoria: undefined }),
     },
+    filtros.modelo && {
+      rotulo: opcoes.modelos.find((m) => m.slug === filtros.modelo)?.nome,
+      href: hrefCatalogo(filtros, { modelo: undefined }),
+    },
     filtros.cor && {
       rotulo: opcoes.cores.find((c) => c.slug === filtros.cor)?.nome,
       href: hrefCatalogo(filtros, { cor: undefined }),

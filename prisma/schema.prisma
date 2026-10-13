@@ -28,12 +28,14 @@ model Produto {
   nome                String
   slug                String           @unique
   descricao           String?
+  /// Reserva: vale quando o modelo não tem preço neste produto (PrecoDoModelo).
   precoBaseEmCentavos Int
   ativo               Boolean          @default(true)
   destaque            Boolean          @default(false)
   categoriaId         String           @db.Uuid
   categoria           Categoria        @relation(fields: [categoriaId], references: [id])
   variacoes           Variacao[]
+  precosDosModelos    PrecoDoModelo[]
   imagens             ProdutoImagem[]
   personalizacoes     Personalizacao[]
   criadoEm            DateTime         @default(now())
@@ -46,27 +48,46 @@ model Produto {
 /// Modelo da peça (Tradicional, Baby Look...): define as cores, os tamanhos
 /// com a tabela de medidas e o pacote para o frete.
 model Modelo {
-  id              String           @id @default(uuid(7)) @db.Uuid
-  nome            String           @unique
-  slug            String           @unique
+  id                                 String           @id @default(uuid(7)) @db.Uuid
+  nome                               String           @unique
+  slug                               String           @unique
   /// Ordem de exibição na loja e no painel.
-  ordem           Int              @default(0)
-  ativo           Boolean          @default(true)
+  ordem                              Int              @default(0)
+  ativo                              Boolean          @default(true)
   // Pacote de uma unidade, para o cálculo de frete. Padrão PROVISÓRIO
   // (camiseta embalada estimada): confirmar com a medida real de cada modelo.
-  pesoEmGramas    Int              @default(300)
-  larguraCm       Int              @default(22)
-  alturaCm        Int              @default(4)
-  comprimentoCm   Int              @default(28)
-  cores           ModeloCor[]
-  medidas         MedidaDoModelo[]
-  variacoes       Variacao[]
-  pecasLisas      PecaLisa[]
-  personalizacoes Personalizacao[]
-  criadoEm        DateTime         @default(now())
-  atualizadoEm    DateTime         @updatedAt
+  pesoEmGramas                       Int              @default(300)
+  larguraCm                          Int              @default(22)
+  alturaCm                           Int              @default(4)
+  comprimentoCm                      Int              @default(28)
+  /// Preços de referência, sugeridos ao ligar o modelo num produto: arte
+  /// (estampada) e camiseta lisa. Sem preço de lisa, a lisa não usa o modelo.
+  precoReferenciaEstampadaEmCentavos Int?
+  precoReferenciaLisaEmCentavos      Int?
+  cores                              ModeloCor[]
+  medidas                            MedidaDoModelo[]
+  variacoes                          Variacao[]
+  pecasLisas                         PecaLisa[]
+  personalizacoes                    Personalizacao[]
+  precos                             PrecoDoModelo[]
+  imagens                            ProdutoImagem[]
+  criadoEm                           DateTime         @default(now())
+  atualizadoEm                       DateTime         @updatedAt
 
   @@map("modelos")
+}
+
+/// Preço de um modelo dentro de um produto (ex.: a arte no Oversized). O
+/// preço próprio de um tamanho (Variacao.precoEmCentavos) vale por cima dele.
+model PrecoDoModelo {
+  produtoId       String  @db.Uuid
+  produto         Produto @relation(fields: [produtoId], references: [id], onDelete: Cascade)
+  modeloId        String  @db.Uuid
+  modelo          Modelo  @relation(fields: [modeloId], references: [id])
+  precoEmCentavos Int
+
+  @@id([produtoId, modeloId])
+  @@map("precos_dos_modelos")
 }
 
 /// Cores em que o modelo existe.
@@ -187,6 +208,9 @@ model ProdutoImagem {
   /// Quando preenchida, a foto aparece ao escolher essa cor.
   corId            String? @db.Uuid
   cor              Cor?    @relation(fields: [corId], references: [id])
+  /// Quando preenchido, a foto aparece ao escolher esse modelo.
+  modeloId         String? @db.Uuid
+  modelo           Modelo? @relation(fields: [modeloId], references: [id])
 
   @@index([produtoId])
   @@map("produto_imagens")
@@ -390,6 +414,8 @@ model ItemPedido {
   quantidade              Int
   precoUnitarioEmCentavos Int
   nomeProduto             String
+  /// Nulo nos pedidos feitos antes da escolha de modelo (todos Tradicional).
+  nomeModelo              String?
   nomeCor                 String
   nomeTamanho             String
   sku                     String

@@ -61,3 +61,11 @@ export const rotulosDoBotaoDeSituacao: Partial<Record<StatusPedido, string>> = {
 export function linkDeRastreio(codigo: string) {
   return `https://www.melhorrastreio.com.br/rastreio/${encodeURIComponent(codigo)}`;
 }
+
+/** "Tradicional, Preta, M". Pedidos de antes da escolha de modelo não têm o modelo. */
+export function detalheDoItem(
+  item: { nomeModelo: string | null; nomeCor: string; nomeTamanho: string },
+  separador = ", ",
+) {
+  return [item.nomeModelo, item.nomeCor, item.nomeTamanho].filter(Boolean).join(separador);
+}

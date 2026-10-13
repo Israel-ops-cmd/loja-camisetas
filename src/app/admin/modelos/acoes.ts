@@ -4,7 +4,7 @@ import { refresh } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
-import { paraSlug } from "@/lib/formatacao";
+import { lerPrecoEmCentavos, paraSlug } from "@/lib/formatacao";
 import { administradorDaAcao, atualizarPaginasDoCatalogo, SEM_PERMISSAO } from "@/lib/painel";
 import { prisma } from "@/lib/prisma";
 import { LIMITES_DO_PACOTE, lerMedidaEmMm } from "@/lib/produtos-regras";
@@ -28,7 +28,17 @@ const esquemaModelo = z.object({
   larguraCm: inteiroEntre(LIMITES_DO_PACOTE.centimetros.minimo, LIMITES_DO_PACOTE.centimetros.maximo, "a largura"),
   alturaCm: inteiroEntre(LIMITES_DO_PACOTE.centimetros.minimo, LIMITES_DO_PACOTE.centimetros.maximo, "a altura"),
   comprimentoCm: inteiroEntre(LIMITES_DO_PACOTE.centimetros.minimo, LIMITES_DO_PACOTE.centimetros.maximo, "o comprimento"),
+  /** Em branco = sem preço de referência (na lisa: o modelo não tem camiseta lisa). */
+  precoEstampada: z.string().max(20),
+  precoLisa: z.string().max(20),
 });
+
+/** "49,90" → 4990; vazio → null; inválido → undefined. */
+function precoDeReferencia(texto: string) {
+  if (!texto.trim()) return null;
+  const centavos = lerPrecoEmCentavos(texto);
+  return centavos !== null && centavos > 0 ? centavos : undefined;
+}
 
 export type DadosDoModelo = z.input<typeof esquemaModelo>;
 
@@ -54,7 +64,16 @@ export async function salvarModelo(id: unknown, dados: unknown): Promise<Resulta
     for (const problema of validacao.error.issues) campos[String(problema.path[0])] ??= problema.message;
     return { ok: false, erro: "Confira os campos marcados abaixo.", campos };
   }
-  const d = validacao.data;
+  const { precoEstampada, precoLisa, ...resto } = validacao.data;
+  const precoReferenciaEstampadaEmCentavos = precoDeReferencia(precoEstampada);
+  const precoReferenciaLisaEmCentavos = precoDeReferencia(precoLisa);
+  if (precoReferenciaEstampadaEmCentavos === undefined || precoReferenciaLisaEmCentavos === undefined) {
+    const campos: Record<string, string> = {};
+    if (precoReferenciaEstampadaEmCentavos === undefined) campos.precoEstampada = "Use, por exemplo, 49,90, ou deixe em branco.";
+    if (precoReferenciaLisaEmCentavos === undefined) campos.precoLisa = "Use, por exemplo, 29,90, ou deixe em branco.";
+    return { ok: false, erro: "Confira os campos marcados abaixo.", campos };
+  }
+  const d = { ...resto, precoReferenciaEstampadaEmCentavos, precoReferenciaLisaEmCentavos };
 
   const outro = await prisma.modelo.findFirst({
     where: { nome: { equals: d.nome, mode: "insensitive" }, ...(id ? { id: { not: id } } : {}) },

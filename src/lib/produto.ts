@@ -4,6 +4,7 @@ import { cache } from "react";
 
 import { ehCamisetaLisa } from "@/lib/estoque-regras";
 import { prisma } from "@/lib/prisma";
+import { precoDaVariacao } from "@/lib/produtos-regras";
 
 export { LIMITE_ULTIMAS_UNIDADES } from "@/lib/estoque-regras";
 
@@ -20,6 +21,8 @@ export type ProdutoDetalhe = {
     enquadramento: string | null;
     /** Nulo: a foto vale para todas as cores. */
     corId: string | null;
+    /** Nulo: a foto vale para todos os modelos. */
+    modeloId: string | null;
   }[];
   cores: { id: string; nome: string; hex: string }[];
   tamanhos: { id: string; nome: string }[];
@@ -57,6 +60,7 @@ export const obterProduto = cache(
         nome: true,
         descricao: true,
         precoBaseEmCentavos: true,
+        precosDosModelos: { select: { modeloId: true, precoEmCentavos: true } },
         categoria: { select: { id: true, nome: true, slug: true } },
         imagens: {
           orderBy: { ordem: "asc" },
@@ -66,6 +70,7 @@ export const obterProduto = cache(
             alt: true,
             enquadramento: true,
             corId: true,
+            modeloId: true,
           },
         },
         variacoes: {
@@ -147,7 +152,7 @@ export const obterProduto = cache(
         tamanhoId: v.tamanho.id,
         estoque: Math.max(v.pecaLisa.estoque, 0) + (lisa ? 0 : Math.max(v.estoque, 0)),
         prontaEntrega: lisa ? Math.max(v.pecaLisa.estoque, 0) : Math.max(v.estoque, 0),
-        precoEmCentavos: v.precoEmCentavos ?? produto.precoBaseEmCentavos,
+        precoEmCentavos: precoDaVariacao({ modeloId: v.modelo.id, precoEmCentavos: v.precoEmCentavos }, produto),
       })),
     };
   },

@@ -11,6 +11,7 @@ import {
 } from "@/lib/mercado-pago";
 import { origemDoSite } from "@/lib/origem";
 import { MAXIMO_DE_PARCELAS, prazoDePagamento } from "@/lib/pagamento";
+import { detalheDoItem } from "@/lib/pedidos";
 import { prisma } from "@/lib/prisma";
 
 export type ResultadoPagar = { erro: string };
@@ -63,7 +64,7 @@ export async function pagarPedido(numero: unknown): Promise<ResultadoPagar> {
         itens: pedido.itens.map((item) => ({
           sku: item.sku,
           titulo:
-            `${item.nomeProduto} (${item.nomeCor}, ${item.nomeTamanho})` +
+            `${item.nomeProduto} (${detalheDoItem(item)})` +
             (pedido.descontoPercentual > 0 ? ` - atacado ${pedido.descontoPercentual}%` : ""),
           quantidade: item.quantidade,
           precoEmCentavos: precoComDesconto(item.precoUnitarioEmCentavos, pedido.descontoPercentual),

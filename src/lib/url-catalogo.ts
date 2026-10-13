@@ -12,6 +12,7 @@ export function hrefCatalogo(
   const parametros = new URLSearchParams();
 
   if (filtros.categoria) parametros.set("categoria", filtros.categoria);
+  if (filtros.modelo) parametros.set("modelo", filtros.modelo);
   if (filtros.cor) parametros.set("cor", filtros.cor);
   if (filtros.tamanho) parametros.set("tamanho", filtros.tamanho);
   if (filtros.ordem && filtros.ordem !== "recentes") {

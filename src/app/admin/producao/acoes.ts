@@ -6,6 +6,7 @@ import { z } from "zod";
 import { STATUS_ESPERANDO_ENVIO } from "@/lib/estoque-regras";
 import { registrar } from "@/lib/pagamento";
 import { administradorDaAcao, SEM_PERMISSAO } from "@/lib/painel";
+import { detalheDoItem } from "@/lib/pedidos";
 import { prisma } from "@/lib/prisma";
 
 export type Resultado = { ok: true; mensagem: string } | { ok: false; erro: string };
@@ -24,7 +25,7 @@ export async function marcarEstampadas(itemId: unknown): Promise<Resultado> {
   const resultado = await prisma.$transaction(async (tx) => {
     const item = await tx.itemPedido.findUnique({
       where: { id: itemId },
-      select: { pedidoId: true, quantidadeDaLisa: true, nomeProduto: true, nomeCor: true, nomeTamanho: true },
+      select: { pedidoId: true, quantidadeDaLisa: true, nomeProduto: true, nomeModelo: true, nomeCor: true, nomeTamanho: true },
     });
     if (!item) return null;
     const { count } = await tx.itemPedido.updateMany({
@@ -39,7 +40,7 @@ export async function marcarEstampadas(itemId: unknown): Promise<Resultado> {
     });
     if (count === 0) return { mudou: true as const };
     const pecas = item.quantidadeDaLisa === 1 ? "1 peça estampada" : `${item.quantidadeDaLisa} peças estampadas`;
-    await registrar(tx, item.pedidoId, `${pecas}: ${item.nomeProduto} (${item.nomeCor}, ${item.nomeTamanho}).`, admin.nome);
+    await registrar(tx, item.pedidoId, `${pecas}: ${item.nomeProduto} (${detalheDoItem(item)}).`, admin.nome);
     return { pecas };
   });
 
