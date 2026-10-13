@@ -33,6 +33,7 @@ export default async function PaginaAdminPersonalizacoes() {
       prazoDesejado: true,
       cliente: { select: { nome: true } },
       produto: { select: { nome: true } },
+      modelo: { select: { nome: true } },
       cor: { select: { nome: true } },
       itens: { select: { quantidade: true } },
     },
@@ -65,7 +66,7 @@ export default async function PaginaAdminPersonalizacoes() {
                         {formatarNumeroDaPersonalizacao(p.numero)} · {p.cliente.nome}
                       </span>
                       <span className="block text-[14px] text-secundario">
-                        {p.produto.nome}, {p.cor.nome} · {pecas} peças · {formatarData(p.criadoEm)}
+                        {p.produto.nome} {p.modelo.nome}, {p.cor.nome} · {pecas} peças · {formatarData(p.criadoEm)}
                         {p.prazoDesejado && ` · prazo ${formatarData(p.prazoDesejado)}`}
                       </span>
                     </span>

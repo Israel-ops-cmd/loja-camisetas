@@ -6,6 +6,7 @@ import { FormularioCheckout } from "@/components/checkout/FormularioCheckout";
 import { exigirUsuario } from "@/lib/auth";
 import { obterCarrinho } from "@/lib/carrinho";
 import { cotarFreteDoCarrinho, lerEscolhaDeFrete } from "@/lib/frete";
+import { textoDoPrazoDeDespacho } from "@/lib/politicas";
 import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
@@ -93,6 +94,7 @@ export default async function PaginaCheckout() {
           cotar={cotarFreteDoCheckout}
           finalizar={finalizarPedido}
           voltar={{ href: "/carrinho", rotulo: "Voltar ao carrinho" }}
+          prazoDeDespacho={textoDoPrazoDeDespacho(carrinho.pecasAEstampar)}
         />
       </div>
     </div>

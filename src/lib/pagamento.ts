@@ -2,6 +2,7 @@ import "server-only";
 
 import { enviarDepois } from "@/lib/emails/envio";
 import { emailDeAlerta, emailDeCancelamento, emailsDePedidoPago, urlDoSite } from "@/lib/emails/eventos";
+import { baixarEstoqueDoPedido, devolverEstoqueDoPedido } from "@/lib/estoque";
 import { rotulosDeStatus } from "@/lib/pedidos";
 import { prisma } from "@/lib/prisma";
 import {
@@ -77,25 +78,11 @@ async function aplicar(pagamento: PagamentoMercadoPago) {
       if (pedido.status === "CANCELADO" || pedido.mercadoPagoPagamentoId !== idDoPagamento) {
         return;
       }
-      for (const item of pedido.itens) {
-        const jaDevolvido = await tx.movimentacaoEstoque.findFirst({
-          where: { pedidoId, variacaoId: item.variacaoId, motivo: "CANCELAMENTO" },
-        });
-        if (jaDevolvido) continue;
-        await tx.variacao.update({
-          where: { id: item.variacaoId },
-          data: { estoque: { increment: item.quantidade } },
-        });
-        await tx.movimentacaoEstoque.create({
-          data: {
-            variacaoId: item.variacaoId,
-            pedidoId,
-            quantidade: item.quantidade,
-            motivo: "CANCELAMENTO",
-            observacao: `Pagamento ${idDoPagamento} ${status === "refunded" ? "estornado" : "contestado"}`,
-          },
-        });
-      }
+      const { personalizadasPerdidas } = await devolverEstoqueDoPedido(
+        tx,
+        pedidoId,
+        `Pagamento ${idDoPagamento} ${status === "refunded" ? "estornado" : "contestado"}`,
+      );
       await tx.pedido.update({
         where: { id: pedidoId },
         data: { status: "CANCELADO", mercadoPagoStatus: status, canceladoEm: new Date() },
@@ -103,7 +90,7 @@ async function aplicar(pagamento: PagamentoMercadoPago) {
       await registrar(
         tx,
         pedidoId,
-        `Pagamento ${idDoPagamento} ${status === "refunded" ? "estornado" : "contestado pelo comprador"} no Mercado Pago. Pedido cancelado e peças devolvidas ao estoque.`,
+        `Pagamento ${idDoPagamento} ${status === "refunded" ? "estornado" : "contestado pelo comprador"} no Mercado Pago. Pedido cancelado e peças devolvidas ao estoque${personalizadasPerdidas > 0 ? ` (menos ${personalizadasPerdidas === 1 ? "1 peça personalizada já estampada, que não volta" : `${personalizadasPerdidas} peças personalizadas já estampadas, que não voltam`})` : ""}.`,
       );
       emails.push(...(await emailDeCancelamento(tx, pedido, status === "refunded" ? "estorno" : "contestacao", site)));
       return;
@@ -147,34 +134,10 @@ async function aplicar(pagamento: PagamentoMercadoPago) {
       return;
     }
 
-    // Baixa de estoque. Se faltar, o pedido segue pago com alerta (decisão
-    // do administrador: produzir ou estornar). O estoque pode ficar negativo,
-    // indicando quantas peças faltam.
-    const faltas: string[] = [];
-    for (const item of pedido.itens) {
-      const jaBaixado = await tx.movimentacaoEstoque.findFirst({
-        where: { pedidoId, variacaoId: item.variacaoId, motivo: "VENDA" },
-      });
-      if (jaBaixado) continue;
-
-      const variacao = await tx.variacao.update({
-        where: { id: item.variacaoId },
-        data: { estoque: { decrement: item.quantidade } },
-        select: { estoque: true },
-      });
-      if (variacao.estoque < 0) {
-        faltas.push(`${item.nomeProduto} (${item.nomeCor}, ${item.nomeTamanho}): faltam ${Math.min(-variacao.estoque, item.quantidade)}`);
-      }
-      await tx.movimentacaoEstoque.create({
-        data: {
-          variacaoId: item.variacaoId,
-          pedidoId,
-          quantidade: -item.quantidade,
-          motivo: "VENDA",
-          observacao: `Pagamento ${idDoPagamento}`,
-        },
-      });
-    }
+    // Baixa de estoque (prontas primeiro, depois lisas). Se faltar, o pedido
+    // segue pago com alerta (decisão do administrador: produzir ou estornar).
+    // A peça lisa pode ficar negativa, indicando quantas faltam.
+    const { faltas, ...despacho } = await baixarEstoqueDoPedido(tx, pedidoId, `Pagamento ${idDoPagamento}`);
 
     await tx.pedido.update({
       where: { id: pedidoId },
@@ -196,11 +159,12 @@ async function aplicar(pagamento: PagamentoMercadoPago) {
       pedidoId,
       `Pagamento ${idDoPagamento} aprovado (${forma}). Estoque baixado${faltas.length > 0 ? ", mas faltou peça: gerou um alerta" : ""}.`,
     );
-    emails.push(...(await emailsDePedidoPago(tx, { ...pedido, metodoPagamento: forma }, site)));
+    emails.push(...(await emailsDePedidoPago(tx, { ...pedido, metodoPagamento: forma, despacho }, site)));
     if (faltas.length > 0) {
       emails.push(...(await emailDeAlerta(tx, pedido, idDoPagamento, `Pago sem estoque suficiente: ${faltas.join("; ")}. Decida entre produzir ou estornar.`, site)));
     }
-  });
+    // A baixa trava e atualiza cada peça do pedido: folga além dos 5 s padrão.
+  }, { timeout: 15_000 });
   enviarDepois(emails);
 }
 

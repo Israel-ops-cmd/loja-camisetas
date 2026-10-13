@@ -34,7 +34,9 @@ export function FormularioPersonalizacao({
 }) {
   const [produtoId, setProdutoId] = useState(pecas[0].id);
   const peca = pecas.find((p) => p.id === produtoId) ?? pecas[0];
-  const [corId, setCorId] = useState(peca.cores[0]?.id ?? "");
+  const [modeloId, setModeloId] = useState(peca.modelos[0].id);
+  const modelo = peca.modelos.find((m) => m.id === modeloId) ?? peca.modelos[0];
+  const [corId, setCorId] = useState(modelo.cores[0]?.id ?? "");
   const [quantidades, setQuantidades] = useState<Record<string, number>>({});
   const [posicoes, setPosicoes] = useState<PosicaoEstampa[]>(["COSTAS"]);
   const [arquivos, setArquivos] = useState<ArquivoEnviado[]>([]);
@@ -46,14 +48,20 @@ export function FormularioPersonalizacao({
   const [erroGeral, setErroGeral] = useState<string | null>(null);
   const [enviando, iniciar] = useTransition();
 
-  const cor = peca.cores.find((c) => c.id === corId) ?? peca.cores[0];
-  const total = peca.tamanhos.reduce((t, tam) => t + (quantidades[tam.id] ?? 0), 0);
+  const cor = modelo.cores.find((c) => c.id === corId) ?? modelo.cores[0];
+  const total = modelo.tamanhos.reduce((t, tam) => t + (quantidades[tam.id] ?? 0), 0);
 
   function escolherPeca(id: string) {
     const nova = pecas.find((p) => p.id === id)!;
     setProdutoId(id);
-    setCorId(nova.cores.find((c) => c.id === corId)?.id ?? nova.cores[0]?.id ?? "");
-    setQuantidades({});
+    escolherModelo(nova.modelos.find((m) => m.nome === modelo.nome) ?? nova.modelos[0]);
+  }
+
+  function escolherModelo(novo: (typeof peca.modelos)[number]) {
+    setModeloId(novo.id);
+    setCorId(novo.cores.find((c) => c.id === corId)?.id ?? novo.cores[0]?.id ?? "");
+    // Mantém as quantidades dos tamanhos que o novo modelo também tem.
+    setQuantidades((q) => Object.fromEntries(novo.tamanhos.map((t) => [t.id, q[t.id] ?? 0])));
   }
 
   function alternarPosicao(posicao: PosicaoEstampa) {
@@ -70,9 +78,10 @@ export function FormularioPersonalizacao({
       // Em caso de sucesso, a ação leva para a página do pedido.
       const resultado = await enviarPersonalizacao({
         produtoId,
+        modeloId: modelo.id,
         corId: cor.id,
         quantidades: Object.fromEntries(
-          peca.tamanhos.map((t) => [t.id, quantidades[t.id] ?? 0]),
+          modelo.tamanhos.map((t) => [t.id, quantidades[t.id] ?? 0]),
         ),
         posicoes,
         descricao: descricao || undefined,
@@ -113,12 +122,35 @@ export function FormularioPersonalizacao({
             </fieldset>
           )}
 
+          {peca.modelos.length > 1 && (
+            <fieldset className="mb-6">
+              <legend className="text-[14px] font-semibold">Modelo</legend>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {peca.modelos.map((m) => (
+                  <label
+                    key={m.id}
+                    className={`flex min-h-12 cursor-pointer items-center rounded-full border px-5 text-[14px] font-semibold ${m.id === modelo.id ? "border-tinta bg-tinta text-papel" : "border-borda hover:border-tinta"}`}
+                  >
+                    <input
+                      type="radio"
+                      name="modelo"
+                      checked={m.id === modelo.id}
+                      onChange={() => escolherModelo(m)}
+                      className="sr-only"
+                    />
+                    {m.nome}
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+          )}
+
           <fieldset>
             <legend className="text-[14px] font-semibold">
               Cor <span className="font-normal text-apoio">· {cor?.nome}</span>
             </legend>
             <div className="mt-2 flex flex-wrap gap-2">
-              {peca.cores.map((c) => (
+              {modelo.cores.map((c) => (
                 <label key={c.id} title={c.nome} className="flex size-11 cursor-pointer items-center justify-center rounded-lg">
                   <input
                     type="radio"
@@ -140,7 +172,7 @@ export function FormularioPersonalizacao({
           <fieldset className="mt-6">
             <legend className="text-[14px] font-semibold">Quantidade por tamanho</legend>
             <ul className="mt-2 divide-y divide-borda">
-              {peca.tamanhos.map((tamanho) => (
+              {modelo.tamanhos.map((tamanho) => (
                 <li key={tamanho.id} className="flex items-center justify-between gap-4 py-2">
                   <span className="w-12 text-[15px] font-bold">{tamanho.nome}</span>
                   <SeletorQuantidade

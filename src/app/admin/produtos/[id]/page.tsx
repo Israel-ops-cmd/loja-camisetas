@@ -9,6 +9,7 @@ import { GradeDeVariacoes } from "@/components/admin/GradeDeVariacoes";
 import { Aviso } from "@/components/formulario/Aviso";
 import { Painel } from "@/components/ui/Painel";
 import { exigirAdministrador } from "@/lib/auth";
+import { ehCamisetaLisa } from "@/lib/estoque-regras";
 import { centavosParaTexto } from "@/lib/formatacao";
 import { prisma } from "@/lib/prisma";
 
@@ -22,8 +23,17 @@ export default async function PaginaEditarProduto({ params, searchParams }: Page
       where: { id },
       include: {
         imagens: { orderBy: [{ ordem: "asc" }, { id: "asc" }] },
+        categoria: { select: { slug: true } },
         variacoes: {
-          select: { modeloId: true, corId: true, tamanhoId: true, ativo: true, precoEmCentavos: true, estoque: true },
+          select: {
+            modeloId: true,
+            corId: true,
+            tamanhoId: true,
+            ativo: true,
+            precoEmCentavos: true,
+            estoque: true,
+            pecaLisa: { select: { estoque: true } },
+          },
         },
       },
     }),
@@ -43,11 +53,17 @@ export default async function PaginaEditarProduto({ params, searchParams }: Page
   if (!produto) notFound();
   const { novo } = await searchParams;
 
-  const aVenda = produto.variacoes.filter((v) => v.ativo);
+  // Quanto dá para vender: prontas da arte + peças lisas (camiseta lisa: só as lisas).
+  const lisa = ehCamisetaLisa(produto.categoria.slug);
+  const variacoes = produto.variacoes.map(({ pecaLisa, ...v }) => ({
+    ...v,
+    disponivel: Math.max(pecaLisa.estoque, 0) + (lisa ? 0 : Math.max(v.estoque, 0)),
+  }));
+  const aVenda = variacoes.filter((v) => v.ativo);
   const passos = [
     { feito: produto.imagens.length > 0, texto: "Ter pelo menos uma foto" },
     { feito: aVenda.length > 0, texto: "Ter cores e tamanhos à venda" },
-    { feito: aVenda.some((v) => v.estoque > 0), texto: "Ter estoque em algum tamanho" },
+    { feito: aVenda.some((v) => v.disponivel > 0), texto: "Ter peças (lisas ou prontas) em algum tamanho" },
     { feito: produto.ativo, texto: "Ligar “Mostrar na loja”" },
   ];
 
@@ -93,11 +109,11 @@ export default async function PaginaEditarProduto({ params, searchParams }: Page
             </ul>
             {aVenda.length > 0 && (
               <Link
-                href={`/admin/estoque?produto=${produto.id}`}
+                href={lisa ? "/admin/estoque" : `/admin/estoque?produto=${produto.id}`}
                 className="mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full border border-tinta px-6 text-[15px] font-bold hover:bg-fundo sm:w-auto"
               >
                 <Boxes aria-hidden="true" className="size-5" strokeWidth={1.8} />
-                Lançar estoque deste produto
+                {lisa ? "Lançar peças lisas" : "Peças prontas desta arte"}
               </Link>
             )}
           </section>
@@ -132,7 +148,7 @@ export default async function PaginaEditarProduto({ params, searchParams }: Page
                   cores: m.cores.map((c) => c.cor),
                   tamanhos: m.medidas.map((t) => t.tamanho),
                 }))}
-              variacoes={produto.variacoes}
+              variacoes={variacoes}
             />
           </Painel>
 

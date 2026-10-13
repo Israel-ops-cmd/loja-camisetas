@@ -93,6 +93,7 @@ export async function personalizacaoParaEmail(tx: Cliente, personalizacaoId: str
       numero: true,
       cliente: { select: { nome: true, email: true } },
       produto: { select: { nome: true } },
+      modelo: { select: { nome: true } },
       cor: { select: { nome: true } },
       itens: { select: { quantidade: true } },
     },
@@ -102,7 +103,7 @@ export async function personalizacaoParaEmail(tx: Cliente, personalizacaoId: str
     numero: p.numero,
     nomeDoCliente: p.cliente.nome,
     emailDoCliente: p.cliente.email,
-    produto: p.produto.nome,
+    produto: `${p.produto.nome} ${p.modelo.nome}`,
     cor: p.cor.nome,
     pecas: p.itens.reduce((s, i) => s + i.quantidade, 0),
   };

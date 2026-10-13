@@ -10,6 +10,7 @@ import { Botao } from "@/components/ui/Botao";
 import { obterCarrinho } from "@/lib/carrinho";
 import { formatarPreco } from "@/lib/formatacao";
 import { cotarFreteDoCarrinho, lerEscolhaDeFrete } from "@/lib/frete";
+import { textoDoPrazoDeDespacho } from "@/lib/politicas";
 
 export const metadata: Metadata = {
   title: "Carrinho",
@@ -159,6 +160,9 @@ export default async function PaginaCarrinho() {
                     Ver tabela
                   </Link>
                 </p>
+              )}
+              {carrinho.quantidadeDePecas > 0 && (
+                <p className="mt-4 text-[14px] text-apoio">{textoDoPrazoDeDespacho(carrinho.pecasAEstampar)}</p>
               )}
               {carrinho.itens.some((item) => item.esgotado) ? (
                 <p className="mt-6 rounded-xl border border-borda px-4 py-3 text-center text-[14px] font-semibold">

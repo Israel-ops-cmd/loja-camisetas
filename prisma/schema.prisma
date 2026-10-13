@@ -1,5 +1,6 @@
 // Schema do banco da Carta Viva.
-// Preços sempre em centavos (Int). Estoque controlado por variação (produto + modelo + cor + tamanho).
+// Preços sempre em centavos (Int). Estoque: peças lisas por modelo + cor + tamanho
+// (PecaLisa) e peças prontas de cada arte (Variacao.estoque).
 
 generator client {
   provider = "prisma-client"
@@ -45,23 +46,25 @@ model Produto {
 /// Modelo da peça (Tradicional, Baby Look...): define as cores, os tamanhos
 /// com a tabela de medidas e o pacote para o frete.
 model Modelo {
-  id            String           @id @default(uuid(7)) @db.Uuid
-  nome          String           @unique
-  slug          String           @unique
+  id              String           @id @default(uuid(7)) @db.Uuid
+  nome            String           @unique
+  slug            String           @unique
   /// Ordem de exibição na loja e no painel.
-  ordem         Int              @default(0)
-  ativo         Boolean          @default(true)
+  ordem           Int              @default(0)
+  ativo           Boolean          @default(true)
   // Pacote de uma unidade, para o cálculo de frete. Padrão PROVISÓRIO
   // (camiseta embalada estimada): confirmar com a medida real de cada modelo.
-  pesoEmGramas  Int              @default(300)
-  larguraCm     Int              @default(22)
-  alturaCm      Int              @default(4)
-  comprimentoCm Int              @default(28)
-  cores         ModeloCor[]
-  medidas       MedidaDoModelo[]
-  variacoes     Variacao[]
-  criadoEm      DateTime         @default(now())
-  atualizadoEm  DateTime         @updatedAt
+  pesoEmGramas    Int              @default(300)
+  larguraCm       Int              @default(22)
+  alturaCm        Int              @default(4)
+  comprimentoCm   Int              @default(28)
+  cores           ModeloCor[]
+  medidas         MedidaDoModelo[]
+  variacoes       Variacao[]
+  pecasLisas      PecaLisa[]
+  personalizacoes Personalizacao[]
+  criadoEm        DateTime         @default(now())
+  atualizadoEm    DateTime         @updatedAt
 
   @@map("modelos")
 }
@@ -99,6 +102,7 @@ model Cor {
   hex             String
   modelos         ModeloCor[]
   variacoes       Variacao[]
+  pecasLisas      PecaLisa[]
   imagens         ProdutoImagem[]
   personalizacoes Personalizacao[]
 
@@ -111,16 +115,41 @@ model Tamanho {
   /// Ordem de exibição (P antes de M...)
   ordem                 Int
   variacoes             Variacao[]
+  pecasLisas            PecaLisa[]
   medidas               MedidaDoModelo[]
   itensDePersonalizacao PersonalizacaoItem[]
 
   @@map("tamanhos")
 }
 
-/// Uma combinação vendável de produto + modelo + cor + tamanho, com o seu estoque.
+/// Peça lisa (sem estampa) de um modelo, numa cor e num tamanho: o estoque
+/// principal. Vende como camiseta lisa e vira arte ou personalização quando
+/// estampada. Existe uma linha para cada cor e tamanho do modelo.
+model PecaLisa {
+  id            String                @id @default(uuid(7)) @db.Uuid
+  modeloId      String                @db.Uuid
+  modelo        Modelo                @relation(fields: [modeloId], references: [id])
+  corId         String                @db.Uuid
+  cor           Cor                   @relation(fields: [corId], references: [id])
+  tamanhoId     String                @db.Uuid
+  tamanho       Tamanho               @relation(fields: [tamanhoId], references: [id])
+  /// Pode ficar negativo quando um pedido é pago sem peça (indica quantas faltam).
+  estoque       Int                   @default(0)
+  variacoes     Variacao[]
+  movimentacoes MovimentacaoEstoque[]
+
+  @@unique([modeloId, corId, tamanhoId])
+  @@map("pecas_lisas")
+}
+
+/// Uma combinação vendável de produto + modelo + cor + tamanho. Numa arte, o
+/// estoque são as peças prontas (já estampadas); na falta delas, a venda usa
+/// a peça lisa. Nas camisetas lisas (categoria Camisetas Básicas), o estoque
+/// da variação não é usado: a venda sai direto da peça lisa.
 model Variacao {
   id              String                @id @default(uuid(7)) @db.Uuid
   sku             String                @unique
+  /// Peças prontas desta arte.
   estoque         Int                   @default(0)
   /// Quando nulo, vale o preço base do produto.
   precoEmCentavos Int?
@@ -133,6 +162,7 @@ model Variacao {
   cor             Cor                   @relation(fields: [corId], references: [id])
   tamanhoId       String                @db.Uuid
   tamanho         Tamanho               @relation(fields: [tamanhoId], references: [id])
+  pecaLisa        PecaLisa              @relation(fields: [modeloId, corId, tamanhoId], references: [modeloId, corId, tamanhoId])
   movimentacoes   MovimentacaoEstoque[]
   itensPedido     ItemPedido[]
 
@@ -167,26 +197,33 @@ enum MotivoMovimentacao {
   VENDA
   AJUSTE
   CANCELAMENTO
+  /// Peças lisas estampadas para o estoque de uma arte (sai lisa, entra pronta).
+  ESTAMPA
 
   @@map("motivo_movimentacao")
 }
 
-/// Histórico do estoque. A baixa por venda guarda o pedido, e a combinação
-/// (pedido, variação, motivo) é única: um webhook repetido não desconta duas vezes.
+/// Histórico do estoque, das peças prontas (variação) ou das lisas: cada linha
+/// tem um dos dois. A baixa por venda guarda o pedido, e a combinação
+/// (pedido, peça, motivo) é única: um webhook repetido não desconta duas vezes.
 model MovimentacaoEstoque {
   id         String             @id @default(uuid(7)) @db.Uuid
   /// Positiva para entrada, negativa para saída.
   quantidade Int
   motivo     MotivoMovimentacao
   observacao String?
-  variacaoId String             @db.Uuid
-  variacao   Variacao           @relation(fields: [variacaoId], references: [id])
+  variacaoId String?            @db.Uuid
+  variacao   Variacao?          @relation(fields: [variacaoId], references: [id], onDelete: Restrict)
+  pecaLisaId String?            @db.Uuid
+  pecaLisa   PecaLisa?          @relation(fields: [pecaLisaId], references: [id], onDelete: Restrict)
   pedidoId   String?            @db.Uuid
   pedido     Pedido?            @relation(fields: [pedidoId], references: [id])
   criadoEm   DateTime           @default(now())
 
   @@unique([pedidoId, variacaoId, motivo])
+  @@unique([pedidoId, pecaLisaId, motivo])
   @@index([variacaoId])
+  @@index([pecaLisaId])
   @@map("movimentacoes_estoque")
 }
 
@@ -349,17 +386,24 @@ model PedidoHistorico {
 /// Guarda uma cópia de nome, cor, tamanho e preço: mudanças no catálogo
 /// não alteram pedidos antigos.
 model ItemPedido {
-  id                      String   @id @default(uuid(7)) @db.Uuid
+  id                      String    @id @default(uuid(7)) @db.Uuid
   quantidade              Int
   precoUnitarioEmCentavos Int
   nomeProduto             String
   nomeCor                 String
   nomeTamanho             String
   sku                     String
-  pedidoId                String   @db.Uuid
-  pedido                  Pedido   @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
-  variacaoId              String   @db.Uuid
-  variacao                Variacao @relation(fields: [variacaoId], references: [id])
+  /// Definidos na baixa do estoque (pagamento confirmado): quantas peças
+  /// saíram das lisas (o resto saiu das prontas da arte) e se elas precisam
+  /// ser estampadas (arte ou personalização; camiseta lisa não).
+  quantidadeDaLisa        Int       @default(0)
+  estampar                Boolean   @default(false)
+  /// Quando as peças a estampar ficaram prontas (lista de produção).
+  estampadoEm             DateTime?
+  pedidoId                String    @db.Uuid
+  pedido                  Pedido    @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+  variacaoId              String    @db.Uuid
+  variacao                Variacao  @relation(fields: [variacaoId], references: [id])
 
   @@index([pedidoId])
   @@map("itens_pedido")
@@ -418,6 +462,8 @@ model Personalizacao {
   /// Peça base (camiseta lisa), cor escolhida e posições da estampa.
   produtoId String           @db.Uuid
   produto   Produto          @relation(fields: [produtoId], references: [id])
+  modeloId  String           @db.Uuid
+  modelo    Modelo           @relation(fields: [modeloId], references: [id])
   corId     String           @db.Uuid
   cor       Cor              @relation(fields: [corId], references: [id])
   posicoes  PosicaoEstampa[]

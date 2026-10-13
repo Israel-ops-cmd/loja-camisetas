@@ -22,7 +22,7 @@ export function ResumoDaPersonalizacao({ p }: { p: PersonalizacaoDetalhada }) {
       <div>
         <dt className="text-[13px] text-secundario">Peça</dt>
         <dd className="flex items-center gap-2 font-semibold">
-          {p.produto.nome} ·
+          {p.produto.nome} {p.modelo.nome} ·
           <span aria-hidden="true" className="size-4 rounded border border-borda" style={{ backgroundColor: p.cor.hex }} />
           {p.cor.nome}
         </dd>

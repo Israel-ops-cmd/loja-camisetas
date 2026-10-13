@@ -55,6 +55,8 @@ type Props = {
   finalizar: (dados: DadosDoPedido) => Promise<ResultadoDoPedido>;
   /** Para onde o cliente volta para revisar o que está comprando. */
   voltar: { href: string; rotulo: string };
+  /** Prazo de despacho (peças prontas ou a estampar). */
+  prazoDeDespacho?: string;
 };
 
 const NOVO = "novo";
@@ -84,6 +86,7 @@ export function FormularioCheckout({
   cotar: cotarNoServidor,
   finalizar,
   voltar,
+  prazoDeDespacho,
 }: Props) {
   const [enderecoId, setEnderecoId] = useState(enderecos[0]?.id ?? NOVO);
   const [novo, setNovo] = useState({
@@ -534,6 +537,7 @@ export function FormularioCheckout({
         >
           {enviando ? "Finalizando…" : "Finalizar pedido"}
         </button>
+        {prazoDeDespacho && <p className="mt-3 text-center text-[14px] font-semibold">{prazoDeDespacho}</p>}
         <p className="mt-3 text-center text-[13px] text-secundario">
           O estoque é reservado quando o pagamento for confirmado.
         </p>

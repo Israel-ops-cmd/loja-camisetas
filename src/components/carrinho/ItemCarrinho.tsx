@@ -102,6 +102,13 @@ export function ItemCarrinho({ item }: { item: ItemDoCarrinho }) {
             <p className="mt-1 text-[14px] text-secundario">
               {formatarPreco(item.precoUnitarioEmCentavos)} cada
             </p>
+            {!item.esgotado && item.aEstampar > 0 && (
+              <p className="mt-1 text-[13px] font-semibold">
+                {item.aEstampar === item.quantidade
+                  ? "Estampada para você"
+                  : `${item.aEstampar} de ${item.quantidade} estampadas para você`}
+              </p>
+            )}
           </div>
 
           <button

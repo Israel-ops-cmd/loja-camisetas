@@ -3,10 +3,10 @@
 import { refresh } from "next/cache";
 
 import {
+  conferirCarrinho,
   gravarItensDoCarrinho,
   lerItensDoCarrinho,
   obterCarrinho,
-  obterVariacaoVendavel,
 } from "@/lib/carrinho";
 import { ehIdDeVariacao, MAXIMO_DE_ITENS } from "@/lib/carrinho-cookie";
 import { normalizarCep } from "@/lib/cep";
@@ -40,28 +40,32 @@ export async function adicionarAoCarrinho(
     return { ok: false, erro: "Escolha a cor, o tamanho e a quantidade." };
   }
 
-  const variacao = await obterVariacaoVendavel(variacaoId);
-  if (!variacao) {
-    return { ok: false, erro: "Esse produto não está mais disponível." };
-  }
-  if (variacao.estoque <= 0) {
-    return { ok: false, erro: "Esse tamanho acabou de esgotar." };
-  }
-
+  const id = variacaoId.toLowerCase();
   const itens = await lerItensDoCarrinho();
-  const existente = itens.find((item) => item.variacaoId === variacao.id);
+  const existente = itens.find((item) => item.variacaoId === id);
   const jaNoCarrinho = existente?.quantidade ?? 0;
 
-  if (jaNoCarrinho + quantidade > variacao.estoque) {
-    const restante = variacao.estoque - jaNoCarrinho;
+  // Confere o carrinho inteiro: outras artes podem usar as mesmas peças lisas.
+  const comONovo = existente
+    ? itens.map((i) => (i === existente ? { ...i, quantidade: jaNoCarrinho + quantidade } : i))
+    : [...itens, { variacaoId: id, quantidade }];
+  const divisao = (await conferirCarrinho(comONovo)).get(id);
+  if (!divisao) {
+    return { ok: false, erro: "Esse produto não está mais disponível." };
+  }
+  if (divisao.limite <= 0) {
+    return { ok: false, erro: "Esse tamanho acabou de esgotar." };
+  }
+  if (jaNoCarrinho + quantidade > divisao.limite) {
+    const restante = divisao.limite - jaNoCarrinho;
     return {
       ok: false,
       erro:
         jaNoCarrinho > 0
           ? restante > 0
             ? `Você já tem ${unidades(jaNoCarrinho)} no carrinho. Dá para adicionar mais ${unidades(restante)}.`
-            : `Você já tem no carrinho todo o estoque desse tamanho (${unidades(variacao.estoque)}).`
-          : `Só temos ${unidades(variacao.estoque)} desse tamanho.`,
+            : `Você já tem no carrinho todo o estoque desse tamanho (${unidades(divisao.limite)}).`
+          : `Só temos ${unidades(divisao.limite)} desse tamanho.`,
     };
   }
 
@@ -75,7 +79,7 @@ export async function adicionarAoCarrinho(
   if (existente) {
     existente.quantidade += quantidade;
   } else {
-    itens.push({ variacaoId: variacao.id, quantidade });
+    itens.push({ variacaoId: id, quantidade });
   }
   await gravarItensDoCarrinho(itens);
 
@@ -96,15 +100,17 @@ export async function alterarQuantidade(
   const item = itens.find((i) => i.variacaoId === variacaoId.toLowerCase());
   if (!item) return { ok: false, erro: "Esse item não está no carrinho." };
 
-  const variacao = await obterVariacaoVendavel(variacaoId);
-  if (!variacao || variacao.estoque <= 0) {
+  const divisao = (
+    await conferirCarrinho(itens.map((i) => (i === item ? { ...i, quantidade } : i)))
+  ).get(item.variacaoId);
+  if (!divisao || divisao.limite <= 0) {
     refresh();
     return { ok: false, erro: "Esse item esgotou. Remova-o do carrinho." };
   }
-  if (quantidade > variacao.estoque) {
+  if (quantidade > divisao.limite) {
     return {
       ok: false,
-      erro: `Só temos ${unidades(variacao.estoque)} desse tamanho.`,
+      erro: `Só temos ${unidades(divisao.limite)} desse tamanho.`,
     };
   }
 

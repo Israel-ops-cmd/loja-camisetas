@@ -15,6 +15,7 @@ import {
   totaisComDesconto,
   type FaixaDeDesconto,
 } from "@/lib/atacado-regras";
+import { distribuirEstoque, ehCamisetaLisa, type Distribuicao } from "@/lib/estoque-regras";
 import { prisma } from "@/lib/prisma";
 
 const TRINTA_DIAS = 60 * 60 * 24 * 30;
@@ -45,21 +46,64 @@ export async function gravarItensDoCarrinho(itens: ItemDoCookie[]) {
   });
 }
 
-/** Variação vendável (ativa, de produto ativo) com o estoque atual. */
-export async function obterVariacaoVendavel(variacaoId: string) {
-  return prisma.variacao.findFirst({
-    where: { id: variacaoId, ativo: true, produto: { ativo: true } },
-    select: { id: true, estoque: true },
+/** O que define quanto há de cada variação: prontas da arte e a peça lisa. */
+const selecaoDoEstoque = {
+  id: true,
+  estoque: true,
+  pecaLisa: { select: { id: true, estoque: true } },
+  produto: { select: { categoria: { select: { slug: true } } } },
+} as const;
+
+type EstoqueDaVariacao = {
+  id: string;
+  estoque: number;
+  pecaLisa: { id: string; estoque: number };
+  produto: { categoria: { slug: string } };
+};
+
+/**
+ * Quanto dá para vender de cada item, na ordem do carrinho: cada arte usa as
+ * suas prontas e depois as lisas, que são divididas entre todos os itens.
+ */
+function distribuirCarrinho(itens: ItemDoCookie[], porId: Map<string, EstoqueDaVariacao>) {
+  const validos = itens.filter((i) => porId.has(i.variacaoId));
+  const lisas = new Map<string, number>();
+  for (const v of porId.values()) lisas.set(v.pecaLisa.id, v.pecaLisa.estoque);
+  const divisao = distribuirEstoque(
+    validos.map((i) => {
+      const v = porId.get(i.variacaoId)!;
+      return {
+        quantidade: i.quantidade,
+        prontas: ehCamisetaLisa(v.produto.categoria.slug) ? 0 : v.estoque,
+        pecaLisaId: v.pecaLisa.id,
+      };
+    }),
+    lisas,
+  );
+  return new Map(validos.map((i, n) => [i.variacaoId, divisao[n]]));
+}
+
+/**
+ * Confere o carrinho como ficaria (itens vendáveis: ativos, de produto
+ * ativo). Devolve a divisão de cada item; item fora da loja fica de fora.
+ */
+export async function conferirCarrinho(itens: ItemDoCookie[]): Promise<Map<string, Distribuicao>> {
+  const variacoes = await prisma.variacao.findMany({
+    where: { id: { in: itens.map((i) => i.variacaoId) }, ativo: true, produto: { ativo: true } },
+    select: selecaoDoEstoque,
   });
+  return distribuirCarrinho(itens, new Map(variacoes.map((v) => [v.id, v])));
 }
 
 export type ItemDoCarrinho = {
   variacaoId: string;
   sku: string;
   quantidade: number;
-  /** Estoque atual da variação. */
+  /** Máximo deste item (prontas + lisas), mantendo os outros itens como estão. */
   estoque: number;
   esgotado: boolean;
+  /** Peças que vão ser estampadas para o cliente (sem pronta da arte). */
+  aEstampar: number;
   precoUnitarioEmCentavos: number;
   subtotalEmCentavos: number;
   produto: { nome: string; slug: string };
@@ -79,6 +123,8 @@ export type Carrinho = {
   itens: ItemDoCarrinho[];
   /** Peças que entram no total (sem as esgotadas). */
   quantidadeDePecas: number;
+  /** Peças a estampar no pedido: o despacho leva mais tempo. */
+  pecasAEstampar: number;
   subtotalEmCentavos: number;
   /** Mensagens sobre correções feitas no carrinho. */
   avisos: string[];
@@ -120,6 +166,7 @@ export async function obterCarrinho(): Promise<Carrinho> {
     return {
       itens: [],
       quantidadeDePecas: 0,
+      pecasAEstampar: 0,
       subtotalEmCentavos: 0,
       avisos: [],
       precisaSincronizar: false,
@@ -134,9 +181,8 @@ export async function obterCarrinho(): Promise<Carrinho> {
       produto: { ativo: true },
     },
     select: {
-      id: true,
+      ...selecaoDoEstoque,
       sku: true,
-      estoque: true,
       precoEmCentavos: true,
       corId: true,
       cor: { select: { nome: true, hex: true } },
@@ -147,6 +193,7 @@ export async function obterCarrinho(): Promise<Carrinho> {
           nome: true,
           slug: true,
           precoBaseEmCentavos: true,
+          categoria: { select: { slug: true } },
           imagens: {
             orderBy: { ordem: "asc" },
             select: { url: true, alt: true, corId: true },
@@ -156,6 +203,7 @@ export async function obterCarrinho(): Promise<Carrinho> {
     },
   });
   const porId = new Map(variacoes.map((v) => [v.id, v]));
+  const divisao = distribuirCarrinho(itensDoCookie, porId);
 
   const itens: ItemDoCarrinho[] = [];
   const avisos: string[] = [];
@@ -172,19 +220,20 @@ export async function obterCarrinho(): Promise<Carrinho> {
     }
 
     const nome = `${variacao.produto.nome} (${variacao.cor.nome}, ${variacao.tamanho.nome})`;
-    const estoque = Math.max(variacao.estoque, 0);
-    const esgotado = estoque === 0;
+    const { possivel, prontas, limite } = divisao.get(variacaoId)!;
+    const esgotado = possivel === 0;
     let quantidadeFinal = quantidade;
 
     if (esgotado) {
       avisos.push(`${nome} esgotou. Remova o item para continuar.`);
-    } else if (quantidade > estoque) {
-      quantidadeFinal = estoque;
+    } else if (quantidade > possivel) {
+      quantidadeFinal = possivel;
       precisaSincronizar = true;
       avisos.push(
-        `A quantidade de ${nome} foi ajustada para ${estoque}, o que temos em estoque.`,
+        `A quantidade de ${nome} foi ajustada para ${possivel}, o que temos em estoque.`,
       );
     }
+    const aEstampar = esgotado || ehCamisetaLisa(variacao.produto.categoria.slug) ? 0 : quantidadeFinal - prontas;
 
     const preco =
       variacao.precoEmCentavos ?? variacao.produto.precoBaseEmCentavos;
@@ -199,8 +248,9 @@ export async function obterCarrinho(): Promise<Carrinho> {
       variacaoId,
       sku: variacao.sku,
       quantidade: quantidadeFinal,
-      estoque,
+      estoque: limite,
       esgotado,
+      aEstampar,
       precoUnitarioEmCentavos: preco,
       subtotalEmCentavos: esgotado ? 0 : preco * quantidadeFinal,
       produto: { nome: variacao.produto.nome, slug: variacao.produto.slug },
@@ -215,6 +265,7 @@ export async function obterCarrinho(): Promise<Carrinho> {
   return {
     itens,
     quantidadeDePecas: disponiveis.reduce((t, i) => t + i.quantidade, 0),
+    pecasAEstampar: disponiveis.reduce((t, i) => t + i.aEstampar, 0),
     subtotalEmCentavos: disponiveis.reduce(
       (t, i) => t + i.subtotalEmCentavos,
       0,

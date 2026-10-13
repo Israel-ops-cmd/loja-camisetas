@@ -5,7 +5,8 @@
 // tabela de medidas vêm da migration 20261013120000_modelos. Os produtos de
 // exemplo são todos do modelo Tradicional.
 //
-// Preço de R$ 1,00 e estoque de 10 unidades são valores de teste,
+// Preço de R$ 1,00 e estoque de 10 unidades (peças prontas de cada arte e
+// peças lisas da camiseta lisa) são valores de teste,
 // não os reais da loja. Saem do banco antes da publicação.
 
 import { config } from "dotenv";
@@ -18,6 +19,15 @@ config({ path: ".env.local", quiet: true });
 const prisma = new PrismaClient({
   adapter: new PrismaPg({ connectionString: process.env.DIRECT_URL }),
 });
+
+/** A peça lisa do modelo, cor e tamanho (toda variação aponta para uma). */
+function garantirPecaLisa({ modeloId, corId, tamanhoId }: { modeloId: string; corId: string; tamanhoId: string }) {
+  return prisma.pecaLisa.upsert({
+    where: { modeloId_corId_tamanhoId: { modeloId, corId, tamanhoId } },
+    update: {},
+    create: { modeloId, corId, tamanhoId },
+  });
+}
 
 const PRECO_DE_TESTE_EM_CENTAVOS = 100;
 const ESTOQUE_DE_TESTE = 10;
@@ -190,7 +200,8 @@ async function main() {
       });
       if (existente) continue;
 
-      // Estoque inicial entra junto com o registro no histórico.
+      await garantirPecaLisa(chave);
+      // Estoque inicial (peças prontas da arte) entra junto com o registro no histórico.
       await prisma.variacao.create({
         data: {
           ...chave,
@@ -238,19 +249,25 @@ async function main() {
         });
         if (existente) continue;
 
-        await prisma.variacao.create({
-          data: {
-            ...chave,
-            sku: `CV-${dados.codigo}-${codigoCor}-${nomeTamanho}`,
-            estoque: ESTOQUE_DE_TESTE,
-            movimentacoes: {
-              create: {
-                quantidade: ESTOQUE_DE_TESTE,
-                motivo: "ENTRADA",
-                observacao: "Estoque inicial de teste (seed)",
+        // Camiseta lisa: o estoque é o da peça lisa, não o da variação.
+        const lisa = await garantirPecaLisa(chave);
+        if (lisa.estoque === 0) {
+          await prisma.pecaLisa.update({
+            where: { id: lisa.id },
+            data: {
+              estoque: ESTOQUE_DE_TESTE,
+              movimentacoes: {
+                create: {
+                  quantidade: ESTOQUE_DE_TESTE,
+                  motivo: "ENTRADA",
+                  observacao: "Estoque inicial de teste (seed)",
+                },
               },
             },
-          },
+          });
+        }
+        await prisma.variacao.create({
+          data: { ...chave, sku: `CV-${dados.codigo}-${codigoCor}-${nomeTamanho}`, estoque: 0 },
         });
       }
     }

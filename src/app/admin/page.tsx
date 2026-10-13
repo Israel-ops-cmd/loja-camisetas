@@ -1,24 +1,34 @@
 import Link from "next/link";
-import { Boxes, ClipboardList, Package, Palette, Percent, Shirt } from "lucide-react";
+import { Boxes, ClipboardList, Package, Palette, Percent, Shirt, Stamp } from "lucide-react";
 
 import { LimpezaDeArquivos } from "@/components/admin/LimpezaDeArquivos";
 import { listarArquivosEsquecidos } from "@/lib/arquivos-esquecidos";
 import { exigirAdministrador } from "@/lib/auth";
 import { formatarTamanhoDoArquivo } from "@/lib/personalizacao-regras";
-import { LIMITE_ULTIMAS_UNIDADES } from "@/lib/estoque-regras";
+import { LIMITE_ULTIMAS_UNIDADES, STATUS_ESPERANDO_ENVIO } from "@/lib/estoque-regras";
 import { prisma } from "@/lib/prisma";
 
 export default async function PaginaPainel() {
   const usuario = await exigirAdministrador();
-  const aVendaNaLoja = { ativo: true, produto: { ativo: true } };
-  const [aguardandoLoja, orcamentosNovos, produtosNaLoja, acabando, faltando, faixasLigadas] = await Promise.all([
-    prisma.personalizacao.count({ where: { status: { in: ["RECEBIDA", "AJUSTE_SOLICITADO"] } } }),
-    prisma.orcamento.count({ where: { status: "NOVO" } }),
-    prisma.produto.count({ where: { ativo: true } }),
-    prisma.variacao.count({ where: { ...aVendaNaLoja, estoque: { lte: LIMITE_ULTIMAS_UNIDADES } } }),
-    prisma.variacao.count({ where: { ...aVendaNaLoja, estoque: { lt: 0 } } }),
-    prisma.faixaAtacado.count({ where: { ativo: true } }),
-  ]);
+  // Peças lisas usadas por algo à venda na loja. As prontas são opcionais:
+  // só contam quando faltam (pedido pago sem peça, de antes das lisas).
+  const lisasEmUso = { variacoes: { some: { ativo: true, produto: { ativo: true } } } };
+  const [aguardandoLoja, orcamentosNovos, produtosNaLoja, acabando, lisasFaltando, prontasFaltando, faixasLigadas, paraEstampar] =
+    await Promise.all([
+      prisma.personalizacao.count({ where: { status: { in: ["RECEBIDA", "AJUSTE_SOLICITADO"] } } }),
+      prisma.orcamento.count({ where: { status: "NOVO" } }),
+      prisma.produto.count({ where: { ativo: true } }),
+      prisma.pecaLisa.count({ where: { ...lisasEmUso, estoque: { gte: 0, lte: LIMITE_ULTIMAS_UNIDADES } } }),
+      prisma.pecaLisa.count({ where: { estoque: { lt: 0 } } }),
+      prisma.variacao.count({ where: { estoque: { lt: 0 } } }),
+      prisma.faixaAtacado.count({ where: { ativo: true } }),
+      prisma.itemPedido.aggregate({
+        where: { estampar: true, estampadoEm: null, pedido: { status: { in: STATUS_ESPERANDO_ENVIO } } },
+        _sum: { quantidadeDaLisa: true },
+      }),
+    ]);
+  const faltando = lisasFaltando + prontasFaltando;
+  const pecasParaEstampar = paraEstampar._sum.quantidadeDaLisa ?? 0;
   const [paraSeparar, comAlerta, arquivosParaLimpar] = await Promise.all([
     prisma.pedido.count({ where: { status: { in: ["PAGO", "EM_SEPARACAO"] } } }),
     prisma.pedido.count({ where: { alerta: { not: null } } }),
@@ -59,6 +69,24 @@ export default async function PaginaPainel() {
           </li>
           <li>
             <Link
+              href="/admin/producao"
+              className={`flex min-h-28 items-start gap-4 rounded-[20px] p-6 transition hover:ring-2 hover:ring-tinta ${pecasParaEstampar > 0 ? "bg-tinta text-papel" : "bg-papel"}`}
+            >
+              <Stamp aria-hidden="true" className="size-7 shrink-0" strokeWidth={1.5} />
+              <span>
+                <span className="block font-titulo text-[20px] font-bold uppercase">Produção</span>
+                <span className={`mt-1 block text-[14px] ${pecasParaEstampar > 0 ? "" : "text-apoio"}`}>
+                  {pecasParaEstampar === 0
+                    ? "Nada para estampar."
+                    : pecasParaEstampar === 1
+                      ? "1 peça para estampar."
+                      : `${pecasParaEstampar} peças para estampar.`}
+                </span>
+              </span>
+            </Link>
+          </li>
+          <li>
+            <Link
               href="/admin/produtos"
               className="flex min-h-28 items-start gap-4 rounded-[20px] bg-papel p-6 transition hover:ring-2 hover:ring-tinta"
             >
@@ -74,7 +102,13 @@ export default async function PaginaPainel() {
           </li>
           <li>
             <Link
-              href={faltando > 0 ? "/admin/estoque?filtro=faltando" : acabando > 0 ? "/admin/estoque?filtro=acabando" : "/admin/estoque"}
+              href={
+                faltando > 0
+                  ? `/admin/estoque?${lisasFaltando > 0 ? "" : "aba=prontas&"}filtro=faltando`
+                  : acabando > 0
+                    ? "/admin/estoque?filtro=acabando"
+                    : "/admin/estoque"
+              }
               className="flex min-h-28 items-start gap-4 rounded-[20px] bg-papel p-6 transition hover:ring-2 hover:ring-tinta"
             >
               <Boxes aria-hidden="true" className="size-7 shrink-0" strokeWidth={1.5} />
@@ -84,8 +118,8 @@ export default async function PaginaPainel() {
                   {faltando > 0
                     ? `${faltando === 1 ? "1 tamanho" : `${faltando} tamanhos`} com peça faltando para pedido pago.`
                     : acabando === 0
-                      ? "Nada acabando."
-                      : `${acabando === 1 ? "1 tamanho acabando" : `${acabando} tamanhos acabando`} (${LIMITE_ULTIMAS_UNIDADES} peças ou menos).`}
+                      ? "Nenhuma peça lisa acabando."
+                      : `${acabando === 1 ? "1 tamanho de peça lisa acabando" : `${acabando} tamanhos de peça lisa acabando`} (${LIMITE_ULTIMAS_UNIDADES} ou menos).`}
                 </span>
               </span>
             </Link>

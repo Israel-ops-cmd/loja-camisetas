@@ -18,7 +18,8 @@ type Variacao = {
   tamanhoId: string;
   ativo: boolean;
   precoEmCentavos: number | null;
-  estoque: number;
+  /** Peças que dá para vender (prontas da arte + lisas). */
+  disponivel: number;
 };
 type Escolha = { aVenda: boolean; preco: string };
 
@@ -76,8 +77,8 @@ export function GradeDeVariacoes({
   return (
     <div className="space-y-4">
       <p className="text-[15px] text-apoio">
-        Abra cada modelo e toque nos tamanhos que você vende em cada cor. Tamanho novo começa com estoque 0: ele só
-        aparece como disponível depois que você lançar as peças em “Lançar estoque deste produto”, no alto da página.
+        Abra cada modelo e toque nos tamanhos que você vende em cada cor. Cada tamanho aparece como disponível na loja
+        enquanto houver peça lisa do mesmo modelo, cor e tamanho (ou peça pronta desta arte), lançadas em Estoque.
       </p>
 
       {modelos.map((modelo) => {
@@ -110,7 +111,7 @@ export function GradeDeVariacoes({
                     precoBase={precoBase}
                     escolha={escolha}
                     mudar={mudar}
-                    estoque={(k) => salvas.get(k)?.estoque}
+                    estoque={(k) => salvas.get(k)?.disponivel}
                   />
                 ))
               )}
@@ -191,7 +192,9 @@ function GradeDaCor({
                 {e.aVenda && <Check aria-hidden="true" className="size-4" strokeWidth={2.5} />}
                 {t.nome}
               </span>
-              {e.aVenda && pecas !== undefined && <span className="text-[11px] font-normal">{pecas} em estoque</span>}
+              {e.aVenda && pecas !== undefined && (
+                <span className="text-[11px] font-normal">{pecas === 0 ? "sem peças" : `${pecas} disponíveis`}</span>
+              )}
             </button>
           );
         })}

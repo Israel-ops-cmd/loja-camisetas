@@ -3,6 +3,7 @@ import "server-only";
 import { randomUUID } from "node:crypto";
 
 import { Prisma } from "@/generated/prisma/client";
+import { CATEGORIA_DAS_LISAS } from "@/lib/estoque-regras";
 import {
   extensaoDoArquivo,
   PASTA_DO_STORAGE,
@@ -12,16 +13,22 @@ import { prisma } from "@/lib/prisma";
 import { criarClienteSupabase } from "@/lib/supabase/servidor";
 
 /** Categoria cujos produtos podem ser personalizados (camisetas lisas). */
-export const CATEGORIA_DAS_PECAS = "basicas";
+export const CATEGORIA_DAS_PECAS = CATEGORIA_DAS_LISAS;
 
-export type PecaPersonalizavel = {
+export type ModeloPersonalizavel = {
   id: string;
   nome: string;
   cores: { id: string; nome: string; hex: string }[];
   tamanhos: { id: string; nome: string }[];
 };
 
-/** Peças da categoria Camisetas Básicas, com as cores e tamanhos ativos. */
+export type PecaPersonalizavel = {
+  id: string;
+  nome: string;
+  modelos: ModeloPersonalizavel[];
+};
+
+/** Peças da categoria Camisetas Básicas, com os modelos, as cores e os tamanhos ativos. */
 export async function listarPecasPersonalizaveis(): Promise<PecaPersonalizavel[]> {
   const produtos = await prisma.produto.findMany({
     where: {
@@ -36,6 +43,7 @@ export async function listarPecasPersonalizaveis(): Promise<PecaPersonalizavel[]
       variacoes: {
         where: { ativo: true },
         select: {
+          modelo: { select: { id: true, nome: true, ordem: true } },
           cor: { select: { id: true, nome: true, hex: true } },
           tamanho: { select: { id: true, nome: true, ordem: true } },
         },
@@ -44,19 +52,34 @@ export async function listarPecasPersonalizaveis(): Promise<PecaPersonalizavel[]
   });
 
   return produtos.map((produto) => {
-    const cores = new Map<string, PecaPersonalizavel["cores"][number]>();
-    const tamanhos = new Map<string, { id: string; nome: string; ordem: number }>();
-    for (const { cor, tamanho } of produto.variacoes) {
-      cores.set(cor.id, cor);
-      tamanhos.set(tamanho.id, tamanho);
+    const modelos = new Map<
+      string,
+      {
+        id: string;
+        nome: string;
+        ordem: number;
+        cores: Map<string, ModeloPersonalizavel["cores"][number]>;
+        tamanhos: Map<string, { id: string; nome: string; ordem: number }>;
+      }
+    >();
+    for (const { modelo, cor, tamanho } of produto.variacoes) {
+      if (!modelos.has(modelo.id)) modelos.set(modelo.id, { ...modelo, cores: new Map(), tamanhos: new Map() });
+      modelos.get(modelo.id)!.cores.set(cor.id, cor);
+      modelos.get(modelo.id)!.tamanhos.set(tamanho.id, tamanho);
     }
     return {
       id: produto.id,
       nome: produto.nome,
-      cores: [...cores.values()].sort((a, b) => a.nome.localeCompare(b.nome)),
-      tamanhos: [...tamanhos.values()]
+      modelos: [...modelos.values()]
         .sort((a, b) => a.ordem - b.ordem)
-        .map(({ id, nome }) => ({ id, nome })),
+        .map((m) => ({
+          id: m.id,
+          nome: m.nome,
+          cores: [...m.cores.values()].sort((a, b) => a.nome.localeCompare(b.nome)),
+          tamanhos: [...m.tamanhos.values()]
+            .sort((a, b) => a.ordem - b.ordem)
+            .map(({ id, nome }) => ({ id, nome })),
+        })),
     };
   });
 }
@@ -145,6 +168,7 @@ export async function linksDosArquivos(
 
 export const incluirDetalhes = {
   produto: { select: { id: true, nome: true } },
+  modelo: { select: { id: true, nome: true } },
   cor: { select: { id: true, nome: true, hex: true } },
   cliente: { select: { nome: true, email: true, telefone: true } },
   itens: {

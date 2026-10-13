@@ -56,7 +56,7 @@ git checkout -b feat/nome-da-funcionalidade
 
 - Segredos ficam em `.env.local`, que nunca entra no Git. Mantenha um `.env.example` atualizado, só com os nomes das variáveis.
 - Dados de cartão nunca passam pelo nosso servidor: o pagamento acontece no ambiente do Mercado Pago.
-- O estoque é controlado por variação (modelo + cor + tamanho).
+- Estoque em dois níveis: **peças lisas** por modelo + cor + tamanho (`PecaLisa`), compartilhadas por todas as artes, pela camiseta lisa e pela personalização; e **peças prontas** de cada arte (`Variacao.estoque`, opcional). A venda de uma arte usa primeiro a pronta; sem ela, baixa a lisa e o item vai para Produção (despacho em até 4 dias úteis, em vez de 2). A disponibilidade é prontas + lisas, conferida com o carrinho inteiro. Peça estampada de pedido cancelado volta como pronta da arte. Regras em `src/lib/estoque-regras.ts` e `src/lib/estoque.ts`.
 - A baixa de estoque só acontece quando o webhook do Mercado Pago confirma o pagamento.
 - Preços são guardados em centavos, como número inteiro.
 - Textos da interface em português do Brasil.

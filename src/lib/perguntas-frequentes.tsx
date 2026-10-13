@@ -13,6 +13,7 @@ import {
   DIAS_PARA_DEFEITO,
   DIAS_PARA_TROCA,
   PRAZO_DE_DESPACHO,
+  PRAZO_DE_DESPACHO_A_ESTAMPAR,
   PRAZO_DE_PRODUCAO,
   PRAZO_DE_RESPOSTA_DO_ORCAMENTO,
 } from "@/lib/politicas";
@@ -43,7 +44,9 @@ export async function listarPerguntasFrequentes(): Promise<Pergunta[]> {
       pergunta: "Qual é o prazo de entrega?",
       resposta: (
         <>
-          Despachamos os pedidos com peças em estoque em {PRAZO_DE_DESPACHO} depois da confirmação do pagamento. O prazo da transportadora
+          Depois da confirmação do pagamento, despachamos em {PRAZO_DE_DESPACHO} as peças prontas e em{" "}
+          {PRAZO_DE_DESPACHO_A_ESTAMPAR} quando alguma peça ainda vai ser estampada para você (a página do produto e o
+          carrinho avisam). O prazo da transportadora
           aparece no carrinho, quando você calcula o frete pelo CEP, e conta a partir da postagem. Quando o pedido sai, você
           recebe o código de rastreio por e-mail.
         </>

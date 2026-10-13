@@ -155,7 +155,29 @@ export async function salvarCoresETamanhos(modeloId: unknown, dados: unknown): P
     };
   }
 
+  // Peças lisas em estoque também seguram a cor e o tamanho no modelo.
+  const comLisas = await prisma.pecaLisa.findFirst({
+    where: {
+      modeloId,
+      estoque: { not: 0 },
+      OR: [{ corId: { notIn: cores } }, { tamanhoId: { notIn: linhas.map((l) => l.tamanhoId) } }],
+    },
+    select: { estoque: true, cor: { select: { id: true, nome: true } }, tamanho: { select: { nome: true } } },
+  });
+  if (comLisas) {
+    const oQue = cores.includes(comLisas.cor.id) ? `o tamanho ${comLisas.tamanho.nome}` : `a cor ${comLisas.cor.nome}`;
+    return {
+      ok: false,
+      erro: `Não dá para tirar ${oQue}: o estoque tem peças lisas (${comLisas.cor.nome}, ${comLisas.tamanho.nome}). Zere a contagem em Estoque primeiro.`,
+    };
+  }
+
   await prisma.$transaction([
+    // Uma peça lisa para cada cor e tamanho do modelo (as que já existem ficam).
+    prisma.pecaLisa.createMany({
+      data: cores.flatMap((corId) => linhas.map((l) => ({ modeloId, corId, tamanhoId: l.tamanhoId }))),
+      skipDuplicates: true,
+    }),
     prisma.modeloCor.deleteMany({ where: { modeloId, corId: { notIn: cores } } }),
     prisma.modeloCor.createMany({ data: cores.map((corId) => ({ modeloId, corId })), skipDuplicates: true }),
     prisma.medidaDoModelo.deleteMany({ where: { modeloId, tamanhoId: { notIn: linhas.map((l) => l.tamanhoId) } } }),
