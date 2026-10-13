@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 
+import { AMarca } from "@/components/inicio/AMarca";
 import { Atacado } from "@/components/inicio/Atacado";
-import { Categorias } from "@/components/inicio/Categorias";
+import { ColecaoCartaViva } from "@/components/inicio/ColecaoCartaViva";
+import { EscolhaDoModelo } from "@/components/inicio/EscolhaDoModelo";
 import { Hero } from "@/components/inicio/Hero";
 import { PerguntasFrequentes } from "@/components/inicio/PerguntasFrequentes";
 import { Personalizacao } from "@/components/inicio/Personalizacao";
-import { ProdutosDestaque } from "@/components/inicio/ProdutosDestaque";
 import { Vantagens } from "@/components/inicio/Vantagens";
 import { DadosEstruturados } from "@/components/seo/DadosEstruturados";
 import { LOJA } from "@/lib/loja";
@@ -36,8 +37,9 @@ export default function PaginaInicial() {
         }}
       />
       <Hero />
-      <Categorias />
-      <ProdutosDestaque />
+      <EscolhaDoModelo />
+      <ColecaoCartaViva />
+      <AMarca />
       <Personalizacao />
       <Atacado />
       <Vantagens />

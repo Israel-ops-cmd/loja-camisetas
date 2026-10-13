@@ -106,7 +106,7 @@ export function FormularioPersonalizacao({
                 {pecas.map((p) => (
                   <label
                     key={p.id}
-                    className={`flex min-h-12 cursor-pointer items-center rounded-full border px-5 text-[14px] font-semibold ${p.id === produtoId ? "border-tinta bg-tinta text-papel" : "border-borda hover:border-tinta"}`}
+                    className={`flex min-h-12 cursor-pointer items-center border px-5 text-[14px] font-semibold ${p.id === produtoId ? "border-tinta bg-tinta text-papel" : "border-borda hover:border-tinta"}`}
                   >
                     <input
                       type="radio"
@@ -129,7 +129,7 @@ export function FormularioPersonalizacao({
                 {peca.modelos.map((m) => (
                   <label
                     key={m.id}
-                    className={`flex min-h-12 cursor-pointer items-center rounded-full border px-5 text-[14px] font-semibold ${m.id === modelo.id ? "border-tinta bg-tinta text-papel" : "border-borda hover:border-tinta"}`}
+                    className={`flex min-h-12 cursor-pointer items-center border px-5 text-[14px] font-semibold ${m.id === modelo.id ? "border-tinta bg-tinta text-papel" : "border-borda hover:border-tinta"}`}
                   >
                     <input
                       type="radio"
@@ -274,7 +274,7 @@ export function FormularioPersonalizacao({
 
       <section aria-labelledby="titulo-revisao" className="space-y-5 lg:sticky lg:top-24">
         <IlustracaoCamiseta hex={cor?.hex} posicoes={posicoes} />
-        <div className="rounded-[20px] bg-papel p-6">
+        <div className=" bg-papel p-6">
           <h2 id="titulo-revisao" className="sobretitulo">
             03 · Aprove e receba
           </h2>
@@ -323,7 +323,7 @@ export function FormularioPersonalizacao({
 
 function Bloco({ numero, titulo, children }: { numero: string; titulo: string; children: ReactNode }) {
   return (
-    <section className="rounded-[20px] bg-papel p-6 sm:p-8">
+    <section className=" bg-papel p-6 sm:p-8">
       <h2 className="flex items-baseline gap-3 font-titulo text-[20px] font-bold uppercase">
         <span className="font-black text-secundario">{numero}</span>
         {titulo}

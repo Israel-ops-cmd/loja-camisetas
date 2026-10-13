@@ -35,7 +35,7 @@ export function Documento({
       <div className="secao">
         <div className="mx-auto max-w-3xl">
           {secoes.length > 3 && (
-            <nav aria-labelledby="titulo-sumario" className="rounded-[20px] bg-papel p-6">
+            <nav aria-labelledby="titulo-sumario" className=" bg-papel p-6">
               <h2 id="titulo-sumario" className="sobretitulo">Nesta página</h2>
               <ol className="mt-3 space-y-1">
                 {secoes.map((s, i) => (
@@ -55,7 +55,7 @@ export function Documento({
                 key={s.id}
                 id={s.id}
                 aria-labelledby={`titulo-${s.id}`}
-                className="scroll-mt-24 rounded-[20px] bg-papel p-6 sm:p-8"
+                className="scroll-mt-24 bg-papel p-6 sm:p-8"
               >
                 <h2 id={`titulo-${s.id}`} className="font-titulo text-[22px] leading-tight font-bold">
                   {secoes.length > 3 && `${i + 1}. `}

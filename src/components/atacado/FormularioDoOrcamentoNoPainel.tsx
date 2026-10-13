@@ -39,7 +39,7 @@ export function FormularioDoOrcamentoNoPainel({
           {ordemDosStatusDoOrcamento.map((s) => (
             <label
               key={s}
-              className={`flex min-h-11 cursor-pointer items-center rounded-full border px-4 text-[14px] font-semibold ${status === s ? "border-tinta bg-tinta text-papel" : "border-borda hover:border-tinta"}`}
+              className={`flex min-h-11 cursor-pointer items-center border px-4 text-[14px] font-semibold ${status === s ? "border-tinta bg-tinta text-papel" : "border-borda hover:border-tinta"}`}
             >
               <input type="radio" name="status" checked={status === s} onChange={() => setStatus(s)} className="sr-only" />
               {rotulosDeStatusDoOrcamento[s]}

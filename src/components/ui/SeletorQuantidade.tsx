@@ -27,7 +27,7 @@ export function SeletorQuantidade({
     <div
       role="group"
       aria-label={rotulo}
-      className="inline-flex h-12 items-center rounded-full border border-borda bg-papel px-0.5"
+      className="inline-flex h-12 items-center border border-borda bg-papel px-0.5"
     >
       <button
         type="button"

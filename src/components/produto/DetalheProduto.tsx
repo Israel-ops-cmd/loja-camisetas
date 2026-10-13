@@ -148,7 +148,7 @@ export function DetalheProduto({
     <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
       {/* Galeria */}
       <div>
-        <div className="relative flex aspect-square items-center justify-center overflow-hidden rounded-[20px] bg-produto">
+        <div className="relative flex aspect-square items-center justify-center overflow-hidden bg-produto">
           {foto ? (
             <Image
               key={foto.id}

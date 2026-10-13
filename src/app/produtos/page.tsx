@@ -43,7 +43,7 @@ export default async function PaginaProdutos({
 
           <div>
             {/* No celular, os filtros abrem num painel. Funciona sem JavaScript. */}
-            <details className="group mb-6 rounded-[20px] border border-borda bg-papel lg:hidden">
+            <details className="group mb-6 border border-borda bg-papel lg:hidden">
               <summary className="texto-menu flex min-h-12 cursor-pointer list-none items-center justify-center gap-2 px-5 font-bold [&::-webkit-details-marker]:hidden">
                 <SlidersHorizontal
                   aria-hidden="true"
@@ -52,7 +52,7 @@ export default async function PaginaProdutos({
                 />
                 Filtrar
                 {totalDeFiltros > 0 && (
-                  <span className="rounded-full bg-tinta px-2 py-0.5 text-[11px] text-papel">
+                  <span className=" bg-tinta px-2 py-0.5 text-[11px] text-papel">
                     {totalDeFiltros}
                   </span>
                 )}
@@ -88,7 +88,7 @@ export default async function PaginaProdutos({
                 ))}
               </div>
             ) : (
-              <div className="mt-8 flex flex-col items-center rounded-[20px] bg-papel px-6 py-16 text-center">
+              <div className="mt-8 flex flex-col items-center bg-papel px-6 py-16 text-center">
                 <p className="font-titulo text-[22px] font-bold uppercase">
                   Nenhum produto encontrado
                 </p>

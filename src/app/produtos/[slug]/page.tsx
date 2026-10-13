@@ -21,8 +21,8 @@ export async function generateStaticParams() {
 
 /** Descrição para o Google: uma linha, até 160 caracteres. */
 function resumir(texto: string) {
-  const linha = texto.replace(/s+/g, " ").trim();
-  return linha.length <= 160 ? linha : `${linha.slice(0, 157).replace(/s+S*$/, "")}…`;
+  const linha = texto.replace(/\s+/g, " ").trim();
+  return linha.length <= 160 ? linha : `${linha.slice(0, 157).replace(/\s+\S*$/, "")}…`;
 }
 
 export async function generateMetadata({

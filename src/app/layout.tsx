@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Archivo, Manrope } from "next/font/google";
+import { Cormorant_Garamond, Manrope } from "next/font/google";
 
 import { Cabecalho } from "@/components/layout/Cabecalho";
 import { FaixaAviso } from "@/components/layout/FaixaAviso";
@@ -8,10 +8,11 @@ import { enderecoDoSite, podeIndexar } from "@/lib/site";
 
 import "./globals.css";
 
-const archivo = Archivo({
-  variable: "--font-archivo",
+const cormorant = Cormorant_Garamond({
+  variable: "--font-cormorant",
   subsets: ["latin"],
-  weight: ["500", "700", "800", "900"],
+  weight: ["400", "500"],
+  style: ["normal", "italic"],
 });
 
 const manrope = Manrope({
@@ -48,7 +49,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="pt-BR"
-      className={`${archivo.variable} ${manrope.variable} h-full scroll-smooth antialiased`}
+      className={`${cormorant.variable} ${manrope.variable} h-full scroll-smooth antialiased`}
     >
       <body className="flex min-h-full flex-col">
         <FaixaAviso />

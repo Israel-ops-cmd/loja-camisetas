@@ -63,7 +63,7 @@ export default async function PaginaConta({
 
         <section
           aria-labelledby="titulo-dados"
-          className="mt-6 rounded-[20px] bg-papel p-6 sm:p-8"
+          className="mt-6 bg-papel p-6 sm:p-8"
         >
           <h2 id="titulo-dados" className="sobretitulo">
             Seus dados
@@ -90,7 +90,7 @@ export default async function PaginaConta({
 
         <section
           aria-labelledby="titulo-pedidos"
-          className="mt-6 rounded-[20px] bg-papel p-6 sm:p-8"
+          className="mt-6 bg-papel p-6 sm:p-8"
         >
           <h2 id="titulo-pedidos" className="sobretitulo">
             Pedidos
@@ -127,7 +127,7 @@ export default async function PaginaConta({
         {personalizacoes.length > 0 && (
           <section
             aria-labelledby="titulo-personalizacoes"
-            className="mt-6 rounded-[20px] bg-papel p-6 sm:p-8"
+            className="mt-6 bg-papel p-6 sm:p-8"
           >
             <h2 id="titulo-personalizacoes" className="sobretitulo">
               Personalizações
@@ -148,7 +148,7 @@ export default async function PaginaConta({
                       </span>
                     </span>
                     <span
-                      className={`rounded-full px-3 py-1 text-[12px] font-bold tracking-[0.12em] uppercase ${p.status === "PREVIA_ENVIADA" || p.status === "APROVADA" ? "bg-tinta text-papel" : "border border-borda"}`}
+                      className={`px-3 py-1 text-[12px] font-bold tracking-[0.12em] uppercase ${p.status === "PREVIA_ENVIADA" || p.status === "APROVADA" ? "bg-tinta text-papel" : "border border-borda"}`}
                     >
                       {rotulosDeStatusDaPersonalizacao[p.status]}
                     </span>
@@ -163,7 +163,7 @@ export default async function PaginaConta({
           {usuario.administrador && (
             <Link
               href="/admin"
-              className="texto-menu inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-tinta px-7 font-bold text-papel transition hover:bg-painel"
+              className="texto-menu inline-flex min-h-12 items-center justify-center gap-2 bg-tinta px-7 font-bold text-papel transition hover:bg-painel"
             >
               <LayoutDashboard aria-hidden="true" className="size-5" strokeWidth={1.6} />
               Ir para o painel
@@ -172,7 +172,7 @@ export default async function PaginaConta({
           <form action={sair}>
             <button
               type="submit"
-              className="texto-menu inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full border border-borda bg-papel px-7 font-bold transition hover:border-tinta"
+              className="texto-menu inline-flex min-h-12 w-full items-center justify-center gap-2 border border-borda bg-papel px-7 font-bold transition hover:border-tinta"
             >
               <LogOut aria-hidden="true" className="size-5" strokeWidth={1.6} />
               Sair

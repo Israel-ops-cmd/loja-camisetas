@@ -124,7 +124,7 @@ export function ItemCarrinho({ item }: { item: ItemDoCarrinho }) {
 
         <div className="mt-auto flex flex-wrap items-end justify-between gap-3 pt-4">
           {item.esgotado ? (
-            <p className="rounded-full bg-tinta px-3 py-1 text-[11px] font-bold tracking-[0.16em] text-papel uppercase">
+            <p className=" bg-tinta px-3 py-1 text-[11px] font-bold tracking-[0.16em] text-papel uppercase">
               Esgotado
             </p>
           ) : (

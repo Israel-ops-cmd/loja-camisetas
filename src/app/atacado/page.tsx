@@ -48,7 +48,7 @@ export default async function PaginaAtacado() {
             </p>
             <ul className="mt-10 grid gap-4 sm:grid-cols-3">
               {faixas.map((faixa, i) => (
-                <li key={faixa.minimoDePecas} className="rounded-[20px] bg-papel p-6 text-center">
+                <li key={faixa.minimoDePecas} className=" bg-papel p-6 text-center">
                   <p className="font-titulo text-[44px] leading-none font-black">{faixa.percentual}%</p>
                   <p className="mt-2 text-[13px] font-bold tracking-[0.16em] text-secundario uppercase">de desconto</p>
                   <p className="mt-4 text-[15px] font-semibold">{descreverFaixa(faixa, faixas[i + 1])}</p>

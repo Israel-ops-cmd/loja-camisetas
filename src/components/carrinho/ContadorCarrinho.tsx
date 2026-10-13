@@ -43,7 +43,7 @@ export function ContadorCarrinho() {
   if (quantidade === 0) return null;
 
   return (
-    <span className="absolute top-1 right-0.5 flex min-w-5 items-center justify-center rounded-full bg-lacre px-1 text-[11px] leading-5 font-bold text-papel">
+    <span className="absolute top-1 right-0.5 flex min-w-5 items-center justify-center rounded-full bg-tinta px-1 text-[11px] leading-5 font-bold text-papel">
       {quantidade > 99 ? "99+" : quantidade}
       <span className="sr-only">
         {quantidade === 1 ? " peça" : " peças"} no carrinho

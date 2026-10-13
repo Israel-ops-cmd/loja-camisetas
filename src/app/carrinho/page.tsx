@@ -39,7 +39,7 @@ export default async function PaginaCarrinho() {
         {carrinho.avisos.length > 0 && (
           <ul
             role="status"
-            className="mx-auto mt-10 max-w-3xl space-y-2 rounded-[20px] border border-borda bg-papel p-5"
+            className="mx-auto mt-10 max-w-3xl space-y-2 border border-borda bg-papel p-5"
           >
             {carrinho.avisos.map((aviso) => (
               <li
@@ -58,7 +58,7 @@ export default async function PaginaCarrinho() {
         )}
 
         {carrinho.itens.length === 0 ? (
-          <div className="mt-12 flex flex-col items-center rounded-[20px] bg-papel px-6 py-16 text-center">
+          <div className="mt-12 flex flex-col items-center bg-papel px-6 py-16 text-center">
             <p className="font-titulo text-[22px] font-bold uppercase">
               Seu carrinho está vazio
             </p>
@@ -79,7 +79,7 @@ export default async function PaginaCarrinho() {
 
             <section
               aria-labelledby="titulo-resumo"
-              className="rounded-[20px] bg-papel p-6 lg:sticky lg:top-24"
+              className=" bg-papel p-6 lg:sticky lg:top-24"
             >
               <h2 id="titulo-resumo" className="sobretitulo">
                 Resumo

@@ -38,7 +38,7 @@ export function FiltrosAtivos({ filtros, opcoes }: FiltrosAtivosProps) {
           key={filtro.href}
           href={filtro.href}
           scroll={false}
-          className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-borda bg-papel py-2 pr-3 pl-4 text-[14px] font-semibold transition hover:border-tinta"
+          className="inline-flex min-h-11 items-center gap-1.5 border border-borda bg-papel py-2 pr-3 pl-4 text-[14px] font-semibold transition hover:border-tinta"
         >
           {filtro.rotulo}
           <X aria-hidden="true" className="size-4" strokeWidth={1.8} />

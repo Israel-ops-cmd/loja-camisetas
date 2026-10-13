@@ -468,7 +468,7 @@ export function FormularioCheckout({
       {/* Resumo */}
       <section
         aria-labelledby="titulo-resumo"
-        className="rounded-[20px] bg-papel p-6 lg:sticky lg:top-24"
+        className=" bg-papel p-6 lg:sticky lg:top-24"
       >
         <h2 id="titulo-resumo" className="sobretitulo">
           Resumo
@@ -567,7 +567,7 @@ function Bloco({
   children: ReactNode;
 }) {
   return (
-    <section className="rounded-[20px] bg-papel p-6 sm:p-8">
+    <section className=" bg-papel p-6 sm:p-8">
       <h2 className="flex items-center gap-3 font-titulo text-[20px] font-bold uppercase">
         <span className="flex size-8 items-center justify-center rounded-full bg-tinta text-[14px] text-papel">
           {numero}

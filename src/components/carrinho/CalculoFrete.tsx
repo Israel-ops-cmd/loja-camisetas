@@ -130,12 +130,12 @@ export function CalculoFrete({
           onChange={(evento) => setCep(mascararCep(evento.target.value))}
           aria-invalid={!!(erro ?? (cotacao && !cotacao.ok))}
           aria-describedby="cep-ajuda"
-          className="h-12 min-w-0 flex-1 rounded-full border border-borda bg-papel px-5 text-[15px] outline-none focus:border-tinta"
+          className="h-12 min-w-0 flex-1 border border-borda bg-papel px-5 text-[15px] outline-none focus:border-tinta"
         />
         <button
           type="submit"
           disabled={pendente}
-          className="h-12 shrink-0 rounded-full bg-tinta px-5 text-[13px] font-bold tracking-[0.16em] text-papel uppercase transition hover:bg-painel disabled:opacity-50"
+          className="h-12 shrink-0 bg-tinta px-5 text-[13px] font-bold tracking-[0.16em] text-papel uppercase transition hover:bg-painel disabled:opacity-50"
         >
           {pendente ? "Calculando…" : "Calcular"}
         </button>

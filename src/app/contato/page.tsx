@@ -25,12 +25,12 @@ export default function PaginaContato() {
 
       <div className="secao">
         <div className="mx-auto max-w-3xl space-y-6">
-          <section className="rounded-[20px] bg-papel p-6 sm:p-8">
+          <section className=" bg-papel p-6 sm:p-8">
             <a
               href={linkDoWhatsapp("Olá! Vim pelo site da Carta Viva.")}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex min-h-14 w-full items-center justify-center gap-3 rounded-full bg-lacre px-8 text-[17px] font-bold text-papel transition hover:brightness-110 sm:w-auto"
+              className="inline-flex min-h-14 w-full items-center justify-center gap-3 bg-tinta px-8 text-[15px] font-semibold text-papel transition hover:bg-painel sm:w-auto"
             >
               <MessageCircle aria-hidden="true" className="size-6" strokeWidth={1.8} />
               WhatsApp {whatsappLegivel()}
@@ -76,7 +76,7 @@ export default function PaginaContato() {
             </ul>
           </section>
 
-          <section className="rounded-[20px] bg-papel p-6 sm:p-8">
+          <section className=" bg-papel p-6 sm:p-8">
             <h2 className="sobretitulo">Atalhos</h2>
             <ul className="mt-4 grid gap-2 sm:grid-cols-2">
               {[
