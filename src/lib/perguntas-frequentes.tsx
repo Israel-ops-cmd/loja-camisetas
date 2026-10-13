@@ -45,9 +45,9 @@ export async function listarPerguntasFrequentes(): Promise<Pergunta[]> {
       resposta: (
         <>
           Depois da confirmação do pagamento, despachamos em {PRAZO_DE_DESPACHO} as peças prontas e em{" "}
-          {PRAZO_DE_DESPACHO_A_ESTAMPAR} quando alguma peça ainda vai ser estampada para você (a página do produto e o
-          carrinho avisam). O prazo da transportadora
-          aparece no carrinho, quando você calcula o frete pelo CEP, e conta a partir da postagem. Quando o pedido sai, você
+          {PRAZO_DE_DESPACHO_A_ESTAMPAR} quando alguma peça ainda vai ser estampada para você (a página do produto e a
+          sacola avisam). O prazo da transportadora
+          aparece na sacola, quando você calcula o frete pelo CEP, e conta a partir da postagem. Quando o pedido sai, você
           recebe o código de rastreio por e-mail.
         </>
       ),
@@ -56,8 +56,8 @@ export async function listarPerguntasFrequentes(): Promise<Pergunta[]> {
       pergunta: "Vocês entregam em todo o Brasil?",
       resposta: (
         <>
-          Sim. Enviamos pelos Correios e por outras transportadoras do Melhor Envio. O valor e o prazo do frete aparecem no
-          carrinho, pelo seu CEP.
+          Sim. Enviamos pelos Correios e por outras transportadoras do Melhor Envio. O valor e o prazo do frete aparecem na
+          sacola, pelo seu CEP.
         </>
       ),
     },
@@ -67,7 +67,7 @@ export async function listarPerguntasFrequentes(): Promise<Pergunta[]> {
       resposta: (
         <>
           Sim, para todo o Brasil, em compras a partir de {formatarPreco(FRETE_GRATIS_A_PARTIR_DE_EM_CENTAVOS)} em produtos (já com o desconto de atacado). A
-          opção de entrega mais barata sai de graça; se preferir uma mais rápida, você paga só a diferença. O carrinho mostra
+          opção de entrega mais barata sai de graça; se preferir uma mais rápida, você paga só a diferença. A sacola mostra
           quanto falta para ganhar.
         </>
       ),
@@ -103,7 +103,7 @@ export async function listarPerguntasFrequentes(): Promise<Pergunta[]> {
         faixas.length > 0 ? (
           <>
             O desconto por quantidade começa em {faixas[0].minimoDePecas} peças ({faixas[0].percentual}% de desconto) e
-            entra sozinho no carrinho, somando qualquer produto da loja. Para pedidos maiores ou sob medida, peça um{" "}
+            entra sozinho na sacola, somando qualquer produto da loja. Para pedidos maiores ou sob medida, peça um{" "}
             <Link href="/atacado#orcamento">orçamento</Link>: respondemos em {PRAZO_DE_RESPOSTA_DO_ORCAMENTO}.
           </>
         ) : (

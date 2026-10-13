@@ -505,7 +505,7 @@ export function FormularioCheckout({
           </div>
           <div className="flex items-baseline justify-between gap-4 border-t border-borda pt-4">
             <dt className="font-semibold">Total</dt>
-            <dd className="font-titulo text-[26px] font-extrabold">{formatarPreco(total)}</dd>
+            <dd className="text-[24px] font-medium">{formatarPreco(total)}</dd>
           </div>
         </dl>
 
@@ -568,7 +568,7 @@ function Bloco({
 }) {
   return (
     <section className=" bg-papel p-6 sm:p-8">
-      <h2 className="flex items-center gap-3 font-titulo text-[20px] font-bold uppercase">
+      <h2 className="flex items-center gap-3 font-titulo text-[24px] font-medium">
         <span className="flex size-8 items-center justify-center rounded-full bg-tinta text-[14px] text-papel">
           {numero}
         </span>

@@ -13,11 +13,11 @@ export const metadata: Metadata = {
 export default function PaginaContato() {
   return (
     <>
-      <section className="secao bg-tinta text-papel">
+      <section className="secao bg-areia">
         <div className="mx-auto max-w-3xl">
-          <p className="sobretitulo text-secundario-escuro">Contato</p>
+          <p className="sobretitulo text-secundario">Contato</p>
           <h1 className="titulo-destaque mt-5">Fale com a gente</h1>
-          <p className="texto-destaque mt-6 text-apoio-escuro">
+          <p className="texto-destaque mt-6 text-apoio">
             Dúvidas sobre tamanho, pedido, troca ou personalização? O jeito mais rápido é o WhatsApp.
           </p>
         </div>

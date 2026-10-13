@@ -21,13 +21,13 @@ export function SeletorQuantidade({
   rotulo = "Quantidade",
 }: SeletorQuantidadeProps) {
   const estiloBotao =
-    "flex size-11 items-center justify-center rounded-full transition hover:bg-fundo disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent";
+    "flex size-11 items-center justify-center transition hover:opacity-60 disabled:cursor-not-allowed disabled:opacity-30";
 
   return (
     <div
       role="group"
       aria-label={rotulo}
-      className="inline-flex h-12 items-center border border-borda bg-papel px-0.5"
+      className="inline-flex h-12 items-center border border-opcao px-0.5"
     >
       <button
         type="button"
@@ -36,7 +36,7 @@ export function SeletorQuantidade({
         aria-label="Diminuir quantidade"
         className={estiloBotao}
       >
-        <Minus aria-hidden="true" className="size-4" strokeWidth={1.8} />
+        <Minus aria-hidden="true" className="size-4" strokeWidth={1.4} />
       </button>
       <input
         type="number"
@@ -52,7 +52,7 @@ export function SeletorQuantidade({
             aoMudar(Math.min(Math.max(numero, minimo), maximo));
           }
         }}
-        className="w-12 [appearance:textfield] bg-transparent text-center text-[15px] font-bold outline-none disabled:opacity-60 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+        className="w-12 [appearance:textfield] bg-transparent text-center text-[15px] font-semibold outline-none disabled:opacity-60 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
       />
       <button
         type="button"
@@ -61,7 +61,7 @@ export function SeletorQuantidade({
         aria-label="Aumentar quantidade"
         className={estiloBotao}
       >
-        <Plus aria-hidden="true" className="size-4" strokeWidth={1.8} />
+        <Plus aria-hidden="true" className="size-4" strokeWidth={1.4} />
       </button>
     </div>
   );

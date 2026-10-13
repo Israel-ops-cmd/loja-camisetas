@@ -69,11 +69,11 @@ export async function finalizarPedido(
   // Carrinho conferido de novo no banco.
   const carrinho = await obterCarrinho();
   if (carrinho.itens.length === 0) {
-    return { erro: "Seu carrinho está vazio.", revisarCarrinho: true };
+    return { erro: "Sua sacola está vazia.", revisarCarrinho: true };
   }
   if (carrinho.precisaSincronizar || carrinho.itens.some((i) => i.esgotado)) {
     return {
-      erro: "Algum item do carrinho mudou de estoque ou saiu da loja. Revise o carrinho antes de finalizar.",
+      erro: "Algum item da sacola mudou de estoque ou saiu da loja. Revise a sacola antes de finalizar.",
       revisarCarrinho: true,
     };
   }

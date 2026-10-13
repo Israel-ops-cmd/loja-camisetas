@@ -218,7 +218,7 @@ export async function obterCarrinho(): Promise<Carrinho> {
     const variacao = porId.get(variacaoId);
     if (!variacao) {
       avisos.push(
-        "Um item saiu do carrinho porque não está mais disponível na loja.",
+        "Um item saiu da sacola porque não está mais disponível na loja.",
       );
       precisaSincronizar = true;
       continue;

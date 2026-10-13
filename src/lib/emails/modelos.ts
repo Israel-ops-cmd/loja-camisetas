@@ -222,7 +222,7 @@ export function emailPedidoCancelado(p: PedidoParaEmail, site: string, motivo: M
     motivo === "prazo"
       ? [
           { tipo: "texto", texto: `Oi, ${nome}. O pedido #${p.numero} foi cancelado automaticamente porque o prazo para pagar terminou e não recebemos o pagamento.` },
-          { tipo: "texto", texto: "Nenhum valor foi cobrado. Se ainda quiser as peças, é só montar o carrinho de novo no site." },
+          { tipo: "texto", texto: "Nenhum valor foi cobrado. Se ainda quiser as peças, é só montar a sacola de novo no site." },
           { tipo: "botao", texto: "Voltar para a loja", url: `${site}/produtos` },
         ]
       : motivo === "loja"

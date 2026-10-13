@@ -147,7 +147,7 @@ export default async function PaginaPedido({
           {pedido.status === "AGUARDANDO_PAGAMENTO" && vencido && (
             <Aviso tipo="info">
               O prazo para pagar terminou em {formatarData(venceEm)}. Para
-              comprar, monte o carrinho de novo.
+              comprar, monte a sacola de novo.
             </Aviso>
           )}
           {pedido.status === "AGUARDANDO_PAGAMENTO" && emVerificacao && (
@@ -254,7 +254,7 @@ export default async function PaginaPedido({
             )}
             <div className="flex justify-between font-semibold">
               <dt>Total</dt>
-              <dd className="font-titulo text-[22px] font-extrabold">
+              <dd className="text-[20px] font-medium">
                 {formatarPreco(pedido.totalEmCentavos)}
               </dd>
             </div>

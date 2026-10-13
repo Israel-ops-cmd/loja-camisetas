@@ -135,3 +135,10 @@ body {
   margin-inline: auto;
   padding-inline: clamp(20px, 5vw, 72px);
 }
+
+/* Página do produto no celular: espaço para a barra fixa de compra não cobrir o rodapé. */
+@media (width < 40rem) {
+  body:has([data-barra-de-compra]) {
+    padding-bottom: 84px;
+  }
+}

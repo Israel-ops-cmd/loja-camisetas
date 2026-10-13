@@ -26,7 +26,7 @@ export async function Atacado() {
         )}
         <div className="flex flex-col gap-2.5">
           <p className="text-[14px] text-apoio">
-            O desconto vale para qualquer estampa e modelo, somando o carrinho. Para pedidos grandes, pedimos um
+            O desconto vale para qualquer estampa e modelo, somando a sacola. Para pedidos grandes, pedimos um
             orçamento.
           </p>
           <Botao href="/atacado#orcamento" variante="texto" className="self-start">

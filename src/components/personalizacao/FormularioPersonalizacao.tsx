@@ -324,7 +324,7 @@ export function FormularioPersonalizacao({
 function Bloco({ numero, titulo, children }: { numero: string; titulo: string; children: ReactNode }) {
   return (
     <section className=" bg-papel p-6 sm:p-8">
-      <h2 className="flex items-baseline gap-3 font-titulo text-[20px] font-bold uppercase">
+      <h2 className="flex items-baseline gap-3 font-titulo text-[24px] font-medium">
         <span className="font-black text-secundario">{numero}</span>
         {titulo}
       </h2>

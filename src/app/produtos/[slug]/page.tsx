@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChevronRight } from "lucide-react";
-
 import { DetalheProduto } from "@/components/produto/DetalheProduto";
 import { ProdutoCartao } from "@/components/produto/ProdutoCartao";
 import { listarFaixasDeAtacado } from "@/lib/atacado";
-import { listarRelacionados } from "@/lib/catalogo";
+import { CATEGORIA_DA_COLECAO, listarRelacionados } from "@/lib/catalogo";
 import { DadosEstruturados } from "@/components/seo/DadosEstruturados";
+import { formatarPreco } from "@/lib/formatacao";
+import { FRETE_GRATIS_A_PARTIR_DE_EM_CENTAVOS } from "@/lib/frete-regras";
+import { MAXIMO_DE_PARCELAS } from "@/lib/pagamento";
+import { DIAS_PARA_TROCA } from "@/lib/politicas";
 import { LIMITE_ULTIMAS_UNIDADES, obterProduto } from "@/lib/produto";
 import { enderecoDoSite } from "@/lib/site";
 
@@ -110,76 +112,72 @@ export default async function PaginaProduto({
           ],
         }}
       />
-      <div className="secao">
-        <div className="mx-auto max-w-7xl">
-          <nav aria-label="Trilha de navegação" className="mb-8">
-            <ol className="flex flex-wrap items-center gap-1 text-[13px] text-secundario">
-              <li>
-                <Link
-                  href="/produtos"
-                  className="inline-flex min-h-11 items-center hover:text-tinta"
-                >
-                  Produtos
-                </Link>
-              </li>
-              <li aria-hidden="true">
-                <ChevronRight className="size-4" strokeWidth={1.6} />
-              </li>
-              <li>
-                <Link
-                  href={`/produtos?categoria=${produto.categoria.slug}`}
-                  className="inline-flex min-h-11 items-center hover:text-tinta"
-                >
-                  {produto.categoria.nome}
-                </Link>
-              </li>
-            </ol>
-          </nav>
+      <div className="largura pb-24">
+        <nav aria-label="Você está em" className="py-2.5 text-[12px] text-secundario">
+          <ol className="flex flex-wrap items-center gap-x-2">
+            <li>
+              <Link href="/" className="inline-flex min-h-11 items-center hover:text-tinta">
+                Início
+              </Link>
+            </li>
+            <li aria-hidden="true">/</li>
+            <li>
+              <Link href={`/produtos?categoria=${produto.categoria.slug}`} className="inline-flex min-h-11 items-center hover:text-tinta">
+                {produto.categoria.nome}
+              </Link>
+            </li>
+            <li aria-hidden="true">/</li>
+            <li aria-current="page" className="text-tinta">
+              {produto.nome}
+            </li>
+          </ol>
+        </nav>
 
-          <DetalheProduto
-            produto={produto}
-            limiteUltimasUnidades={LIMITE_ULTIMAS_UNIDADES}
-          >
-            {faixas[0] && (
-              <p className="mt-6 rounded-xl bg-papel px-4 py-3 text-[14px]">
-                <strong>Atacado:</strong> a partir de {faixas[0].minimoDePecas} peças no carrinho,{" "}
-                {faixas[0].percentual}% de desconto, somando qualquer produto.{" "}
-                <Link href="/atacado" className="underline underline-offset-4">
-                  Ver tabela
-                </Link>
-              </p>
-            )}
-            {/* Sem descrição cadastrada, o bloco não aparece (o comando
-                conferir-marcadores avisa quais produtos estão sem). */}
-            {produto.descricao && (
-              <div className="mt-10 border-t border-borda pt-8">
-                <h2 className="sobretitulo">Descrição</h2>
-                <p className="mt-3 whitespace-pre-line text-apoio">{produto.descricao}</p>
-              </div>
-            )}
-
-          </DetalheProduto>
-        </div>
+        {/* Sem descrição cadastrada, a sanfona Descrição não aparece (o comando
+            conferir-marcadores avisa quais produtos estão sem). */}
+        <DetalheProduto
+          produto={produto}
+          limiteUltimasUnidades={LIMITE_ULTIMAS_UNIDADES}
+          condicoes={[
+            `ou em até ${MAXIMO_DE_PARCELAS}x no cartão`,
+            faixas[0] && `${faixas[0].percentual}% de desconto a partir de ${faixas[0].minimoDePecas} peças`,
+          ]
+            .filter(Boolean)
+            .join(" · ")}
+          envioETroca={
+            <>
+              Frete grátis acima de {formatarPreco(FRETE_GRATIS_A_PARTIR_DE_EM_CENTAVOS).replace(",00", "")} na opção mais
+              econômica. Troca de tamanho ou cor em até {DIAS_PARA_TROCA} dias depois de receber.{" "}
+              <Link href="/politica-de-troca" className="border-b border-tinta hover:opacity-70">
+                Política de troca
+              </Link>
+              {faixas[0] && (
+                <>
+                  {" "}
+                  · Atacado:{" "}
+                  <Link href="/atacado" className="border-b border-tinta hover:opacity-70">
+                    ver tabela
+                  </Link>
+                </>
+              )}
+            </>
+          }
+        />
       </div>
 
       {relacionados.length > 0 && (
-        <section
-          aria-labelledby="titulo-relacionados"
-          className="secao bg-papel"
-        >
-          <div className="mx-auto max-w-7xl">
-            <h2 id="titulo-relacionados" className="titulo-listagem">
-              Você também pode gostar
-            </h2>
-            <div className="mt-12 grid gap-x-5 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
-              {relacionados.map((relacionado) => (
-                <ProdutoCartao
-                  key={relacionado.id}
-                  produto={relacionado}
-                  sizes="(min-width: 1280px) 300px, (min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
-                />
-              ))}
-            </div>
+        <section aria-labelledby="titulo-relacionados" className="largura pb-26">
+          <h2 id="titulo-relacionados" className="mb-7 border-t border-borda pt-7 font-titulo text-[26px] lg:text-[32px]">
+            {produto.categoria.slug === CATEGORIA_DA_COLECAO ? "Da mesma coleção" : "Você também pode gostar"}
+          </h2>
+          <div className="grid grid-cols-2 gap-x-3 gap-y-10 sm:gap-x-5 lg:grid-cols-4">
+            {relacionados.map((relacionado) => (
+              <ProdutoCartao
+                key={relacionado.id}
+                produto={relacionado}
+                sizes="(min-width: 1440px) 330px, (min-width: 1024px) 23vw, 50vw"
+              />
+            ))}
           </div>
         </section>
       )}

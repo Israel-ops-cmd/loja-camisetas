@@ -136,7 +136,7 @@ export function ItemCarrinho({ item }: { item: ItemDoCarrinho }) {
             />
           )}
           {!item.esgotado && (
-            <p className="font-titulo text-[20px] font-extrabold">
+            <p className="text-[17px] font-medium">
               {formatarPreco(subtotal)}
             </p>
           )}

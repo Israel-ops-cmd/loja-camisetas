@@ -13,7 +13,7 @@ import { cotarFreteDoCarrinho, lerEscolhaDeFrete } from "@/lib/frete";
 import { textoDoPrazoDeDespacho } from "@/lib/politicas";
 
 export const metadata: Metadata = {
-  title: "Carrinho",
+  title: "Sacola",
   robots: { index: false },
 };
 
@@ -32,7 +32,7 @@ export default async function PaginaCarrinho() {
   return (
     <div className="secao">
       <div className="mx-auto max-w-6xl">
-        <h1 className="titulo-listagem">Carrinho</h1>
+        <h1 className="titulo-listagem">Sacola</h1>
 
         {carrinho.precisaSincronizar && <SincronizarCarrinho />}
 
@@ -59,8 +59,8 @@ export default async function PaginaCarrinho() {
 
         {carrinho.itens.length === 0 ? (
           <div className="mt-12 flex flex-col items-center bg-papel px-6 py-16 text-center">
-            <p className="font-titulo text-[22px] font-bold uppercase">
-              Seu carrinho está vazio
+            <p className="font-titulo text-[28px] font-medium">
+              Sua sacola está vazia
             </p>
             <p className="mt-3 max-w-md text-apoio">
               Escolha suas camisetas e elas aparecem aqui.
@@ -140,7 +140,7 @@ export default async function PaginaCarrinho() {
                   <dt className="font-semibold">
                     {frete === null ? "Total sem frete" : "Total"}
                   </dt>
-                  <dd className="font-titulo text-[26px] font-extrabold">
+                  <dd className="text-[24px] font-medium">
                     {formatarPreco(
                       carrinho.subtotalEmCentavos -
                         carrinho.atacado.descontoEmCentavos +
@@ -155,7 +155,7 @@ export default async function PaginaCarrinho() {
                     ? "Falta 1 peça"
                     : `Faltam ${carrinho.atacado.proxima.faltam} peças`}{" "}
                   para <strong>{carrinho.atacado.proxima.percentual}% de desconto</strong>{" "}
-                  em todo o carrinho.{" "}
+                  em toda a sacola.{" "}
                   <Link href="/atacado" className="underline underline-offset-4">
                     Ver tabela
                   </Link>
