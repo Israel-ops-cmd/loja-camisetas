@@ -6,6 +6,7 @@ import { useState, useTransition, type FormEvent, type ReactNode } from "react";
 import { buscarEnderecoPorCep } from "@/app/checkout/acoes";
 import { Aviso } from "@/components/formulario/Aviso";
 import { Campo } from "@/components/formulario/Campo";
+import { AvisoFreteGratis, PrecoDaOpcao } from "@/components/frete/FreteGratis";
 import { classesBotao } from "@/components/ui/Botao";
 import type { DadosDoPedido, ResultadoDoPedido } from "@/lib/criar-pedido";
 import { formatarPreco } from "@/lib/formatacao";
@@ -417,7 +418,7 @@ export function FormularioCheckout({
                           {prazo(opcao.prazoMinimoDias, opcao.prazoMaximoDias)}
                         </span>
                       </span>
-                      <span className="font-bold">{formatarPreco(opcao.precoEmCentavos)}</span>
+                      <PrecoDaOpcao opcao={opcao} />
                     </span>
                   </Opcao>
                 ))}
@@ -496,7 +497,7 @@ export function FormularioCheckout({
           <div className="flex justify-between gap-4">
             <dt className="text-apoio">Frete</dt>
             <dd className={frete ? "" : "text-secundario"}>
-              {frete ? formatarPreco(frete.precoEmCentavos) : "Escolha a entrega"}
+              {frete ? (frete.precoEmCentavos === 0 ? "Grátis" : formatarPreco(frete.precoEmCentavos)) : "Escolha a entrega"}
             </dd>
           </div>
           <div className="flex items-baseline justify-between gap-4 border-t border-borda pt-4">
@@ -504,6 +505,11 @@ export function FormularioCheckout({
             <dd className="font-titulo text-[26px] font-extrabold">{formatarPreco(total)}</dd>
           </div>
         </dl>
+
+        <AvisoFreteGratis
+          totalDosProdutosEmCentavos={subtotalEmCentavos - (desconto?.emCentavos ?? 0)}
+          className="mt-5"
+        />
 
         {erroGeral && (
           <div className="mt-5">

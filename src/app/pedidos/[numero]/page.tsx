@@ -6,6 +6,7 @@ import { BotaoPagar } from "@/components/pedido/BotaoPagar";
 import { Botao } from "@/components/ui/Botao";
 import { exigirUsuario } from "@/lib/auth";
 import { formatarPreco } from "@/lib/formatacao";
+import { textoDoFrete } from "@/lib/frete-regras";
 import {
   conferirPagamentoSeLiberado,
   conferirPagamentosDoPedido,
@@ -238,7 +239,7 @@ export default async function PaginaPedido({
             </div>
             <div className="flex justify-between">
               <dt className="text-apoio">Frete</dt>
-              <dd>{formatarPreco(pedido.freteEmCentavos)}</dd>
+              <dd>{textoDoFrete(pedido.freteEmCentavos, pedido.freteDescontoEmCentavos)}</dd>
             </div>
             {pedido.descontoEmCentavos > 0 && (
               <div className="flex justify-between">

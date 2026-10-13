@@ -213,13 +213,17 @@ model Pedido {
   /// Só os dígitos, com DDD.
   compradorTelefone String
 
-  subtotalEmCentavos Int
-  freteEmCentavos    Int
-  descontoEmCentavos Int @default(0)
+  subtotalEmCentavos      Int
+  /// Frete cobrado do cliente (0 com frete grátis na opção mais barata).
+  freteEmCentavos         Int
+  /// Parte do frete paga pela loja (frete grátis). Cotação original =
+  /// freteEmCentavos + freteDescontoEmCentavos.
+  freteDescontoEmCentavos Int @default(0)
+  descontoEmCentavos      Int @default(0)
   /// Percentual de desconto de atacado aplicado (0 = sem desconto). Cada peça
   /// é cobrada com o preço já descontado e arredondado para baixo ao centavo.
-  descontoPercentual Int @default(0)
-  totalEmCentavos    Int
+  descontoPercentual      Int @default(0)
+  totalEmCentavos         Int
 
   // Cópia do endereço no momento da compra.
   entregaDestinatario String

@@ -1,6 +1,7 @@
 import "server-only";
 
 import { formatarPreco } from "@/lib/formatacao";
+import { textoDoFrete } from "@/lib/frete-regras";
 import { formatarData } from "@/lib/pedidos";
 import type { ConteudoDoEmail } from "@/lib/emails/envio";
 import { PRAZO_DE_DESPACHO, PRAZO_DE_PRODUCAO, PRAZO_DE_RESPOSTA_DO_ORCAMENTO } from "@/lib/politicas";
@@ -103,6 +104,7 @@ export type PedidoParaEmail = {
   descontoEmCentavos: number;
   descontoPercentual: number;
   freteEmCentavos: number;
+  freteDescontoEmCentavos: number;
   totalEmCentavos: number;
   entregaDestinatario: string;
   entregaLogradouro: string;
@@ -130,7 +132,8 @@ function resumoDoPedido(p: PedidoParaEmail): Bloco {
     formatarPreco(i.precoUnitarioEmCentavos * i.quantidade),
   ]);
   if (p.descontoEmCentavos > 0) linhas.push([`Desconto de atacado (${p.descontoPercentual}%)`, `−${formatarPreco(p.descontoEmCentavos)}`]);
-  linhas.push([`Frete${p.freteServico ? ` (${p.freteServico})` : ""}`, formatarPreco(p.freteEmCentavos)]);
+  const detalhes = [p.freteServico, p.freteEmCentavos > 0 && p.freteDescontoEmCentavos > 0 ? `com ${formatarPreco(p.freteDescontoEmCentavos)} de desconto do frete grátis` : null].filter(Boolean);
+  linhas.push([`Frete${detalhes.length ? ` (${detalhes.join(", ")})` : ""}`, textoDoFrete(p.freteEmCentavos, p.freteDescontoEmCentavos)]);
   return { tipo: "lista", titulo: `Pedido #${p.numero}`, linhas, total: ["Total", formatarPreco(p.totalEmCentavos)] };
 }
 

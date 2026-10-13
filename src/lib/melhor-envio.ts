@@ -24,6 +24,8 @@ export type OpcaoDeFrete = {
   servico: string;
   transportadora: string;
   precoEmCentavos: number;
+  /** Preço antes do frete grátis (ver `aplicarFreteGratis`); ausente sem desconto. */
+  precoOriginalEmCentavos?: number;
   prazoMinimoDias: number;
   prazoMaximoDias: number;
 };

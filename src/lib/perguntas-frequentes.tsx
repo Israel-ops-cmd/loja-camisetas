@@ -4,6 +4,8 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { listarFaixasDeAtacado } from "@/lib/atacado";
+import { formatarPreco } from "@/lib/formatacao";
+import { FRETE_GRATIS_A_PARTIR_DE_EM_CENTAVOS } from "@/lib/frete-regras";
 import { MAXIMO_DE_PARCELAS, PRAZO_DE_PAGAMENTO_DIAS } from "@/lib/pagamento";
 import { FORMATOS_DE_ARTE, formatarTamanhoDoArquivo, MAXIMO_DE_ARQUIVOS, TAMANHO_MAXIMO_BYTES } from "@/lib/personalizacao-regras";
 import {
@@ -53,6 +55,17 @@ export async function listarPerguntasFrequentes(): Promise<Pergunta[]> {
         <>
           Sim. Enviamos pelos Correios e por outras transportadoras do Melhor Envio. O valor e o prazo do frete aparecem no
           carrinho, pelo seu CEP.
+        </>
+      ),
+    },
+    {
+      destaque: true,
+      pergunta: "Tem frete grátis?",
+      resposta: (
+        <>
+          Sim, para todo o Brasil, em compras a partir de {formatarPreco(FRETE_GRATIS_A_PARTIR_DE_EM_CENTAVOS)} em produtos (já com o desconto de atacado). A
+          opção de entrega mais barata sai de graça; se preferir uma mais rápida, você paga só a diferença. O carrinho mostra
+          quanto falta para ganhar.
         </>
       ),
     },

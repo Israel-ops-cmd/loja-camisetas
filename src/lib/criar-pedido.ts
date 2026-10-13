@@ -197,6 +197,7 @@ export async function criarPedidoComEntrega({
           descontoEmCentavos: desconto,
           descontoPercentual,
           freteEmCentavos: frete.precoEmCentavos,
+          freteDescontoEmCentavos: (frete.precoOriginalEmCentavos ?? frete.precoEmCentavos) - frete.precoEmCentavos,
           totalEmCentavos: totalDosItens + frete.precoEmCentavos,
           entregaDestinatario: endereco.destinatario,
           entregaCep: cep,
