@@ -118,6 +118,7 @@ Plano aprovado em 13/10/2026: a peça lisa (modelo + cor + tamanho) é o estoque
 - [x] `feat/modelos`: modelos (Tradicional, Baby Look, Oversized, Oversized Premium, Infantil) com cores, tamanhos, tabela de medidas e pacote do frete; tela Modelos no painel; variações com modelo (as existentes viraram Tradicional); tabela de medidas na página do produto.
 - [x] `feat/estoque-de-lisas`: estoque de lisas e peças prontas por arte; venda usa primeiro a pronta, senão baixa a lisa e marca "a estampar"; disponibilidade = prontas + lisas, conferida em conjunto no carrinho; personalização escolhe o modelo e baixa das lisas; lista de produção no painel; despacho em até 4 dias úteis quando houver peça a estampar; peça estampada de pedido cancelado volta como pronta da arte.
 - [ ] `feat/escolha-de-modelo`: o cliente escolhe modelo, depois cor e tamanho, na página do produto; preço por modelo dentro de cada produto (referência: Tradicional e Baby Look R$ 49,90, Oversized R$ 69,90, Oversized Premium R$ 89,90, Infantil R$ 44,90; lisas Tradicional R$ 29,90, Oversized R$ 44,90, Oversized Premium R$ 59,90, cadastrados pelo painel).
+- [ ] **Importador do catálogo de lançamento (depois da `feat/escolha-de-modelo`, não antes).** Um script que cadastra as 12 estampas do lançamento a partir de `docs/catalogo-lancamento.md`: nome, descrição, referência, modelos, cores e preço por modelo, **sem fotos e sem estoque de peças prontas**. Precisa rodar no banco de teste e no de produção e não pode duplicar nada se rodar duas vezes. Os produtos de exemplo do seed ficam escondidos (desligar "Mostrar na loja").
 - [ ] **Até a `feat/escolha-de-modelo`:** cadastrar variações só no modelo Tradicional. A loja ainda não mostra a escolha de modelo, então variações de outro modelo apareceriam misturadas. (A personalização já mostra a escolha de modelo quando a camiseta lisa tiver mais de um.)
 - [ ] **Lançar o estoque real antes de publicar**, em Estoque (`/admin/estoque`): na aba **Peças lisas**, as camisetas sem estampa de cada modelo, cor e tamanho; na aba **Peças prontas**, as já estampadas de cada arte (opcional: sem pronta, a arte vende usando a lisa e entra em Produção). A migration passou o estoque de teste da "Camiseta lisa" para as peças lisas do Tradicional; as artes ficaram com as 10 peças de teste como prontas.
 - [ ] Conferir as cores novas (hex aproximado, criado pela migration): Areia, Mescla, Militar, Marrom, Chumbo, Bege, Verde e Azul. Hoje o painel não edita a cor de uma cor já criada: me mande os tons certos (ou uma foto do tecido) para ajustar.
@@ -166,7 +167,8 @@ Desde a etapa 12, produtos, preços, cores, tamanhos, descrições e fotos são 
 
 ### Fotos
 
-- [ ] Fotos para os cartões de categoria "Básicas", "Personalizadas" e "Atacado".
+- [ ] Fotos para os cartões de categoria "Básicas" e "Atacado".
+- [x] Foto do cartão "Personalizadas" e da seção de personalização da página inicial: trabalho real da loja (`personalizacao-pilates-casal.jpg`), sem depoimento e sem nome do cliente.
 - [ ] Pelo menos uma foto da peça real em cada página de produto. As fotos atuais são montagens digitais da estampa sobre modelos.
 - [ ] Fotos da "Camiseta lisa" (uma por cor), pelo painel. Produto sem foto mostra um ícone de camiseta no lugar.
 - [ ] Testar o envio de fotos pelo celular do pai do Israel. O painel aceita JPG, PNG e WebP até 10 MB. Fotos HEIC (formato do iPhone) são recusadas com uma mensagem; o Safari costuma converter para JPG ao escolher a foto, mas isso precisa ser confirmado no aparelho dele.

@@ -8,7 +8,7 @@ type Categoria = {
   foto?: { src: string; posicao: string };
 };
 
-// Só "Estampas da casa" tem foto própria; as outras mostram um marcador.
+// "Básicas" e "Atacado" ainda mostram um marcador no lugar da foto.
 const categorias: Categoria[] = [
   { linha: "Camisetas", nome: "Básicas", href: "/produtos?categoria=basicas" },
   {
@@ -20,7 +20,16 @@ const categorias: Categoria[] = [
       posicao: "object-[88%_40%]",
     },
   },
-  { linha: "Com a sua arte", nome: "Personalizadas", href: "/personalizacao" },
+  {
+    linha: "Com a sua arte",
+    nome: "Personalizadas",
+    href: "/personalizacao",
+    // Trabalho real da loja (4:5): enquadra os rostos e a arte no peito.
+    foto: {
+      src: "/fotos/personalizacao-pilates-casal.jpg",
+      posicao: "object-[50%_30%]",
+    },
+  },
   { linha: "Em quantidade", nome: "Atacado", href: "/atacado" },
 ];
 
