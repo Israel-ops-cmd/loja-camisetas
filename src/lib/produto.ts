@@ -13,6 +13,8 @@ export type ProdutoDetalhe = {
   slug: string;
   nome: string;
   descricao: string | null;
+  /** Referência bíblica da estampa (ex.: Romanos 1:16). */
+  referencia: string | null;
   categoria: { id: string; nome: string; slug: string };
   imagens: {
     id: string;
@@ -59,6 +61,7 @@ export const obterProduto = cache(
         slug: true,
         nome: true,
         descricao: true,
+        referencia: true,
         precoBaseEmCentavos: true,
         precosDosModelos: { select: { modeloId: true, precoEmCentavos: true } },
         categoria: { select: { id: true, nome: true, slug: true } },
@@ -125,6 +128,7 @@ export const obterProduto = cache(
       slug: produto.slug,
       nome: produto.nome,
       descricao: produto.descricao,
+      referencia: produto.referencia,
       categoria: produto.categoria,
       imagens: produto.imagens,
       cores: [...cores.values()].sort((a, b) => a.nome.localeCompare(b.nome)),

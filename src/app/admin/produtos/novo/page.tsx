@@ -29,6 +29,7 @@ export default async function PaginaNovoProduto() {
                 slug: "",
                 categoriaId: "",
                 descricao: "",
+                referencia: "",
                 preco: "",
                 ativo: false,
                 destaque: false,

@@ -14,6 +14,7 @@
     "db:seed": "prisma db seed",
     "postdb:migrate": "prisma generate",
     "admin:promover": "tsx scripts/promover-admin.ts",
+    "catalogo:importar": "tsx scripts/importar-catalogo.ts",
     "conferir-marcadores": "node scripts/conferir-marcadores.mjs"
   },
   "dependencies": {

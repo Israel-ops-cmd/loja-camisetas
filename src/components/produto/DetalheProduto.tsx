@@ -203,6 +203,7 @@ export function DetalheProduto({
         <h1 className="font-titulo text-[clamp(30px,3.6vw,46px)] leading-[1.02] font-black uppercase">
           {produto.nome}
         </h1>
+        {produto.referencia && <p className="mt-2 text-[15px] font-semibold text-apoio">{produto.referencia}</p>}
 
         <p className="mt-4 font-titulo text-[28px] font-extrabold">
           {precoVaria && (

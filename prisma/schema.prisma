@@ -28,6 +28,8 @@ model Produto {
   nome                String
   slug                String           @unique
   descricao           String?
+  /// Referência bíblica da estampa (ex.: Romanos 1:16), mostrada abaixo do nome.
+  referencia          String?
   /// Reserva: vale quando o modelo não tem preço neste produto (PrecoDoModelo).
   precoBaseEmCentavos Int
   ativo               Boolean          @default(true)

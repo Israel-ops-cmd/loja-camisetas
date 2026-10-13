@@ -33,8 +33,14 @@ Passos para pôr o site no ar em **https://lojacartaviva.com.br**, na ordem. Cad
 
 - [x] Projeto de produção criado na região São Paulo (`sa-east-1`) (10/10/2026). O antigo fica para testes.
 - [x] Migrations aplicadas (incluem as pastas do Storage e as regras de acesso).
-- [ ] **Migration nova no banco de produção (obrigatório antes de publicar):** `20261010120000_frete_gratis` (campo `freteDescontoEmCentavos` do pedido), `20261013120000_modelos` (modelos, cores, tamanhos e medidas de lançamento), `20261014120000_estoque_de_lisas` (estoque de peças lisas, prontas e produção; passa o estoque da camiseta lisa para as lisas), `20261015120000_escolha_de_modelo` (preço por modelo, preços de referência, foto por modelo) e as que vierem depois. Rodar `npx prisma migrate deploy` com o `DATABASE_URL` e o `DIRECT_URL` de produção. Sem ela, nenhum pedido é criado no site publicado.
+- [ ] **Migration nova no banco de produção (obrigatório antes de publicar):** `20261010120000_frete_gratis` (campo `freteDescontoEmCentavos` do pedido), `20261013120000_modelos` (modelos, cores, tamanhos e medidas de lançamento), `20261014120000_estoque_de_lisas` (estoque de peças lisas, prontas e produção; passa o estoque da camiseta lisa para as lisas), `20261015120000_escolha_de_modelo` (preço por modelo, preços de referência, foto por modelo), `20261016120000_referencia_do_produto` (referência bíblica do produto) e as que vierem depois. Rodar `npx prisma migrate deploy` com o `DATABASE_URL` e o `DIRECT_URL` de produção. Sem ela, nenhum pedido é criado no site publicado.
 - [x] Seed aplicado: categorias, cores, tamanhos, tabela de atacado **e os produtos de exemplo** (preço de teste R$ 1,00, 10 peças por variação). Trocar ou esconder pelo painel antes de abrir a loja.
+- [ ] **Importar o catálogo de lançamento no banco de produção** (depois das migrations acima). No PowerShell, na pasta do projeto, com o `DIRECT_URL` de produção (o mesmo do `admin:promover`):
+  1. `$env:DIRECT_URL = "<DIRECT_URL de produção>"`
+  2. `npm run catalogo:importar`: só mostra o que faria. Confira na primeira linha que o banco é o de produção e leia o relatório.
+  3. `npm run catalogo:importar -- --aplicar`: grava. Tudo numa transação: se der erro, nada fica pela metade.
+  4. Feche o PowerShell (ou `Remove-Item Env:DIRECT_URL`), para o próximo comando não ir para a produção por engano.
+  Pode rodar de novo sem duplicar nada. Ele cadastra as 20 estampas, completa a "Camiseta lisa" e esconde "Jesus, my best friend".
 - [x] Authentication > URL Configuration: Site URL e Redirect URLs com `https://lojacartaviva.com.br`.
 - [x] Authentication > SMTP: Resend, remetente `nao-responda@lojacartaviva.com.br`. Modelos de confirmação e de nova senha em português, com os links de `/auth/confirmar`.
 - [ ] Criar as contas do Israel e do pai em `/cadastro` e promover com `npm run admin:promover -- email`, usando o `DIRECT_URL` de produção.

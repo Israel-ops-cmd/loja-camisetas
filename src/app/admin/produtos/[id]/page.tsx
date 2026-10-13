@@ -130,6 +130,7 @@ export default async function PaginaEditarProduto({ params, searchParams }: Page
                 slug: produto.slug,
                 categoriaId: produto.categoriaId,
                 descricao: produto.descricao ?? "",
+                referencia: produto.referencia ?? "",
                 preco: centavosParaTexto(produto.precoBaseEmCentavos),
                 ativo: produto.ativo,
                 destaque: produto.destaque,
