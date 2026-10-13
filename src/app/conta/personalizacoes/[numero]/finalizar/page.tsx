@@ -28,6 +28,7 @@ export default async function PaginaFinalizarPersonalizacao({
     where: { numero: n, clienteId: usuario.id },
     include: {
       produto: { select: { nome: true } },
+      modelo: { select: { nome: true } },
       cor: { select: { nome: true } },
       itens: { orderBy: { tamanho: { ordem: "asc" } }, include: { tamanho: true } },
     },
@@ -63,7 +64,7 @@ export default async function PaginaFinalizarPersonalizacao({
       <div className="mx-auto max-w-6xl">
         <h1 className="titulo-listagem">Pagar personalização</h1>
         <p className="mt-4 text-center text-apoio">
-          Personalização {formatarNumeroDaPersonalizacao(p.numero)} · {p.produto.nome}, {p.cor.nome}
+          Personalização {formatarNumeroDaPersonalizacao(p.numero)} · {p.produto.nome} {p.modelo.nome}, {p.cor.nome}
         </p>
         <FormularioCheckout
           chave={crypto.randomUUID()}
@@ -76,7 +77,7 @@ export default async function PaginaFinalizarPersonalizacao({
           enderecos={enderecos}
           itens={p.itens.map((item) => ({
             variacaoId: item.tamanhoId,
-            nome: `${p.produto.nome} personalizada`,
+            nome: `${p.produto.nome} ${p.modelo.nome} personalizada`,
             detalhe: `${p.cor.nome} · ${item.tamanho.nome}`,
             quantidade: item.quantidade,
             subtotalEmCentavos: preco * item.quantidade,

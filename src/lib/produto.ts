@@ -2,6 +2,7 @@ import "server-only";
 
 import { cache } from "react";
 
+import { ehCamisetaLisa } from "@/lib/estoque-regras";
 import { prisma } from "@/lib/prisma";
 
 export { LIMITE_ULTIMAS_UNIDADES } from "@/lib/estoque-regras";
@@ -33,7 +34,10 @@ export type ProdutoDetalhe = {
     modeloId: string;
     corId: string;
     tamanhoId: string;
+    /** Quanto dá para comprar: prontas da arte + peças lisas. */
     estoque: number;
+    /** Quanto sai sem precisar estampar (despacho mais rápido). */
+    prontaEntrega: number;
     /** Preço final da variação (o próprio ou o base do produto). */
     precoEmCentavos: number;
   }[];
@@ -69,6 +73,7 @@ export const obterProduto = cache(
           select: {
             id: true,
             estoque: true,
+            pecaLisa: { select: { estoque: true } },
             precoEmCentavos: true,
             modelo: {
               select: {
@@ -95,6 +100,8 @@ export const obterProduto = cache(
     });
 
     if (!produto) return null;
+    // Camiseta lisa vende só das peças lisas; arte, das prontas e depois das lisas.
+    const lisa = ehCamisetaLisa(produto.categoria.slug);
 
     const cores = new Map<string, ProdutoDetalhe["cores"][number]>();
     const tamanhos = new Map<string, { id: string; nome: string; ordem: number }>();
@@ -138,7 +145,8 @@ export const obterProduto = cache(
         modeloId: v.modelo.id,
         corId: v.cor.id,
         tamanhoId: v.tamanho.id,
-        estoque: v.estoque,
+        estoque: Math.max(v.pecaLisa.estoque, 0) + (lisa ? 0 : Math.max(v.estoque, 0)),
+        prontaEntrega: lisa ? Math.max(v.pecaLisa.estoque, 0) : Math.max(v.estoque, 0),
         precoEmCentavos: v.precoEmCentavos ?? produto.precoBaseEmCentavos,
       })),
     };

@@ -10,6 +10,7 @@ import { avisarCarrinhoAtualizado } from "@/components/carrinho/ContadorCarrinho
 import { classesBotao } from "@/components/ui/Botao";
 import { SeletorQuantidade } from "@/components/ui/SeletorQuantidade";
 import { formatarPreco } from "@/lib/formatacao";
+import { PRAZO_DE_DESPACHO, PRAZO_DE_DESPACHO_A_ESTAMPAR } from "@/lib/politicas";
 import type { ProdutoDetalhe } from "@/lib/produto";
 
 type DetalheProdutoProps = {
@@ -253,6 +254,13 @@ export function DetalheProduto({
             limite={limiteUltimasUnidades}
           />
         </p>
+        {variacao && variacao.estoque > 0 && (
+          <p className="mt-1 text-[14px] text-apoio">
+            {quantidadeValida <= variacao.prontaEntrega
+              ? `Pronta entrega: despacho em ${PRAZO_DE_DESPACHO} depois do pagamento.`
+              : `Estampada para você: despacho em ${PRAZO_DE_DESPACHO_A_ESTAMPAR} depois do pagamento.`}
+          </p>
+        )}
 
         <div className="mt-6 flex flex-col gap-3 sm:flex-row">
           <SeletorQuantidade

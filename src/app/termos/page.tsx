@@ -7,7 +7,12 @@ import { FRETE_GRATIS_A_PARTIR_DE_EM_CENTAVOS } from "@/lib/frete-regras";
 import { enderecoCompleto, identificacaoDaLoja, linkDoWhatsapp, LOJA, ou, whatsappLegivel } from "@/lib/loja";
 import { MAXIMO_DE_PARCELAS, PRAZO_DE_PAGAMENTO_DIAS } from "@/lib/pagamento";
 import { DECLARACAO_DE_DIREITOS } from "@/lib/personalizacao-regras";
-import { PRAZO_DE_DESPACHO, PRAZO_DE_PRODUCAO, PRAZO_DE_RESPOSTA_DO_ORCAMENTO } from "@/lib/politicas";
+import {
+  PRAZO_DE_DESPACHO,
+  PRAZO_DE_DESPACHO_A_ESTAMPAR,
+  PRAZO_DE_PRODUCAO,
+  PRAZO_DE_RESPOSTA_DO_ORCAMENTO,
+} from "@/lib/politicas";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/termos" },
@@ -105,7 +110,9 @@ export default function PaginaTermos() {
                 desconto de atacado: a opção de entrega mais barata sai de graça, e nas mais rápidas você paga só a diferença.
               </li>
               <li>
-                Despachamos os pedidos com peças em estoque em {PRAZO_DE_DESPACHO} depois da confirmação do pagamento.
+                Depois da confirmação do pagamento, despachamos em {PRAZO_DE_DESPACHO} os pedidos com peças prontas e em{" "}
+                {PRAZO_DE_DESPACHO_A_ESTAMPAR} quando alguma peça ainda vai ser estampada para você (a página do produto e o
+                carrinho avisam).
               </li>
               <li>
                 O prazo de entrega aparece no carrinho, ao calcular o frete pelo CEP, e conta a partir da postagem. Quando o

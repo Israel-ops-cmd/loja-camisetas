@@ -56,7 +56,10 @@ export default async function PaginaAdminPedido({ params }: PageProps<"/admin/pe
   const pedido = await prisma.pedido.findUnique({
     where: { numero: n },
     include: {
-      itens: { orderBy: [{ nomeProduto: "asc" }, { nomeCor: "asc" }, { nomeTamanho: "asc" }] },
+      itens: {
+        orderBy: [{ nomeProduto: "asc" }, { nomeCor: "asc" }, { nomeTamanho: "asc" }],
+        include: { variacao: { select: { modelo: { select: { nome: true } } } } },
+      },
       historico: { orderBy: { criadoEm: "desc" } },
       personalizacao: { select: { numero: true } },
     },
@@ -192,8 +195,9 @@ export default async function PaginaAdminPedido({ params }: PageProps<"/admin/pe
                       {item.quantidade}× {item.nomeProduto}
                     </span>
                     <span className="block text-[15px]">
-                      {item.nomeCor} · Tamanho <strong>{item.nomeTamanho}</strong>
+                      {item.variacao.modelo.nome} · {item.nomeCor} · Tamanho <strong>{item.nomeTamanho}</strong>
                     </span>
+                    <OrigemDasPecas item={item} />
                     <span className="block text-[12px] text-secundario">{item.sku}</span>
                   </span>
                   <span className="shrink-0 text-[15px]">{formatarPreco(item.precoUnitarioEmCentavos * item.quantidade)}</span>
@@ -347,5 +351,28 @@ export default async function PaginaAdminPedido({ params }: PageProps<"/admin/pe
         </div>
       </div>
     </div>
+  );
+}
+
+/** De onde saíram as peças do item (definido no pagamento): prontas ou lisas a estampar. */
+function OrigemDasPecas({
+  item,
+}: {
+  item: { quantidade: number; quantidadeDaLisa: number; estampar: boolean; estampadoEm: Date | null };
+}) {
+  if (!item.estampar || item.quantidadeDaLisa === 0) return null;
+  const prontas = item.quantidade - item.quantidadeDaLisa;
+  const lisas = item.quantidadeDaLisa;
+  return (
+    <span className="mt-1 block text-[14px] font-semibold">
+      {prontas > 0 && `${prontas === 1 ? "1 pronta" : `${prontas} prontas`} · `}
+      {item.estampadoEm ? (
+        `${lisas === 1 ? "1 estampada" : `${lisas} estampadas`} em ${formatarDataHora(item.estampadoEm)}`
+      ) : (
+        <Link href="/admin/producao" className="underline underline-offset-4">
+          {lisas === 1 ? "1 para estampar" : `${lisas} para estampar`}
+        </Link>
+      )}
+    </span>
   );
 }

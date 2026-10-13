@@ -73,6 +73,7 @@ function hojeEmSaoPaulo() {
 const esquemaPersonalizacao = z
   .object({
     produtoId: z.uuid("Escolha a peça."),
+    modeloId: z.uuid("Escolha o modelo."),
     corId: z.uuid("Escolha a cor."),
     quantidades: z.record(
       z.uuid(),
@@ -117,12 +118,13 @@ export async function enviarPersonalizacao(dados: unknown): Promise<ResultadoDaP
   }
   const d = validacao.data;
 
-  // A peça precisa ser uma camiseta lisa ativa, e cor e tamanhos precisam existir nela.
+  // A peça precisa ser uma camiseta lisa ativa, e modelo, cor e tamanhos precisam existir nela.
   const tamanhosPedidos = Object.entries(d.quantidades).filter(([, q]) => q > 0);
   const variacoes = await prisma.variacao.findMany({
     where: {
       ativo: true,
       produtoId: d.produtoId,
+      modeloId: d.modeloId,
       corId: d.corId,
       tamanhoId: { in: tamanhosPedidos.map(([id]) => id) },
       produto: { ativo: true, categoria: { slug: CATEGORIA_DAS_PECAS } },
@@ -156,6 +158,7 @@ export async function enviarPersonalizacao(dados: unknown): Promise<ResultadoDaP
       data: {
         clienteId: usuario.id,
         produtoId: d.produtoId,
+        modeloId: d.modeloId,
         corId: d.corId,
         posicoes: d.posicoes,
         descricao: d.descricao || null,
@@ -245,6 +248,7 @@ async function montarCompra(personalizacaoId: string) {
     where: { id: personalizacaoId },
     include: {
       produto: true,
+      modelo: { select: { nome: true } },
       cor: true,
       itens: { include: { tamanho: true } },
     },
@@ -255,15 +259,13 @@ async function montarCompra(personalizacaoId: string) {
     where: {
       ativo: true,
       produtoId: p.produtoId,
+      modeloId: p.modeloId,
       corId: p.corId,
       tamanhoId: { in: p.itens.map((i) => i.tamanhoId) },
     },
     include: { modelo: { select: { pesoEmGramas: true, larguraCm: true, alturaCm: true, comprimentoCm: true } } },
-    // A personalização ainda não escolhe o modelo: vale o primeiro (Tradicional).
-    orderBy: { modelo: { ordem: "asc" } },
   });
-  const porTamanho = new Map<string, (typeof variacoes)[number]>();
-  for (const v of variacoes) if (!porTamanho.has(v.tamanhoId)) porTamanho.set(v.tamanhoId, v);
+  const porTamanho = new Map(variacoes.map((v) => [v.tamanhoId, v]));
   if (p.itens.some((i) => !porTamanho.has(i.tamanhoId))) return null;
 
   const preco = p.precoUnitarioEmCentavos;
@@ -273,7 +275,7 @@ async function montarCompra(personalizacaoId: string) {
       variacaoId: porTamanho.get(item.tamanhoId)!.id,
       quantidade: item.quantidade,
       precoUnitarioEmCentavos: preco,
-      nomeProduto: `${p.produto.nome} personalizada (nº ${p.numero})`,
+      nomeProduto: `${p.produto.nome} ${p.modelo.nome} personalizada (nº ${p.numero})`,
       nomeCor: p.cor.nome,
       nomeTamanho: item.tamanho.nome,
       sku: porTamanho.get(item.tamanhoId)!.sku,

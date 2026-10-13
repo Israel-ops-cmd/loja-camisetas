@@ -4,7 +4,12 @@ import { formatarPreco } from "@/lib/formatacao";
 import { textoDoFrete } from "@/lib/frete-regras";
 import { formatarData } from "@/lib/pedidos";
 import type { ConteudoDoEmail } from "@/lib/emails/envio";
-import { PRAZO_DE_DESPACHO, PRAZO_DE_PRODUCAO, PRAZO_DE_RESPOSTA_DO_ORCAMENTO } from "@/lib/politicas";
+import {
+  PRAZO_DE_DESPACHO,
+  PRAZO_DE_DESPACHO_A_ESTAMPAR,
+  PRAZO_DE_PRODUCAO,
+  PRAZO_DE_RESPOSTA_DO_ORCAMENTO,
+} from "@/lib/politicas";
 
 // Modelos dos e-mails. HTML simples em tabelas (o que os programas de e-mail
 // entendem), com as cores da identidade e fontes de reserva (e-mail não carrega
@@ -94,8 +99,13 @@ const RODAPE_LOJA = "Aviso automático do site da Carta Viva.";
 
 // ---------------------------------------------------------------- Pedidos
 
+/** De onde saem as peças do pedido pago, para o prazo de despacho. */
+export type Despacho = { pecasAEstampar: number; personalizacao: boolean };
+
 export type PedidoParaEmail = {
   numero: number;
+  /** Só no e-mail de pagamento aprovado. Sem ele, vale o prazo das peças prontas. */
+  despacho?: Despacho;
   compradorNome: string;
   compradorEmail: string;
   compradorTelefone: string;
@@ -152,6 +162,14 @@ function prazoDoFrete(p: PedidoParaEmail) {
   return `${faixa} dias úteis depois da postagem`;
 }
 
+function textoDoDespacho(despacho: Despacho | undefined) {
+  if (despacho?.personalizacao) return `A produção leva ${PRAZO_DE_PRODUCAO} e depois despachamos.`;
+  if (despacho && despacho.pecasAEstampar > 0) {
+    return `${despacho.pecasAEstampar === 1 ? "Uma peça vai ser estampada" : "Algumas peças vão ser estampadas"} especialmente para você: despachamos em ${PRAZO_DE_DESPACHO_A_ESTAMPAR}.`;
+  }
+  return `Despachamos em ${PRAZO_DE_DESPACHO}.`;
+}
+
 export function emailPagamentoAprovado(p: PedidoParaEmail, site: string): ConteudoDoEmail {
   const prazo = prazoDoFrete(p);
   return {
@@ -160,7 +178,7 @@ export function emailPagamentoAprovado(p: PedidoParaEmail, site: string): Conteu
       titulo: `Pagamento aprovado, ${primeiroNome(p.compradorNome)}!`,
       blocos: [
         { tipo: "texto", texto: `Recebemos o pagamento do seu pedido #${p.numero}${p.metodoPagamento ? ` (${p.metodoPagamento})` : ""}. Agora vamos separar as peças com carinho.` },
-        { tipo: "texto", texto: `Despachamos em ${PRAZO_DE_DESPACHO}. Quando o pedido for postado, mandamos outro e-mail com o código de rastreio.${prazo ? ` O frete leva ${prazo}.` : ""}` },
+        { tipo: "texto", texto: `${textoDoDespacho(p.despacho)} Quando o pedido for postado, mandamos outro e-mail com o código de rastreio.${prazo ? ` O frete leva ${prazo}.` : ""}` },
         resumoDoPedido(p),
         enderecoDoPedido(p),
         { tipo: "botao", texto: "Ver meu pedido", url: urlDoPedido(site, p.numero) },
@@ -251,6 +269,9 @@ export function emailLojaPedidoPago(p: PedidoParaEmail, site: string): ConteudoD
       titulo: `Pedido #${p.numero} pago: separar e enviar`,
       blocos: [
         { tipo: "texto", texto: `${p.compradorNome} pagou ${formatarPreco(p.totalEmCentavos)}${p.metodoPagamento ? ` (${p.metodoPagamento})` : ""}. Frete: ${p.freteServico ?? "não informado"}.` },
+        ...(p.despacho && p.despacho.pecasAEstampar > 0
+          ? [{ tipo: "caixa" as const, titulo: "Para estampar", texto: `${p.despacho.pecasAEstampar === 1 ? "1 peça precisa" : `${p.despacho.pecasAEstampar} peças precisam`} ser estampada${p.despacho.pecasAEstampar === 1 ? "" : "s"}. Veja em Produção, no painel. Prazo para despachar: ${p.despacho.personalizacao ? PRAZO_DE_PRODUCAO : PRAZO_DE_DESPACHO_A_ESTAMPAR}.` }]
+          : []),
         resumoDoPedido(p),
         enderecoDoPedido(p),
         { tipo: "botao", texto: "Abrir no painel", url: `${site}/admin/pedidos/${p.numero}` },

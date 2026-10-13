@@ -116,9 +116,10 @@ Lista do que ficou para depois durante o desenvolvimento. A ordem para pôr o si
 Plano aprovado em 13/10/2026: a peça lisa (modelo + cor + tamanho) é o estoque principal, usado por todas as artes e pela personalização; cada arte pode ter peças prontas. Três branches, nesta ordem, antes do redesign:
 
 - [x] `feat/modelos`: modelos (Tradicional, Baby Look, Oversized, Oversized Premium, Infantil) com cores, tamanhos, tabela de medidas e pacote do frete; tela Modelos no painel; variações com modelo (as existentes viraram Tradicional); tabela de medidas na página do produto.
-- [ ] `feat/estoque-de-lisas`: estoque de lisas e peças prontas por arte; venda usa primeiro a pronta, senão baixa a lisa e marca "a estampar"; disponibilidade = prontas + lisas, conferida em conjunto no carrinho; personalização escolhe o modelo e baixa das lisas; lista de produção no painel; despacho em até 4 dias úteis quando houver peça a estampar; peça estampada de pedido cancelado volta como pronta da arte.
+- [x] `feat/estoque-de-lisas`: estoque de lisas e peças prontas por arte; venda usa primeiro a pronta, senão baixa a lisa e marca "a estampar"; disponibilidade = prontas + lisas, conferida em conjunto no carrinho; personalização escolhe o modelo e baixa das lisas; lista de produção no painel; despacho em até 4 dias úteis quando houver peça a estampar; peça estampada de pedido cancelado volta como pronta da arte.
 - [ ] `feat/escolha-de-modelo`: o cliente escolhe modelo, depois cor e tamanho, na página do produto; preço por modelo dentro de cada produto (referência: Tradicional e Baby Look R$ 49,90, Oversized R$ 69,90, Oversized Premium R$ 89,90, Infantil R$ 44,90; lisas Tradicional R$ 29,90, Oversized R$ 44,90, Oversized Premium R$ 59,90, cadastrados pelo painel).
-- [ ] **Até a `feat/escolha-de-modelo`:** cadastrar variações só no modelo Tradicional. A loja ainda não mostra a escolha de modelo, então variações de outro modelo apareceriam misturadas. A personalização usa o Tradicional.
+- [ ] **Até a `feat/escolha-de-modelo`:** cadastrar variações só no modelo Tradicional. A loja ainda não mostra a escolha de modelo, então variações de outro modelo apareceriam misturadas. (A personalização já mostra a escolha de modelo quando a camiseta lisa tiver mais de um.)
+- [ ] **Lançar o estoque real antes de publicar**, em Estoque (`/admin/estoque`): na aba **Peças lisas**, as camisetas sem estampa de cada modelo, cor e tamanho; na aba **Peças prontas**, as já estampadas de cada arte (opcional: sem pronta, a arte vende usando a lisa e entra em Produção). A migration passou o estoque de teste da "Camiseta lisa" para as peças lisas do Tradicional; as artes ficaram com as 10 peças de teste como prontas.
 - [ ] Conferir as cores novas (hex aproximado, criado pela migration): Areia, Mescla, Militar, Marrom, Chumbo, Bege, Verde e Azul. Hoje o painel não edita a cor de uma cor já criada: me mande os tons certos (ou uma foto do tecido) para ajustar.
 - [ ] Os nomes das cores seguem os já usados na loja: "Preta", "Branca", "Off-white" e "Azul-marinho" (o "marinho" da lista). Renomear depois, se preferir.
 
@@ -137,7 +138,7 @@ Plano aprovado em 13/10/2026: a peça lisa (modelo + cor + tamanho) é o estoque
 Desde a etapa 12, produtos, preços, cores, tamanhos, descrições e fotos são cadastrados pelo painel (`/admin/produtos`). Os dados de exemplo são trocados à mão por ali antes de publicar (decisão: sem botão de apagar dados de exemplo; produtos e variações nunca são apagados, só escondidos).
 
 - [ ] Preços reais de cada produto.
-- [ ] Cores e tamanhos disponíveis de cada produto, com o estoque real. Combinação nova criada pelo painel começa com estoque 0; o estoque real é lançado em Estoque (`/admin/estoque`), com "Chegaram peças" ou "Corrigir contagem". Hoje todas as variações de exemplo estão com 10 peças.
+- [ ] Cores e tamanhos disponíveis de cada produto. O estoque é lançado em Estoque (`/admin/estoque`), nas abas Peças lisas e Peças prontas, com "Chegaram peças", "Corrigir contagem" e "Estampar peças" (ver "Lançar o estoque real" acima).
 - [ ] Descrição de cada produto, pelo painel. Sem descrição, a página do produto não mostra o bloco; `npm run conferir-marcadores` lista os produtos à venda sem descrição ou sem foto.
 - [ ] Esconder pelo painel (desligar "Mostrar na loja") os produtos de exemplo que não forem vendidos de verdade.
 - [x] Tabela de medidas por modelo (comprimento, largura e manga), cadastrada em Modelos e mostrada na página do produto só com os tamanhos vendidos, com o aviso "As medidas podem ter pequenas variações" (`feat/modelos`).
@@ -205,6 +206,8 @@ Desde a etapa 12, produtos, preços, cores, tamanhos, descrições e fotos são 
 - [ ] Personalização: deixar o cliente enviar novos arquivos junto com o pedido de ajuste. Hoje o ajuste é só texto.
 - [ ] Personalização: o cliente cancelar o próprio pedido de personalização antes de aprovar. Hoje só o administrador cancela.
 - [ ] Editor de estampa na tela para a personalização (hoje é formulário com envio de arte).
+- [ ] Produção: desfazer "Estampadas" marcado por engano. Hoje não tem volta pelo painel (só afeta para onde a peça volta se o pedido for cancelado: pronta da arte em vez de lisa).
+- [ ] Produção: feriados nacionais no cálculo do prazo de despacho.
 - [ ] Painel de produtos: reduzir as fotos no navegador antes de enviar. Hoje vão no tamanho original (até 10 MB); o site já mostra versões otimizadas, mas o original ocupa espaço no Storage (1 GB no plano gratuito do Supabase).
 - [ ] Painel de produtos: arrastar para reordenar fotos (hoje são botões "Subir" e "Descer") e editar ou esconder cores e tamanhos já criados (hoje só dá para criar).
 - [ ] Estoque: lançar a chegada de um lote com vários tamanhos numa tela só. Hoje é um tamanho por vez.

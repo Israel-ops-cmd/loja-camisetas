@@ -4,6 +4,7 @@ import { ImageOff, Plus } from "lucide-react";
 
 import { classesBotao } from "@/components/ui/Botao";
 import { exigirAdministrador } from "@/lib/auth";
+import { ehCamisetaLisa } from "@/lib/estoque-regras";
 import { formatarPreco } from "@/lib/formatacao";
 import { prisma } from "@/lib/prisma";
 
@@ -18,9 +19,9 @@ export default async function PaginaAdminProdutos() {
       ativo: true,
       destaque: true,
       precoBaseEmCentavos: true,
-      categoria: { select: { nome: true } },
+      categoria: { select: { nome: true, slug: true } },
       imagens: { orderBy: { ordem: "asc" }, take: 1, select: { url: true, enquadramento: true } },
-      variacoes: { where: { ativo: true }, select: { estoque: true } },
+      variacoes: { where: { ativo: true }, select: { estoque: true, pecaLisa: { select: { estoque: true } } } },
     },
   });
 
@@ -39,7 +40,12 @@ export default async function PaginaAdminProdutos() {
           <ul className="mt-8 divide-y divide-borda rounded-[20px] bg-papel">
             {produtos.map((p) => {
               const foto = p.imagens[0];
-              const pecas = p.variacoes.reduce((soma, v) => soma + Math.max(v.estoque, 0), 0);
+              // Prontas da arte + peças lisas (camiseta lisa: só as lisas).
+              const pecas = p.variacoes.reduce(
+                (soma, v) =>
+                  soma + Math.max(v.pecaLisa.estoque, 0) + (ehCamisetaLisa(p.categoria.slug) ? 0 : Math.max(v.estoque, 0)),
+                0,
+              );
               const avisos = [
                 !foto && "sem fotos",
                 p.variacoes.length === 0 && "sem tamanhos à venda",

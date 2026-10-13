@@ -201,6 +201,11 @@ export async function salvarVariacoes(produtoId: unknown, dados: unknown): Promi
         const base = gerarSku(produto.slug, modelo.nome, modelo.cores.get(c.corId)!, modelo.tamanhos.get(c.tamanhoId)!);
         let sku = base;
         for (let n = 2; await tx.variacao.findUnique({ where: { sku }, select: { id: true } }); n++) sku = `${base}-${n}`;
+        // A variação aponta para a peça lisa do mesmo modelo, cor e tamanho.
+        await tx.pecaLisa.createMany({
+          data: [{ modeloId: c.modeloId, corId: c.corId, tamanhoId: c.tamanhoId }],
+          skipDuplicates: true,
+        });
         await tx.variacao.create({ data: { ...chave, sku, estoque: 0, precoEmCentavos } });
       }
     }

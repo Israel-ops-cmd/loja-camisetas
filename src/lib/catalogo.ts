@@ -1,6 +1,7 @@
 import "server-only";
 
 import type { Prisma } from "@/generated/prisma/client";
+import { ehCamisetaLisa } from "@/lib/estoque-regras";
 import { paraSlug } from "@/lib/formatacao";
 import { prisma } from "@/lib/prisma";
 
@@ -47,6 +48,7 @@ const selecaoResumo = {
   slug: true,
   nome: true,
   precoBaseEmCentavos: true,
+  categoria: { select: { slug: true } },
   imagens: {
     orderBy: { ordem: "asc" },
     take: 1,
@@ -56,6 +58,7 @@ const selecaoResumo = {
     where: { ativo: true },
     select: {
       estoque: true,
+      pecaLisa: { select: { estoque: true } },
       precoEmCentavos: true,
       cor: { select: { nome: true, hex: true } },
     },
@@ -83,7 +86,10 @@ function resumir(produto: ProdutoComVariacoes): ProdutoResumo {
     nome: produto.nome,
     precoEmCentavos: menorPreco,
     precoVaria: new Set(precos).size > 1,
-    esgotado: produto.variacoes.every((v) => v.estoque <= 0),
+    // Arte: prontas ou lisas. Camiseta lisa: só as lisas.
+    esgotado: produto.variacoes.every(
+      (v) => v.pecaLisa.estoque <= 0 && (ehCamisetaLisa(produto.categoria.slug) || v.estoque <= 0),
+    ),
     cores: [...cores.values()],
     foto: produto.imagens[0] ?? null,
   };
@@ -121,12 +127,13 @@ export async function listarProdutos(
 ) {
   const nomeDaCor = opcoes.cores.find((c) => c.slug === filtros.cor)?.nome;
 
-  // Cor e tamanho juntos significam "tem essa cor nesse tamanho, com estoque".
+  // Cor e tamanho juntos significam "tem essa cor nesse tamanho, com estoque"
+  // (peça pronta da arte ou peça lisa; nas camisetas lisas a variação fica em 0).
   const variacao: Prisma.VariacaoWhereInput = { ativo: true };
   if (nomeDaCor) variacao.cor = { nome: nomeDaCor };
   if (filtros.tamanho) {
     variacao.tamanho = { nome: filtros.tamanho };
-    variacao.estoque = { gt: 0 };
+    variacao.OR = [{ estoque: { gt: 0 } }, { pecaLisa: { estoque: { gt: 0 } } }];
   }
 
   const produtos = await prisma.produto.findMany({
