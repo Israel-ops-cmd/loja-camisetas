@@ -13,7 +13,7 @@
 // que foi mudado no painel (nome, descrição, referência, preços, "Mostrar na
 // loja", fotos), nem cria estoque de peças prontas.
 
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 
 import { config } from "dotenv";
@@ -29,6 +29,16 @@ const ARQUIVO = "docs/catalogo-lancamento.md";
 const PASTA_DAS_FOTOS = "public/fotos/colecao-carta-viva";
 const CATEGORIA_DAS_ESTAMPAS = "estampas-da-casa";
 const CAMISETA_LISA = "camiseta-lisa";
+/**
+ * Fotos de uma cor só, com o nome padrão (sem a cor no fim do nome). As que
+ * terminam com a cor (ex.: carta-viva-oversized-costas-preta.jpg) já são
+ * reconhecidas pelo nome.
+ */
+const CORES_DAS_FOTOS: Record<string, string> = {
+  "amem-oversized-premium-frente.jpg": "Bege",
+};
+/** Texto alternativo gerado pelas versões anteriores, que pode ser trocado. */
+const ALT_ANTIGO = "Ilustração da camiseta";
 /** Produtos de exemplo do seed. Os que não estão no catálogo ficam escondidos. */
 const EXEMPLOS_DO_SEED = ["nao-temas-creia", "nao-me-envergonho-do-evangelho", "jesus-my-best-friend", "o-justo-vive-pela-fe"];
 
@@ -161,6 +171,7 @@ async function importar(tx: Tx, catalogo: ReturnType<typeof lerCatalogo>, relato
       medidas: { orderBy: { tamanho: { ordem: "asc" } }, select: { tamanho: { select: { id: true, nome: true } } } },
     },
   });
+  const arquivosDasFotos = readdirSync(PASTA_DAS_FOTOS);
   const modeloPorNome = new Map(modelosDoBanco.map((m) => [m.nome, m]));
   const precoDoCatalogo = new Map(catalogo.modelos.map((m) => [m.nome, m]));
   for (const m of catalogo.modelos) {
@@ -277,29 +288,62 @@ async function importar(tx: Tx, catalogo: ReturnType<typeof lerCatalogo>, relato
     relatorio.push(...(await completarGrade(produto, estampa.modelos, false)));
 
     if (estampa.colecao) {
-      const fotos = await tx.produtoImagem.findMany({ where: { produtoId: produto.id }, select: { url: true, ordem: true } });
-      const urls = new Set(fotos.map((f) => f.url));
+      const fotos = await tx.produtoImagem.findMany({
+        where: { produtoId: produto.id },
+        select: { id: true, url: true, ordem: true, alt: true, corId: true },
+      });
+      const porUrl = new Map(fotos.map((f) => [f.url, f]));
       let ordem = Math.max(-1, ...fotos.map((f) => f.ordem)) + 1;
       const novas = [];
+      let atualizadas = 0;
       for (const modelo of modelosDoBanco.filter((m) => estampa.modelos.has(m.nome))) {
+        const corPeloSlug = new Map(modelo.cores.map(({ cor }) => [paraSlug(cor.nome), cor]));
+        const corPeloNome = new Map(modelo.cores.map(({ cor }) => [cor.nome, cor]));
         for (const { lado, texto } of estampa.lados) {
-          const arquivo = `${estampa.slug}-${modelo.slug}-${lado}.jpg`;
-          if (!existsSync(path.join(PASTA_DAS_FOTOS, arquivo))) {
-            throw new ErroNoCatalogo(`Falta a imagem ${PASTA_DAS_FOTOS}/${arquivo}.`);
+          const base = `${estampa.slug}-${modelo.slug}-${lado}`;
+          if (!existsSync(path.join(PASTA_DAS_FOTOS, `${base}.jpg`))) {
+            throw new ErroNoCatalogo(`Falta a imagem ${PASTA_DAS_FOTOS}/${base}.jpg.`);
           }
-          const url = `/fotos/colecao-carta-viva/${arquivo}`;
-          if (urls.has(url)) continue;
-          novas.push({
-            produtoId: produto.id,
-            modeloId: modelo.id,
-            url,
-            alt: `Ilustração da camiseta “${estampa.nome}”, modelo ${modelo.nome}, ${lado}: ${texto}`.slice(0, 200),
-            ordem: ordem++,
-          });
+          // A foto padrão e as de uma cor só (<base>-<cor>.jpg).
+          const arquivos: { arquivo: string; cor: { id: string; nome: string } | null }[] = [];
+          for (const arquivo of arquivosDasFotos) {
+            if (arquivo === `${base}.jpg`) {
+              const nomeDaCor = CORES_DAS_FOTOS[arquivo];
+              const cor = nomeDaCor ? corPeloNome.get(nomeDaCor) : null;
+              if (nomeDaCor && !cor) throw new ErroNoCatalogo(`A cor ${nomeDaCor} da foto ${arquivo} não existe no modelo ${modelo.nome}.`);
+              arquivos.push({ arquivo, cor: cor ?? null });
+            } else if (arquivo.startsWith(`${base}-`) && arquivo.endsWith(".jpg")) {
+              const sufixo = arquivo.slice(base.length + 1, -".jpg".length);
+              const cor = corPeloSlug.get(sufixo);
+              if (!cor) throw new ErroNoCatalogo(`A foto ${arquivo} termina com "${sufixo}", que não é uma cor do modelo ${modelo.nome}.`);
+              arquivos.push({ arquivo, cor });
+            }
+          }
+          for (const { arquivo, cor } of arquivos) {
+            const url = `/fotos/colecao-carta-viva/${arquivo}`;
+            const alt = `Camiseta “${estampa.nome}”, modelo ${modelo.nome}${cor ? `, cor ${cor.nome}` : ""}, ${lado}: ${texto}`.slice(0, 200);
+            const existente = porUrl.get(url);
+            if (!existente) {
+              novas.push({ produtoId: produto.id, modeloId: modelo.id, corId: cor?.id ?? null, url, alt, ordem: ordem++ });
+              continue;
+            }
+            // Só preenche a cor vazia e troca o texto gerado antes; o resto é do painel.
+            const mudancas = {
+              ...(cor && !existente.corId && { corId: cor.id }),
+              ...(existente.alt.startsWith(ALT_ANTIGO) && { alt }),
+            };
+            if (Object.keys(mudancas).length > 0) {
+              await tx.produtoImagem.update({ where: { id: existente.id }, data: mudancas });
+              atualizadas++;
+            }
+          }
         }
       }
       await tx.produtoImagem.createMany({ data: novas });
-      relatorio.push(`  Fotos: ${novas.length === 0 ? "nada novo" : `${novas.length} novas`}`);
+      relatorio.push(
+        `  Fotos: ${novas.length === 0 ? "nada novo" : `${novas.length} novas`}${atualizadas > 0 ? `, ${atualizadas} com cor ou texto atualizado` : ""}` +
+          (novas.some((n) => n.corId) ? ` (${novas.filter((n) => n.corId).length} de uma cor só)` : ""),
+      );
     }
   }
 
