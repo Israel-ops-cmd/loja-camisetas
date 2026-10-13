@@ -192,6 +192,7 @@ Desde a etapa 12, produtos, preços, cores, tamanhos, descrições e fotos são 
 
 ### Publicação
 
+- [ ] **Nome na fatura do cartão (depois do redesign, antes de publicar).** Na criação da cobrança do Mercado Pago (Checkout Pro, `criarCobranca` em `src/lib/mercado-pago.ts`), o `statement_descriptor` é "CARTAVIVA", para o cliente reconhecer a compra. O campo já é enviado desde a etapa de pagamento (04/10/2026). A documentação do Mercado Pago aceita até **13 caracteres** ("CARTAVIVA" tem 9). Falta conferir numa compra real com cartão como o nome aparece na fatura (o banco emissor pode acrescentar um prefixo do Mercado Pago) e ajustar se precisar.
 - [ ] Testar uma compra completa de ponta a ponta: cadastro, carrinho, frete, pagamento, e-mail e baixa de estoque.
 - [ ] Testar no celular, de verdade, os fluxos que só foram testados pelo servidor: escolha de cor, tamanho e quantidade, carrinho, cálculo de frete, cadastro e login.
 - [ ] Ver o pai do Israel cadastrar um produto completo pelo celular (dados, cores e tamanhos, fotos), lançar o estoque dele ("Chegaram peças" e "Corrigir contagem") e ajustar textos e botões do painel conforme as dúvidas dele.
