@@ -7,6 +7,7 @@ const SECOES = [
   { href: "/admin", rotulo: "Início" },
   { href: "/admin/pedidos", rotulo: "Pedidos" },
   { href: "/admin/produtos", rotulo: "Produtos" },
+  { href: "/admin/modelos", rotulo: "Modelos" },
   { href: "/admin/estoque", rotulo: "Estoque" },
   { href: "/admin/atacado", rotulo: "Atacado" },
   { href: "/admin/personalizacoes", rotulo: "Personalizações" },

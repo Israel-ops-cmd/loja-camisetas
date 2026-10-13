@@ -17,17 +17,28 @@ export default async function PaginaEditarProduto({ params, searchParams }: Page
   const { id } = await params;
   if (!z.uuid().safeParse(id).success) notFound();
 
-  const [produto, categorias, cores, tamanhos] = await Promise.all([
+  const [produto, categorias, cores, modelos] = await Promise.all([
     prisma.produto.findUnique({
       where: { id },
       include: {
         imagens: { orderBy: [{ ordem: "asc" }, { id: "asc" }] },
-        variacoes: { select: { corId: true, tamanhoId: true, ativo: true, precoEmCentavos: true, estoque: true } },
+        variacoes: {
+          select: { modeloId: true, corId: true, tamanhoId: true, ativo: true, precoEmCentavos: true, estoque: true },
+        },
       },
     }),
     prisma.categoria.findMany({ orderBy: { ordem: "asc" }, select: { id: true, nome: true } }),
     prisma.cor.findMany({ orderBy: { nome: "asc" }, select: { id: true, nome: true, hex: true } }),
-    prisma.tamanho.findMany({ orderBy: { ordem: "asc" }, select: { id: true, nome: true } }),
+    prisma.modelo.findMany({
+      orderBy: { ordem: "asc" },
+      select: {
+        id: true,
+        nome: true,
+        ativo: true,
+        cores: { orderBy: { cor: { nome: "asc" } }, select: { cor: { select: { id: true, nome: true, hex: true } } } },
+        medidas: { orderBy: { tamanho: { ordem: "asc" } }, select: { tamanho: { select: { id: true, nome: true } } } },
+      },
+    }),
   ]);
   if (!produto) notFound();
   const { novo } = await searchParams;
@@ -103,10 +114,6 @@ export default async function PaginaEditarProduto({ params, searchParams }: Page
                 preco: centavosParaTexto(produto.precoBaseEmCentavos),
                 ativo: produto.ativo,
                 destaque: produto.destaque,
-                pesoEmGramas: String(produto.pesoEmGramas),
-                larguraCm: String(produto.larguraCm),
-                alturaCm: String(produto.alturaCm),
-                comprimentoCm: String(produto.comprimentoCm),
               }}
             />
           </Painel>
@@ -115,8 +122,16 @@ export default async function PaginaEditarProduto({ params, searchParams }: Page
             <GradeDeVariacoes
               produtoId={produto.id}
               precoBase={produto.precoBaseEmCentavos}
-              cores={cores}
-              tamanhos={tamanhos}
+              modelos={modelos
+                // Modelo desligado só aparece se o produto já vende nele.
+                .filter((m) => m.ativo || produto.variacoes.some((v) => v.modeloId === m.id))
+                .map((m) => ({
+                  id: m.id,
+                  nome: m.nome,
+                  ativo: m.ativo,
+                  cores: m.cores.map((c) => c.cor),
+                  tamanhos: m.medidas.map((t) => t.tamanho),
+                }))}
               variacoes={produto.variacoes}
             />
           </Painel>

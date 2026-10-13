@@ -24,6 +24,7 @@ export default async function PaginaHistoricoDoEstoque({ params }: PageProps<"/a
       estoque: true,
       ativo: true,
       produto: { select: { id: true, nome: true } },
+      modelo: { select: { nome: true } },
       cor: { select: { nome: true, hex: true } },
       tamanho: { select: { nome: true } },
       movimentacoes: {
@@ -48,7 +49,7 @@ export default async function PaginaHistoricoDoEstoque({ params }: PageProps<"/a
         <section className="mt-8 rounded-[20px] bg-papel px-5 sm:px-8">
           <AcoesDeEstoque
             variacaoId={v.id}
-            rotulo={`${v.cor.nome} · ${v.tamanho.nome}`}
+            rotulo={`${v.modelo.nome} · ${v.cor.nome} · ${v.tamanho.nome}`}
             hex={v.cor.hex}
             estoque={v.estoque}
             reservadas={reservadas}

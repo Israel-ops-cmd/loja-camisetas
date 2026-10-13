@@ -14,7 +14,6 @@ import {
   ENQUADRAMENTOS,
   FORMATOS_DE_FOTO,
   gerarSku,
-  LIMITES_DO_PACOTE,
   PASTA_DE_FOTOS,
   TAMANHO_MAXIMO_DA_FOTO,
 } from "@/lib/produtos-regras";
@@ -35,13 +34,6 @@ function errosPorCampo(erro: z.ZodError) {
 
 // ---------------------------------------------------------------- Dados do produto
 
-const inteiroEntre = (minimo: number, maximo: number, nome: string) =>
-  z
-    .number(`Digite ${nome} em números.`)
-    .int(`Digite ${nome} sem vírgula.`)
-    .min(minimo, `${nome[0].toUpperCase()}${nome.slice(1)} precisa ser pelo menos ${minimo}.`)
-    .max(maximo, `${nome[0].toUpperCase()}${nome.slice(1)} pode ser no máximo ${maximo}.`);
-
 const esquemaProduto = z.object({
   nome: z.string().trim().min(2, "Digite o nome do produto.").max(120, "Nome longo demais (até 120 letras)."),
   slug: z.string().trim().max(120, "Endereço longo demais.").optional(),
@@ -50,10 +42,6 @@ const esquemaProduto = z.object({
   preco: z.string().max(20),
   ativo: z.boolean(),
   destaque: z.boolean(),
-  pesoEmGramas: inteiroEntre(LIMITES_DO_PACOTE.pesoEmGramas.minimo, LIMITES_DO_PACOTE.pesoEmGramas.maximo, "o peso"),
-  larguraCm: inteiroEntre(LIMITES_DO_PACOTE.centimetros.minimo, LIMITES_DO_PACOTE.centimetros.maximo, "a largura"),
-  alturaCm: inteiroEntre(LIMITES_DO_PACOTE.centimetros.minimo, LIMITES_DO_PACOTE.centimetros.maximo, "a altura"),
-  comprimentoCm: inteiroEntre(LIMITES_DO_PACOTE.centimetros.minimo, LIMITES_DO_PACOTE.centimetros.maximo, "o comprimento"),
 });
 
 export type DadosDoProduto = z.input<typeof esquemaProduto>;
@@ -103,10 +91,6 @@ export async function salvarProduto(id: unknown, dados: unknown): Promise<Result
     precoBaseEmCentavos: preco,
     ativo: d.ativo,
     destaque: d.destaque,
-    pesoEmGramas: d.pesoEmGramas,
-    larguraCm: d.larguraCm,
-    alturaCm: d.alturaCm,
-    comprimentoCm: d.comprimentoCm,
   };
 
   if (id === null) {
@@ -129,6 +113,7 @@ const esquemaGrade = z.object({
   combinacoes: z
     .array(
       z.object({
+        modeloId: z.uuid(),
         corId: z.uuid(),
         tamanhoId: z.uuid(),
         aVenda: z.boolean(),
@@ -136,12 +121,13 @@ const esquemaGrade = z.object({
         precoProprio: z.string().max(20).optional(),
       }),
     )
-    .max(500),
+    .max(2000),
 });
 
 /**
- * Marca quais combinações de cor e tamanho estão à venda. Combinação nova é
- * criada com estoque 0; desmarcar só tira de venda (nunca apaga).
+ * Marca quais combinações de modelo, cor e tamanho estão à venda. Combinação
+ * nova é criada com estoque 0; desmarcar só tira de venda (nunca apaga). Só
+ * vale cor e tamanho cadastrados no modelo.
  */
 export async function salvarVariacoes(produtoId: unknown, dados: unknown): Promise<Resultado> {
   if (!(await administradorDaAcao())) return { ok: false, erro: SEM_PERMISSAO };
@@ -155,41 +141,64 @@ export async function salvarVariacoes(produtoId: unknown, dados: unknown): Promi
   if (!produto) return { ok: false, erro: "Produto não encontrado." };
 
   const combinacoes = validacao.data.combinacoes;
-  const [cores, tamanhos] = await Promise.all([
-    prisma.cor.findMany({ where: { id: { in: combinacoes.map((c) => c.corId) } } }),
-    prisma.tamanho.findMany({ where: { id: { in: combinacoes.map((c) => c.tamanhoId) } } }),
-  ]);
-  const corPorId = new Map(cores.map((c) => [c.id, c]));
-  const tamanhoPorId = new Map(tamanhos.map((t) => [t.id, t]));
+  const modelos = await prisma.modelo.findMany({
+    where: { id: { in: combinacoes.map((c) => c.modeloId) } },
+    select: {
+      id: true,
+      nome: true,
+      cores: { select: { cor: { select: { id: true, nome: true } } } },
+      medidas: { select: { tamanho: { select: { id: true, nome: true } } } },
+    },
+  });
+  const porModelo = new Map(
+    modelos.map((m) => [
+      m.id,
+      {
+        nome: m.nome,
+        cores: new Map(m.cores.map(({ cor }) => [cor.id, cor.nome])),
+        tamanhos: new Map(m.medidas.map(({ tamanho }) => [tamanho.id, tamanho.nome])),
+      },
+    ]),
+  );
+  const chaveDe = (c: { modeloId: string; corId: string; tamanhoId: string }) => `${c.modeloId}:${c.corId}:${c.tamanhoId}`;
 
-  // Confere todos os preços antes de gravar qualquer coisa.
+  // Confere todas as combinações e preços antes de gravar qualquer coisa.
   const precos = new Map<string, number | null>();
   for (const c of combinacoes) {
-    const cor = corPorId.get(c.corId);
-    const tamanho = tamanhoPorId.get(c.tamanhoId);
-    if (!cor || !tamanho) return { ok: false, erro: "Alguma cor ou tamanho não existe mais. Recarregue a página." };
+    const modelo = porModelo.get(c.modeloId);
+    const cor = modelo?.cores.get(c.corId);
+    const tamanho = modelo?.tamanhos.get(c.tamanhoId);
+    if (!modelo || !cor || !tamanho) {
+      // Desmarcar o que saiu do modelo continua permitido.
+      if (!c.aVenda) continue;
+      return { ok: false, erro: "Alguma cor ou tamanho não faz mais parte do modelo. Recarregue a página." };
+    }
     const texto = c.precoProprio?.trim() ?? "";
     if (!texto) {
-      precos.set(`${c.corId}:${c.tamanhoId}`, null);
+      precos.set(chaveDe(c), null);
       continue;
     }
     const centavos = lerPrecoEmCentavos(texto);
     if (centavos === null || centavos <= 0) {
-      return { ok: false, erro: `Confira o preço de ${cor.nome}, tamanho ${tamanho.nome}. Use, por exemplo, 49,90, ou deixe em branco.` };
+      return {
+        ok: false,
+        erro: `Confira o preço de ${modelo.nome} ${cor}, tamanho ${tamanho}. Use, por exemplo, 49,90, ou deixe em branco.`,
+      };
     }
-    precos.set(`${c.corId}:${c.tamanhoId}`, centavos);
+    precos.set(chaveDe(c), centavos);
   }
 
   await prisma.$transaction(async (tx) => {
     for (const c of combinacoes) {
-      const chave = { produtoId, corId: c.corId, tamanhoId: c.tamanhoId };
-      const precoEmCentavos = precos.get(`${c.corId}:${c.tamanhoId}`) ?? null;
-      const existente = await tx.variacao.findUnique({ where: { produtoId_corId_tamanhoId: chave } });
+      const chave = { produtoId, modeloId: c.modeloId, corId: c.corId, tamanhoId: c.tamanhoId };
+      const precoEmCentavos = precos.get(chaveDe(c)) ?? null;
+      const existente = await tx.variacao.findUnique({ where: { produtoId_modeloId_corId_tamanhoId: chave } });
       if (existente) {
         await tx.variacao.update({ where: { id: existente.id }, data: { ativo: c.aVenda, precoEmCentavos } });
       } else if (c.aVenda) {
+        const modelo = porModelo.get(c.modeloId)!;
         // O código pode já existir se outro produto usou este endereço antes.
-        const base = gerarSku(produto.slug, corPorId.get(c.corId)!.nome, tamanhoPorId.get(c.tamanhoId)!.nome);
+        const base = gerarSku(produto.slug, modelo.nome, modelo.cores.get(c.corId)!, modelo.tamanhos.get(c.tamanhoId)!);
         let sku = base;
         for (let n = 2; await tx.variacao.findUnique({ where: { sku }, select: { id: true } }); n++) sku = `${base}-${n}`;
         await tx.variacao.create({ data: { ...chave, sku, estoque: 0, precoEmCentavos } });

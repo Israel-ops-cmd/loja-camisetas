@@ -86,7 +86,7 @@ function carregarPedido(pedidoId: string) {
       itens: {
         include: {
           variacao: {
-            select: { produto: { select: { pesoEmGramas: true, larguraCm: true, alturaCm: true, comprimentoCm: true } } },
+            select: { modelo: { select: { pesoEmGramas: true, larguraCm: true, alturaCm: true, comprimentoCm: true } } },
           },
         },
       },
@@ -112,10 +112,10 @@ async function cotar(pedido: PedidoParaEtiqueta) {
     services: String(pedido.freteServicoId),
     products: pedido.itens.map((item) => ({
       id: item.id,
-      width: item.variacao.produto.larguraCm,
-      height: item.variacao.produto.alturaCm,
-      length: item.variacao.produto.comprimentoCm,
-      weight: item.variacao.produto.pesoEmGramas / 1000,
+      width: item.variacao.modelo.larguraCm,
+      height: item.variacao.modelo.alturaCm,
+      length: item.variacao.modelo.comprimentoCm,
+      weight: item.variacao.modelo.pesoEmGramas / 1000,
       insurance_value: precoComDesconto(item.precoUnitarioEmCentavos, pedido.descontoPercentual) / 100,
       quantity: item.quantidade,
     })),

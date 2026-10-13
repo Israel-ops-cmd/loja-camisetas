@@ -258,8 +258,12 @@ async function montarCompra(personalizacaoId: string) {
       corId: p.corId,
       tamanhoId: { in: p.itens.map((i) => i.tamanhoId) },
     },
+    include: { modelo: { select: { pesoEmGramas: true, larguraCm: true, alturaCm: true, comprimentoCm: true } } },
+    // A personalização ainda não escolhe o modelo: vale o primeiro (Tradicional).
+    orderBy: { modelo: { ordem: "asc" } },
   });
-  const porTamanho = new Map(variacoes.map((v) => [v.tamanhoId, v]));
+  const porTamanho = new Map<string, (typeof variacoes)[number]>();
+  for (const v of variacoes) if (!porTamanho.has(v.tamanhoId)) porTamanho.set(v.tamanhoId, v);
   if (p.itens.some((i) => !porTamanho.has(i.tamanhoId))) return null;
 
   const preco = p.precoUnitarioEmCentavos;
@@ -276,10 +280,7 @@ async function montarCompra(personalizacaoId: string) {
     })),
     pacotes: p.itens.map((item) => ({
       id: porTamanho.get(item.tamanhoId)!.id,
-      pesoEmGramas: p.produto.pesoEmGramas,
-      larguraCm: p.produto.larguraCm,
-      alturaCm: p.produto.alturaCm,
-      comprimentoCm: p.produto.comprimentoCm,
+      ...porTamanho.get(item.tamanhoId)!.modelo,
       valorEmCentavos: preco,
       quantidade: item.quantidade,
     })),
