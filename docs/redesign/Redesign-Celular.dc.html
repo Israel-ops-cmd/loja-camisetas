@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Carta Viva, produto no celular (redesign)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:inherit;text-decoration:none}
+a:hover{opacity:.7}
+</style>
+</helmet>
+<div style="width: 390px; height: 2100px; box-sizing: border-box; position: relative; overflow: hidden; font-family: 'Manrope', sans-serif; color: #1C1B19; background: {{ground}}; font-size: 15px; line-height: 1.55">
+
+<div style="background: #ECE6DB; color: #3D3A35; text-align: center; padding: 8px 16px; font-size: 11px; letter-spacing: 0.06em">Frete grátis acima de R$ 400</div>
+
+<header style="display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; padding: 6px 12px; border-bottom: 1px solid #DDD6CA">
+<button type="button" aria-label="Abrir menu" style="width: 44px; height: 44px; border: 0; background: none; display: flex; align-items: center; justify-content: center; cursor: pointer"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1C1B19" stroke-width="1.5" aria-hidden="true"><path d="M4 8h16M4 16h16"></path></svg></button>
+<a href="#inicio" aria-label="Carta Viva, início" style="justify-self: center; display: flex; align-items: center; gap: 8px"><svg width="24" height="24" viewBox="0 0 44 44" fill="none" aria-hidden="true"><rect x="4" y="9" width="36" height="26" rx="3" stroke="#1C1B19" stroke-width="2"></rect><path d="M5 12 L22 26 L39 12" stroke="#1C1B19" stroke-width="2" stroke-linejoin="round"></path><circle cx="22" cy="27" r="4" fill="{{accent}}"></circle></svg><span style="font-weight: 600; font-size: 12px; letter-spacing: 0.3em">CARTA VIVA</span></a>
+<a href="#sacola" aria-label="Sacola, 0 itens" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1C1B19" stroke-width="1.5" aria-hidden="true"><path d="M5 8h14l-1 13H6L5 8z"></path><path d="M9 8V6a3 3 0 0 1 6 0v2"></path></svg></a>
+</header>
+
+<div style="position: relative">
+<img src="/_blob/1bb55116085306d45d3cfe086ca2016c" alt="Carta Viva Oversized off-white, costas" style="width: 390px; height: 390px; object-fit: cover; display: block; background: #E2DED6">
+<div aria-label="Foto 1 de 3" style="position: absolute; bottom: 14px; left: 0; right: 0; display: flex; justify-content: center; gap: 6px"><span style="width: 18px; height: 2px; background: #1C1B19"></span><span style="width: 18px; height: 2px; background: #B9B2A6"></span><span style="width: 18px; height: 2px; background: #B9B2A6"></span></div>
+</div>
+
+<div style="padding: 24px 20px 0; display: flex; flex-direction: column; gap: 22px">
+<div style="display: flex; flex-direction: column; gap: 4px">
+<span style="font-size: 10px; letter-spacing: 0.3em; font-weight: 600; color: #6B665E">COLEÇÃO CARTA VIVA</span>
+<h1 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: 38px; line-height: 1.05">Carta Viva</h1>
+<span style="font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 17px; color: #6B665E">2 Coríntios 3:3</span>
+<span style="font-size: 22px; font-weight: 500; margin-top: 8px">R$ 69,90</span>
+<span style="font-size: 12px; color: #6B665E">ou em até 6x no cartão</span>
+</div>
+
+<fieldset style="border: 0; margin: 0; padding: 0">
+<legend style="font-size: 11px; letter-spacing: 0.2em; font-weight: 600; margin-bottom: 10px">MODELO</legend>
+<div style="display: flex; gap: 8px; overflow: hidden">
+<button type="button" style="flex: 0 0 auto; font: inherit; text-align: left; padding: 10px 12px; border: 1px solid #CFC7BA; background: transparent; display: flex; flex-direction: column; cursor: pointer"><span style="font-size: 13px; font-weight: 600">Tradicional</span><span style="font-size: 11px; color: #6B665E">R$ 49,90</span></button>
+<button type="button" style="flex: 0 0 auto; font: inherit; text-align: left; padding: 10px 12px; border: 1px solid #CFC7BA; background: transparent; display: flex; flex-direction: column; cursor: pointer"><span style="font-size: 13px; font-weight: 600">Baby Look</span><span style="font-size: 11px; color: #6B665E">R$ 49,90</span></button>
+<button type="button" aria-pressed="true" style="flex: 0 0 auto; font: inherit; text-align: left; padding: 10px 12px; border: 1.5px solid #1C1B19; background: #FFFFFF; display: flex; flex-direction: column; cursor: pointer"><span style="font-size: 13px; font-weight: 600">Oversized</span><span style="font-size: 11px; color: #6B665E">R$ 69,90</span></button>
+<button type="button" style="flex: 0 0 auto; font: inherit; text-align: left; padding: 10px 12px; border: 1px solid #CFC7BA; background: transparent; display: flex; flex-direction: column; cursor: pointer"><span style="font-size: 13px; font-weight: 600">Premium</span><span style="font-size: 11px; color: #6B665E">R$ 89,90</span></button>
+</div>
+</fieldset>
+
+<fieldset style="border: 0; margin: 0; padding: 0">
+<legend style="font-size: 11px; letter-spacing: 0.2em; font-weight: 600; margin-bottom: 10px">COR <span style="font-weight: 400; letter-spacing: 0; color: #6B665E">· Off-white</span></legend>
+<div style="display: flex; gap: 4px">
+<button type="button" aria-label="Off-white" aria-pressed="true" style="width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid #1C1B19; background: transparent; padding: 4px"><span style="display: block; width: 100%; height: 100%; border-radius: 50%; background: #EEE8DA; box-shadow: inset 0 0 0 1px #C9C2B6"></span></button>
+<button type="button" aria-label="Preta" style="width: 44px; height: 44px; border-radius: 50%; border: 1px solid transparent; background: transparent; padding: 4px"><span style="display: block; width: 100%; height: 100%; border-radius: 50%; background: #1D1D1D"></span></button>
+<button type="button" aria-label="Branca" style="width: 44px; height: 44px; border-radius: 50%; border: 1px solid transparent; background: transparent; padding: 4px"><span style="display: block; width: 100%; height: 100%; border-radius: 50%; background: #F7F7F4; box-shadow: inset 0 0 0 1px #C9C2B6"></span></button>
+<button type="button" aria-label="Marrom" style="width: 44px; height: 44px; border-radius: 50%; border: 1px solid transparent; background: transparent; padding: 4px"><span style="display: block; width: 100%; height: 100%; border-radius: 50%; background: #5A3B2C"></span></button>
+<button type="button" aria-label="Azul-marinho" style="width: 44px; height: 44px; border-radius: 50%; border: 1px solid transparent; background: transparent; padding: 4px"><span style="display: block; width: 100%; height: 100%; border-radius: 50%; background: #1F2A44"></span></button>
+<button type="button" aria-label="Militar" style="width: 44px; height: 44px; border-radius: 50%; border: 1px solid transparent; background: transparent; padding: 4px"><span style="display: block; width: 100%; height: 100%; border-radius: 50%; background: #4A5A3C"></span></button>
+</div>
+</fieldset>
+
+<fieldset style="border: 0; margin: 0; padding: 0">
+<legend style="width: 100%; display: flex; justify-content: space-between; font-size: 11px; letter-spacing: 0.2em; font-weight: 600; margin-bottom: 10px"><span>TAMANHO</span><a href="#medidas" style="font-weight: 400; letter-spacing: 0; border-bottom: 1px solid #1C1B19">Medidas</a></legend>
+<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px">
+<button type="button" style="font: inherit; height: 48px; border: 1px solid #CFC7BA; background: transparent">P</button>
+<button type="button" aria-pressed="true" style="font: inherit; height: 48px; border: 1.5px solid #1C1B19; background: #FFFFFF; font-weight: 600">M</button>
+<button type="button" style="font: inherit; height: 48px; border: 1px solid #CFC7BA; background: transparent">G</button>
+<button type="button" style="font: inherit; height: 48px; border: 1px solid #CFC7BA; background: transparent">GG</button>
+</div>
+</fieldset>
+
+<p style="margin: 0; font-size: 13px; color: #4A4640; display: flex; gap: 8px; align-items: center"><span style="width: 8px; height: 8px; border-radius: 50%; background: {{accent}}" aria-hidden="true"></span>Estampada para você: despacho em até 4 dias úteis</p>
+
+<div style="border-top: 1px solid #DDD6CA">
+<details open="" style="border-bottom: 1px solid #DDD6CA; padding: 16px 0"><summary style="font-size: 11px; letter-spacing: 0.2em; font-weight: 600">DESCRIÇÃO</summary><p style="margin: 12px 0 0; color: #4A4640">A estampa que dá nome à marca. Envelope com lacre no peito e, nas costas, "Vós sois a carta de Cristo". Malha 100% algodão, 160 g/m².</p></details>
+<details id="medidas" style="border-bottom: 1px solid #DDD6CA; padding: 16px 0"><summary style="font-size: 11px; letter-spacing: 0.2em; font-weight: 600">MEDIDAS</summary></details>
+<details style="border-bottom: 1px solid #DDD6CA; padding: 16px 0"><summary style="font-size: 11px; letter-spacing: 0.2em; font-weight: 600">ENVIO E TROCA</summary></details>
+</div>
+
+<h2 style="margin: 12px 0 0; font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: 26px">Da mesma coleção</h2>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px">
+<a href="#p-selado" style="display: flex; flex-direction: column; gap: 6px"><img src="/_blob/fed8539528ac507260f5fdde0ed5eced" alt="Selado, frente" style="width: 100%; aspect-ratio: 1 / 1; object-fit: cover; display: block; background: #E2DED6"><span style="font-family: 'Cormorant Garamond', serif; font-size: 18px">Selado</span><span style="font-size: 12px; color: #6B665E; margin-top: -4px">a partir de R$ 49,90</span></a>
+<a href="#p-escrito" style="display: flex; flex-direction: column; gap: 6px"><img src="/_blob/e16a05976889475133051842ba27f9d0" alt="Escrito no coração, frente" style="width: 100%; aspect-ratio: 1 / 1; object-fit: cover; display: block; background: #E2DED6"><span style="font-family: 'Cormorant Garamond', serif; font-size: 18px">Escrito no coração</span><span style="font-size: 12px; color: #6B665E; margin-top: -4px">a partir de R$ 49,90</span></a>
+</div>
+</div>
+
+<div style="position: absolute; left: 0; right: 0; bottom: 0; background: {{ground}}; border-top: 1px solid #DDD6CA; padding: 12px 16px 20px; display: flex; align-items: center; gap: 12px">
+<div style="display: flex; flex-direction: column; line-height: 1.2"><span style="font-size: 12px; color: #6B665E">Oversized · M</span><span style="font-weight: 600">R$ 69,90</span></div>
+<button type="button" style="flex: 1; font: inherit; height: 50px; border: 0; background: #1C1B19; color: #FFFFFF; font-size: 12px; font-weight: 600; letter-spacing: 0.16em">ADICIONAR À SACOLA</button>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#C8102E"},"ground":{"editor":"color","default":"#F5F2EC","options":["#F5F2EC","#FFFFFF","#F1F1EF"]},"$preview":{"width":390,"height":2100}}'>
+class Component extends DCLogic {
+renderVals() {
+return { accent: this.props.accent ?? '#C8102E', ground: this.props.ground ?? '#F5F2EC' };
+}
+}
+</script>
+</body>
+</html>
