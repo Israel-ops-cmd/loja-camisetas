@@ -128,12 +128,12 @@ export function FormularioProduto({
 
       <Campo
         name="preco"
-        rotulo="Preço de uma peça (R$)"
+        rotulo="Preço padrão de uma peça (R$)"
         inputMode="decimal"
         value={v.preco}
         onChange={(e) => mudar("preco", e.target.value)}
         erro={erros.preco}
-        ajuda="Ex.: 49,90. Vale para todas as cores e tamanhos, a não ser que você mude algum abaixo."
+        ajuda="Ex.: 49,90. Vale só para o modelo que não tiver preço próprio (o preço de cada modelo fica em Cores e tamanhos, abaixo)."
         required
       />
 

@@ -223,6 +223,7 @@ export default async function PaginaPedido({
                     {item.quantidade}× {item.nomeProduto}
                   </span>
                   <span className="block text-[14px] text-secundario">
+                    {item.nomeModelo && `${item.nomeModelo} · `}
                     {item.nomeCor} · Tamanho {item.nomeTamanho}
                   </span>
                 </span>

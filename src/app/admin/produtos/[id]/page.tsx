@@ -24,6 +24,7 @@ export default async function PaginaEditarProduto({ params, searchParams }: Page
       include: {
         imagens: { orderBy: [{ ordem: "asc" }, { id: "asc" }] },
         categoria: { select: { slug: true } },
+        precosDosModelos: { select: { modeloId: true, precoEmCentavos: true } },
         variacoes: {
           select: {
             modeloId: true,
@@ -45,6 +46,8 @@ export default async function PaginaEditarProduto({ params, searchParams }: Page
         id: true,
         nome: true,
         ativo: true,
+        precoReferenciaEstampadaEmCentavos: true,
+        precoReferenciaLisaEmCentavos: true,
         cores: { orderBy: { cor: { nome: "asc" } }, select: { cor: { select: { id: true, nome: true, hex: true } } } },
         medidas: { orderBy: { tamanho: { ordem: "asc" } }, select: { tamanho: { select: { id: true, nome: true } } } },
       },
@@ -139,14 +142,22 @@ export default async function PaginaEditarProduto({ params, searchParams }: Page
               produtoId={produto.id}
               precoBase={produto.precoBaseEmCentavos}
               modelos={modelos
-                // Modelo desligado só aparece se o produto já vende nele.
-                .filter((m) => m.ativo || produto.variacoes.some((v) => v.modeloId === m.id))
+                // Modelo desligado só aparece se o produto já vende nele. Na
+                // camiseta lisa, só os modelos com preço de lisa (Baby Look e
+                // Infantil não têm lisa).
+                .filter(
+                  (m) =>
+                    produto.variacoes.some((v) => v.modeloId === m.id) ||
+                    (m.ativo && (!lisa || m.precoReferenciaLisaEmCentavos !== null)),
+                )
                 .map((m) => ({
                   id: m.id,
                   nome: m.nome,
                   ativo: m.ativo,
                   cores: m.cores.map((c) => c.cor),
                   tamanhos: m.medidas.map((t) => t.tamanho),
+                  preco: produto.precosDosModelos.find((p) => p.modeloId === m.id)?.precoEmCentavos ?? null,
+                  precoSugerido: lisa ? m.precoReferenciaLisaEmCentavos : m.precoReferenciaEstampadaEmCentavos,
                 }))}
               variacoes={variacoes}
             />
@@ -156,11 +167,13 @@ export default async function PaginaEditarProduto({ params, searchParams }: Page
             <FotosDoProduto
               produtoId={produto.id}
               cores={cores}
+              modelos={modelos.filter((m) => produto.variacoes.some((v) => v.modeloId === m.id && v.ativo))}
               fotos={produto.imagens.map((f) => ({
                 id: f.id,
                 url: f.url,
                 alt: f.alt,
                 corId: f.corId,
+                modeloId: f.modeloId,
                 enquadramento: f.enquadramento,
               }))}
             />

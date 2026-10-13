@@ -2,21 +2,23 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { CircleAlert, Shirt } from "lucide-react";
+import { ChevronDown, CircleAlert, Shirt } from "lucide-react";
 import { useState, useTransition, type ReactNode } from "react";
 
 import { adicionarAoCarrinho } from "@/app/carrinho/acoes";
 import { avisarCarrinhoAtualizado } from "@/components/carrinho/ContadorCarrinho";
 import { classesBotao } from "@/components/ui/Botao";
+import { TabelaDeMedidas } from "@/components/produto/TabelaDeMedidas";
 import { SeletorQuantidade } from "@/components/ui/SeletorQuantidade";
 import { formatarPreco } from "@/lib/formatacao";
 import { PRAZO_DE_DESPACHO, PRAZO_DE_DESPACHO_A_ESTAMPAR } from "@/lib/politicas";
 import type { ProdutoDetalhe } from "@/lib/produto";
+import { fotosDaEscolha } from "@/lib/produtos-regras";
 
 type DetalheProdutoProps = {
   produto: ProdutoDetalhe;
   limiteUltimasUnidades: number;
-  /** Conteúdo abaixo da escolha (descrição, medidas), renderizado no servidor. */
+  /** Conteúdo abaixo da escolha (atacado, descrição), renderizado no servidor. */
   children?: ReactNode;
 };
 
@@ -25,8 +27,13 @@ export function DetalheProduto({
   limiteUltimasUnidades,
   children,
 }: DetalheProdutoProps) {
+  // Escolha em ordem: modelo, cor, tamanho. Com um modelo (ou uma cor) só,
+  // ele já vem escolhido.
+  const modeloUnico = produto.modelos.length === 1 ? produto.modelos[0].id : null;
+  const [modeloId, setModeloId] = useState<string | null>(modeloUnico);
+  const coresIniciais = coresDoModelo(modeloUnico);
   const [corId, setCorId] = useState<string | null>(
-    produto.cores.length === 1 ? produto.cores[0].id : null,
+    coresIniciais.length === 1 ? coresIniciais[0].id : null,
   );
   const [tamanhoId, setTamanhoId] = useState<string | null>(null);
   const [fotoAtiva, setFotoAtiva] = useState(0);
@@ -36,9 +43,21 @@ export function DetalheProduto({
   >(null);
   const [adicionando, iniciarAdicao] = useTransition();
 
-  const variacoesDaCor = corId
-    ? produto.variacoes.filter((v) => v.corId === corId)
-    : produto.variacoes;
+  function variacoesDoModelo(id: string | null) {
+    return id ? produto.variacoes.filter((v) => v.modeloId === id) : produto.variacoes;
+  }
+  function coresDoModelo(id: string | null) {
+    const variacoes = variacoesDoModelo(id);
+    return produto.cores.filter((c) => variacoes.some((v) => v.corId === c.id));
+  }
+
+  const doModelo = variacoesDoModelo(modeloId);
+  const cores = coresDoModelo(modeloId);
+  const tamanhos = produto.tamanhos.filter((t) => doModelo.some((v) => v.tamanhoId === t.id));
+  const variacoesDaCor = corId ? doModelo.filter((v) => v.corId === corId) : doModelo;
+
+  /** Menor preço de cada modelo, para mostrar no botão do modelo. */
+  const precoDoModelo = (id: string) => Math.min(...variacoesDoModelo(id).map((v) => v.precoEmCentavos));
 
   /** Estoque por tamanho na cor escolhida (ou em qualquer cor, se nenhuma). */
   const estoquePorTamanho = new Map<string, number>();
@@ -50,10 +69,8 @@ export function DetalheProduto({
   }
 
   const variacao =
-    corId && tamanhoId
-      ? produto.variacoes.find(
-          (v) => v.corId === corId && v.tamanhoId === tamanhoId,
-        )
+    modeloId && corId && tamanhoId
+      ? doModelo.find((v) => v.corId === corId && v.tamanhoId === tamanhoId)
       : undefined;
 
   const precos = variacoesDaCor.map((v) => v.precoEmCentavos);
@@ -62,13 +79,11 @@ export function DetalheProduto({
 
   const esgotado = produto.variacoes.every((v) => v.estoque <= 0);
 
-  const imagensDaCor = corId
-    ? produto.imagens.filter((i) => i.corId === null || i.corId === corId)
-    : produto.imagens;
-  const imagens = imagensDaCor.length > 0 ? imagensDaCor : produto.imagens;
+  const imagens = fotosDaEscolha(produto.imagens, { modeloId, corId });
   const foto = imagens[Math.min(fotoAtiva, imagens.length - 1)];
 
   const nomeDaCor = produto.cores.find((c) => c.id === corId)?.nome;
+  const nomeDoModelo = produto.modelos.find((m) => m.id === modeloId)?.nome;
 
   // A quantidade nunca passa do estoque da variação escolhida.
   const quantidadeMaxima = Math.max(variacao?.estoque ?? 1, 1);
@@ -96,13 +111,33 @@ export function DetalheProduto({
     });
   }
 
+  function escolherModelo(id: string) {
+    setModeloId(id);
+    setResultado(null);
+    setFotoAtiva(0);
+    // Mantém a cor e o tamanho só se existirem no novo modelo.
+    const novasCores = coresDoModelo(id);
+    const cor = novasCores.some((c) => c.id === corId)
+      ? corId
+      : novasCores.length === 1
+        ? novasCores[0].id
+        : null;
+    setCorId(cor);
+    if (tamanhoId) {
+      const temNoModelo = variacoesDoModelo(id).some(
+        (v) => (!cor || v.corId === cor) && v.tamanhoId === tamanhoId && v.estoque > 0,
+      );
+      if (!temNoModelo) setTamanhoId(null);
+    }
+  }
+
   function escolherCor(id: string) {
     setCorId(id);
     setResultado(null);
     setFotoAtiva(0);
     // Mantém o tamanho só se ele tiver estoque na nova cor.
     if (tamanhoId) {
-      const temNaNovaCor = produto.variacoes.some(
+      const temNaNovaCor = doModelo.some(
         (v) => v.corId === id && v.tamanhoId === tamanhoId && v.estoque > 0,
       );
       if (!temNaNovaCor) setTamanhoId(null);
@@ -178,7 +213,41 @@ export function DetalheProduto({
           {formatarPreco(preco)}
         </p>
 
-        {produto.cores.length > 0 && (
+        {produto.modelos.length > 1 && (
+          <fieldset className="mt-8">
+            <legend className="sobretitulo">
+              Modelo
+              {nomeDoModelo && (
+                <span className="ml-2 font-semibold tracking-normal text-apoio normal-case">
+                  {nomeDoModelo}
+                </span>
+              )}
+            </legend>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {produto.modelos.map((modelo) => {
+                const ativo = modelo.id === modeloId;
+                return (
+                  <button
+                    key={modelo.id}
+                    type="button"
+                    onClick={() => escolherModelo(modelo.id)}
+                    aria-pressed={ativo}
+                    className={`flex min-h-14 flex-col items-start justify-center rounded-lg border px-4 py-2 text-left transition ${
+                      ativo ? "border-tinta bg-tinta text-papel" : "border-borda bg-papel hover:border-tinta"
+                    }`}
+                  >
+                    <span className="text-[14px] font-bold">{modelo.nome}</span>
+                    <span className={`text-[13px] ${ativo ? "" : "text-secundario"}`}>
+                      {formatarPreco(precoDoModelo(modelo.id))}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </fieldset>
+        )}
+
+        {cores.length > 0 && (
           <fieldset className="mt-8">
             <legend className="sobretitulo">
               Cor
@@ -189,7 +258,7 @@ export function DetalheProduto({
               )}
             </legend>
             <div className="mt-3 flex flex-wrap gap-2">
-              {produto.cores.map((cor) => {
+              {cores.map((cor) => {
                 const ativa = cor.id === corId;
                 return (
                   <button
@@ -215,7 +284,7 @@ export function DetalheProduto({
         <fieldset className="mt-8">
           <legend className="sobretitulo">Tamanho</legend>
           <div className="mt-3 flex flex-wrap gap-2">
-            {produto.tamanhos.map((tamanho) => {
+            {tamanhos.map((tamanho) => {
               const disponivel = (estoquePorTamanho.get(tamanho.id) ?? 0) > 0;
               const ativo = tamanho.id === tamanhoId;
               return (
@@ -249,7 +318,8 @@ export function DetalheProduto({
         <p role="status" className="mt-5 min-h-6 text-[15px] font-semibold">
           <Disponibilidade
             esgotado={esgotado}
-            precisaDeCor={!corId && produto.cores.length > 1}
+            precisaDeModelo={!modeloId}
+            precisaDeCor={!corId && cores.length > 1}
             estoque={variacao?.estoque}
             limite={limiteUltimasUnidades}
           />
@@ -307,6 +377,21 @@ export function DetalheProduto({
         </div>
 
         {children}
+
+        <details className="group mt-8 border-y border-borda">
+          <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-4 font-semibold [&::-webkit-details-marker]:hidden">
+            Tabela de medidas{nomeDoModelo && produto.modelos.length > 1 ? ` · ${nomeDoModelo}` : ""}
+            <ChevronDown
+              aria-hidden="true"
+              className="size-5 shrink-0 transition group-open:rotate-180"
+              strokeWidth={1.6}
+            />
+          </summary>
+          {/* Com o modelo escolhido, só a tabela dele. */}
+          <TabelaDeMedidas
+            modelos={modeloId ? produto.modelos.filter((m) => m.id === modeloId) : produto.modelos}
+          />
+        </details>
       </div>
     </div>
   );
@@ -314,16 +399,19 @@ export function DetalheProduto({
 
 function Disponibilidade({
   esgotado,
+  precisaDeModelo,
   precisaDeCor,
   estoque,
   limite,
 }: {
   esgotado: boolean;
+  precisaDeModelo: boolean;
   precisaDeCor: boolean;
   estoque: number | undefined;
   limite: number;
 }) {
   if (esgotado) return <span>Esgotado no momento.</span>;
+  if (precisaDeModelo) return <span className="text-apoio">Escolha um modelo.</span>;
   if (precisaDeCor) return <span className="text-apoio">Escolha uma cor.</span>;
   if (estoque === undefined)
     return <span className="text-apoio">Escolha um tamanho.</span>;

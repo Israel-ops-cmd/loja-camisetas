@@ -4,6 +4,7 @@ import type { Prisma } from "@/generated/prisma/client";
 import { ehCamisetaLisa } from "@/lib/estoque-regras";
 import { paraSlug } from "@/lib/formatacao";
 import { prisma } from "@/lib/prisma";
+import { precoDaVariacao } from "@/lib/produtos-regras";
 
 export const ordenacoes = {
   recentes: "Mais recentes",
@@ -16,6 +17,8 @@ export type Ordenacao = keyof typeof ordenacoes;
 export type FiltrosCatalogo = {
   /** Slug da categoria */
   categoria?: string;
+  /** Slug do modelo (tradicional, baby-look...) */
+  modelo?: string;
   /** Slug da cor (gerado a partir do nome) */
   cor?: string;
   /** Nome do tamanho (P, M, G, GG) */
@@ -39,6 +42,7 @@ export type ProdutoResumo = {
 export type OpcoesDeFiltro = {
   /** Todas as categorias, para aceitar links de categorias ainda vazias. */
   categorias: { slug: string; nome: string; totalDeProdutos: number }[];
+  modelos: { slug: string; nome: string }[];
   cores: { slug: string; nome: string; hex: string }[];
   tamanhos: string[];
 };
@@ -48,6 +52,7 @@ const selecaoResumo = {
   slug: true,
   nome: true,
   precoBaseEmCentavos: true,
+  precosDosModelos: { select: { modeloId: true, precoEmCentavos: true } },
   categoria: { select: { slug: true } },
   imagens: {
     orderBy: { ordem: "asc" },
@@ -60,6 +65,8 @@ const selecaoResumo = {
       estoque: true,
       pecaLisa: { select: { estoque: true } },
       precoEmCentavos: true,
+      modeloId: true,
+      modelo: { select: { slug: true } },
       cor: { select: { nome: true, hex: true } },
     },
   },
@@ -69,9 +76,11 @@ type ProdutoComVariacoes = Prisma.ProdutoGetPayload<{
   select: typeof selecaoResumo;
 }>;
 
-function resumir(produto: ProdutoComVariacoes): ProdutoResumo {
-  const precos = produto.variacoes.map(
-    (v) => v.precoEmCentavos ?? produto.precoBaseEmCentavos,
+/** Com `modelo` (filtro do catálogo), o preço considera só esse modelo. */
+function resumir(produto: ProdutoComVariacoes, modelo?: string): ProdutoResumo {
+  const doModelo = modelo ? produto.variacoes.filter((v) => v.modelo.slug === modelo) : [];
+  const precos = (doModelo.length > 0 ? doModelo : produto.variacoes).map((v) =>
+    precoDaVariacao(v, produto),
   );
   const menorPreco = precos.length
     ? Math.min(...precos)
@@ -103,7 +112,7 @@ export async function listarDestaques(limite = 4) {
     take: limite,
     select: selecaoResumo,
   });
-  return produtos.map(resumir);
+  return produtos.map((p) => resumir(p));
 }
 
 /** Outros produtos da mesma categoria, para "Você também pode gostar". */
@@ -118,7 +127,7 @@ export async function listarRelacionados(
     take: limite,
     select: selecaoResumo,
   });
-  return produtos.map(resumir);
+  return produtos.map((p) => resumir(p));
 }
 
 export async function listarProdutos(
@@ -131,6 +140,7 @@ export async function listarProdutos(
   // (peça pronta da arte ou peça lisa; nas camisetas lisas a variação fica em 0).
   const variacao: Prisma.VariacaoWhereInput = { ativo: true };
   if (nomeDaCor) variacao.cor = { nome: nomeDaCor };
+  if (filtros.modelo) variacao.modelo = { slug: filtros.modelo };
   if (filtros.tamanho) {
     variacao.tamanho = { nome: filtros.tamanho };
     variacao.OR = [{ estoque: { gt: 0 } }, { pecaLisa: { estoque: { gt: 0 } } }];
@@ -146,7 +156,7 @@ export async function listarProdutos(
     select: selecaoResumo,
   });
 
-  const resumos = produtos.map(resumir);
+  const resumos = produtos.map((p) => resumir(p, filtros.modelo));
 
   // O preço exibido depende das variações, então a ordenação por preço é feita
   // aqui. Com o catálogo de uma loja pequena, isso não pesa.
@@ -159,13 +169,13 @@ export async function listarProdutos(
   return resumos;
 }
 
-/** Cores e tamanhos só entram se levarem a algum produto. */
+/** Modelos, cores e tamanhos só entram se levarem a algum produto. */
 export async function listarOpcoesDeFiltro(): Promise<OpcoesDeFiltro> {
   const comProdutoAtivo = {
     variacoes: { some: { ativo: true, produto: { ativo: true } } },
   };
 
-  const [categorias, cores, tamanhos] = await Promise.all([
+  const [categorias, modelos, cores, tamanhos] = await Promise.all([
     prisma.categoria.findMany({
       orderBy: { ordem: "asc" },
       select: {
@@ -173,6 +183,11 @@ export async function listarOpcoesDeFiltro(): Promise<OpcoesDeFiltro> {
         nome: true,
         _count: { select: { produtos: { where: { ativo: true } } } },
       },
+    }),
+    prisma.modelo.findMany({
+      where: comProdutoAtivo,
+      orderBy: { ordem: "asc" },
+      select: { slug: true, nome: true },
     }),
     prisma.cor.findMany({
       where: comProdutoAtivo,
@@ -191,6 +206,7 @@ export async function listarOpcoesDeFiltro(): Promise<OpcoesDeFiltro> {
       ...categoria,
       totalDeProdutos: _count.produtos,
     })),
+    modelos,
     cores: cores.map((cor) => ({ ...cor, slug: paraSlug(cor.nome) })),
     tamanhos: tamanhos.map((t) => t.nome),
   };
@@ -208,6 +224,7 @@ export function lerFiltros(
   opcoes: OpcoesDeFiltro,
 ): FiltrosCatalogo {
   const categoria = primeiro(parametros.categoria);
+  const modelo = primeiro(parametros.modelo);
   const cor = primeiro(parametros.cor);
   const tamanho = primeiro(parametros.tamanho)?.toUpperCase();
   const ordem = primeiro(parametros.ordem);
@@ -216,6 +233,7 @@ export function lerFiltros(
     categoria: opcoes.categorias.some((c) => c.slug === categoria)
       ? categoria
       : undefined,
+    modelo: opcoes.modelos.some((m) => m.slug === modelo) ? modelo : undefined,
     cor: opcoes.cores.some((c) => c.slug === cor) ? cor : undefined,
     tamanho:
       tamanho && opcoes.tamanhos.includes(tamanho) ? tamanho : undefined,

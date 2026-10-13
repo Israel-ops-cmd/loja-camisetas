@@ -15,14 +15,33 @@ import { Aviso } from "@/components/formulario/Aviso";
 import { EnvioDeArquivos, type ArquivoEnviado } from "@/components/personalizacao/EnvioDeArquivos";
 import { ENQUADRAMENTOS, FORMATOS_DE_FOTO, PASTA_DE_FOTOS, TAMANHO_MAXIMO_DA_FOTO } from "@/lib/produtos-regras";
 
-type Foto = { id: string; url: string; alt: string; corId: string | null; enquadramento: string | null };
+type Foto = {
+  id: string;
+  url: string;
+  alt: string;
+  corId: string | null;
+  modeloId: string | null;
+  enquadramento: string | null;
+};
 type Cor = { id: string; nome: string };
+type Modelo = { id: string; nome: string };
 type Mensagem = { tipo: "erro" | "sucesso"; texto: string } | null;
 
 const classeSelecao =
   "mt-1 h-12 w-full rounded-xl border border-borda bg-papel px-3 text-[16px] outline-none focus:border-tinta";
 
-export function FotosDoProduto({ produtoId, fotos, cores }: { produtoId: string; fotos: Foto[]; cores: Cor[] }) {
+export function FotosDoProduto({
+  produtoId,
+  fotos,
+  cores,
+  modelos,
+}: {
+  produtoId: string;
+  fotos: Foto[];
+  cores: Cor[];
+  /** Modelos que o produto vende (com mais de um, a foto pode ser de um só). */
+  modelos: Modelo[];
+}) {
   const [mensagem, setMensagem] = useState<Mensagem>(null);
   const [gravando, iniciar] = useTransition();
 
@@ -71,6 +90,7 @@ export function FotosDoProduto({ produtoId, fotos, cores }: { produtoId: string;
               posicao={i}
               total={fotos.length}
               cores={cores}
+              modelos={modelos}
             />
           ))}
         </ol>
@@ -79,15 +99,32 @@ export function FotosDoProduto({ produtoId, fotos, cores }: { produtoId: string;
   );
 }
 
-function FotoNoPainel({ foto, posicao, total, cores }: { foto: Foto; posicao: number; total: number; cores: Cor[] }) {
+function FotoNoPainel({
+  foto,
+  posicao,
+  total,
+  cores,
+  modelos,
+}: {
+  foto: Foto;
+  posicao: number;
+  total: number;
+  cores: Cor[];
+  modelos: Modelo[];
+}) {
   const [alt, setAlt] = useState(foto.alt);
   const [corId, setCorId] = useState(foto.corId ?? "");
+  const [modeloId, setModeloId] = useState(foto.modeloId ?? "");
   const [enquadramento, setEnquadramento] = useState(foto.enquadramento ?? "");
   const [confirmarRemocao, setConfirmarRemocao] = useState(false);
   const [mensagem, setMensagem] = useState<Mensagem>(null);
   const [ocupado, iniciar] = useTransition();
 
-  const mudou = alt !== foto.alt || corId !== (foto.corId ?? "") || enquadramento !== (foto.enquadramento ?? "");
+  const mudou =
+    alt !== foto.alt ||
+    corId !== (foto.corId ?? "") ||
+    modeloId !== (foto.modeloId ?? "") ||
+    enquadramento !== (foto.enquadramento ?? "");
   // Enquadramento antigo, fora das opções (fotos de exemplo): continua na lista.
   const opcoes = ENQUADRAMENTOS.some((e) => e.valor === (foto.enquadramento ?? ""))
     ? ENQUADRAMENTOS
@@ -132,6 +169,19 @@ function FotoNoPainel({ foto, posicao, total, cores }: { foto: Foto; posicao: nu
               O que aparece na foto. Ex.: Camiseta preta dobrada, estampa na frente.
             </span>
           </label>
+          {(modelos.length > 1 || foto.modeloId) && (
+            <label className="block">
+              <span className="block text-[14px] font-semibold">Mostrar quando o cliente escolher o modelo</span>
+              <select value={modeloId} onChange={(e) => setModeloId(e.target.value)} className={classeSelecao}>
+                <option value="">Qualquer modelo</option>
+                {modelos.map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.nome}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
           <label className="block">
             <span className="block text-[14px] font-semibold">Mostrar quando o cliente escolher a cor</span>
             <select value={corId} onChange={(e) => setCorId(e.target.value)} className={classeSelecao}>
@@ -164,7 +214,7 @@ function FotoNoPainel({ foto, posicao, total, cores }: { foto: Foto; posicao: nu
               <button
                 type="button"
                 disabled={ocupado}
-                onClick={() => executar(() => atualizarFoto(foto.id, { alt, corId: corId || null, enquadramento }))}
+                onClick={() => executar(() => atualizarFoto(foto.id, { alt, corId: corId || null, modeloId: modeloId || null, enquadramento }))}
                 className="inline-flex min-h-12 items-center rounded-full bg-tinta px-6 text-[15px] font-bold text-papel hover:bg-painel"
               >
                 Salvar foto

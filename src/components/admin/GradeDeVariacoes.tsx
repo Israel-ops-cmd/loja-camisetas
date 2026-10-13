@@ -7,11 +7,21 @@ import { useState, useTransition } from "react";
 import { salvarVariacoes } from "@/app/admin/produtos/acoes";
 import { Aviso } from "@/components/formulario/Aviso";
 import { classesBotao } from "@/components/ui/Botao";
-import { centavosParaTexto, formatarPreco } from "@/lib/formatacao";
+import { centavosParaTexto, formatarPreco, lerPrecoEmCentavos } from "@/lib/formatacao";
 
 type Cor = { id: string; nome: string; hex: string };
 type Tamanho = { id: string; nome: string };
-type Modelo = { id: string; nome: string; ativo: boolean; cores: Cor[]; tamanhos: Tamanho[] };
+type Modelo = {
+  id: string;
+  nome: string;
+  ativo: boolean;
+  cores: Cor[];
+  tamanhos: Tamanho[];
+  /** Preço do modelo neste produto (nulo: ainda sem preço). */
+  preco: number | null;
+  /** Preço de referência do modelo (cadastrado em Modelos). */
+  precoSugerido: number | null;
+};
 type Variacao = {
   modeloId: string;
   corId: string;
@@ -40,6 +50,16 @@ export function GradeDeVariacoes({
   const salvas = new Map(variacoes.map((v) => [chave(v.modeloId, v.corId, v.tamanhoId), v]));
   // Só guarda o que mudou; o resto vem do banco.
   const [mudancas, setMudancas] = useState<Record<string, Escolha>>({});
+  // Preço de cada modelo: o salvo ou, sem ele, o de referência do modelo.
+  const [precos, setPrecos] = useState<Record<string, string>>(() =>
+    Object.fromEntries(
+      modelos.map((m) => {
+        const valor = m.preco ?? m.precoSugerido;
+        return [m.id, valor ? centavosParaTexto(valor) : ""];
+      }),
+    ),
+  );
+  const [precosMudaram, setPrecosMudaram] = useState(false);
   const [resultado, setResultado] = useState<{ tipo: "erro" | "sucesso"; texto: string } | null>(null);
   const [salvando, iniciar] = useTransition();
 
@@ -54,6 +74,11 @@ export function GradeDeVariacoes({
     setMudancas((m) => ({ ...m, [k]: { ...escolha(k), ...parcial } }));
   }
 
+  /** Preço que vale para o modelo agora (o digitado ou, vazio, o padrão do produto). */
+  function precoDoModelo(modeloId: string) {
+    return lerPrecoEmCentavos(precos[modeloId] ?? "") ?? precoBase;
+  }
+
   function salvar() {
     const chaves = new Set([...salvas.keys(), ...Object.keys(mudancas)]);
     const combinacoes = [...chaves].map((k) => {
@@ -61,10 +86,14 @@ export function GradeDeVariacoes({
       const e = escolha(k);
       return { modeloId, corId, tamanhoId, aVenda: e.aVenda, precoProprio: e.preco };
     });
+    // Preço só dos modelos com algo à venda.
+    const vendidos = new Set(combinacoes.filter((c) => c.aVenda).map((c) => c.modeloId));
+    const precosDosModelos = [...vendidos].map((modeloId) => ({ modeloId, preco: precos[modeloId] ?? "" }));
     iniciar(async () => {
-      const r = await salvarVariacoes(produtoId, { combinacoes });
+      const r = await salvarVariacoes(produtoId, { combinacoes, precosDosModelos });
       if (r.ok) {
         setMudancas({});
+        setPrecosMudaram(false);
         setResultado({ tipo: "sucesso", texto: r.mensagem ?? "Salvo." });
       } else {
         setResultado({ tipo: "erro", texto: r.erro });
@@ -72,7 +101,7 @@ export function GradeDeVariacoes({
     });
   }
 
-  const temMudancas = Object.keys(mudancas).length > 0;
+  const temMudancas = Object.keys(mudancas).length > 0 || precosMudaram;
 
   return (
     <div className="space-y-4">
@@ -90,11 +119,33 @@ export function GradeDeVariacoes({
             <summary className="flex min-h-14 cursor-pointer items-center gap-3 px-4 text-[17px] font-semibold">
               {modelo.nome}
               {!modelo.ativo && <span className="text-[13px] font-normal text-secundario">(modelo desligado)</span>}
-              <span className="ml-auto text-[14px] font-normal text-secundario">
-                {doModelo === 0 ? "não vende" : doModelo === 1 ? "1 combinação" : `${doModelo} combinações`}
+              <span className="ml-auto text-right text-[14px] font-normal text-secundario">
+                {doModelo === 0
+                  ? "não vende"
+                  : `${doModelo === 1 ? "1 combinação" : `${doModelo} combinações`} · ${formatarPreco(precoDoModelo(modelo.id))}`}
               </span>
             </summary>
             <div className="space-y-3 border-t border-borda p-4">
+              <label className="block">
+                <span className="block text-[15px] font-semibold">Preço neste modelo (R$)</span>
+                <input
+                  inputMode="decimal"
+                  value={precos[modelo.id] ?? ""}
+                  placeholder={centavosParaTexto(precoBase)}
+                  onChange={(ev) => {
+                    setResultado(null);
+                    setPrecosMudaram(true);
+                    setPrecos((p) => ({ ...p, [modelo.id]: ev.target.value }));
+                  }}
+                  className="mt-1 h-12 w-full max-w-48 rounded-xl border border-borda bg-papel px-3 text-[16px] outline-none focus:border-tinta"
+                />
+                <span className="mt-1 block text-[13px] text-secundario">
+                  {modelo.precoSugerido
+                    ? `Referência do modelo: ${formatarPreco(modelo.precoSugerido)}. `
+                    : ""}
+                  Em branco, vale o preço padrão do produto ({formatarPreco(precoBase)}).
+                </span>
+              </label>
               {modelo.cores.length === 0 || modelo.tamanhos.length === 0 ? (
                 <p className="text-[15px] text-apoio">
                   Este modelo ainda não tem cores e tamanhos.{" "}
@@ -108,7 +159,7 @@ export function GradeDeVariacoes({
                     key={cor.id}
                     modelo={modelo}
                     cor={cor}
-                    precoBase={precoBase}
+                    precoBase={precoDoModelo(modelo.id)}
                     escolha={escolha}
                     mudar={mudar}
                     estoque={(k) => salvas.get(k)?.disponivel}
@@ -130,7 +181,7 @@ export function GradeDeVariacoes({
 
       {resultado && <Aviso tipo={resultado.tipo}>{resultado.texto}</Aviso>}
       {temMudancas && !resultado && (
-        <p className="text-[14px] font-semibold">Você mudou cores ou tamanhos. Toque em salvar para valer na loja.</p>
+        <p className="text-[14px] font-semibold">Você mudou preços, cores ou tamanhos. Toque em salvar para valer na loja.</p>
       )}
       <button
         type="button"
@@ -138,7 +189,7 @@ export function GradeDeVariacoes({
         disabled={salvando}
         className={`${classesBotao("secundario")} w-full sm:w-auto`}
       >
-        {salvando ? "Salvando…" : "Salvar cores e tamanhos"}
+        {salvando ? "Salvando…" : "Salvar preços, cores e tamanhos"}
       </button>
     </div>
   );
@@ -205,7 +256,7 @@ function GradeDaCor({
           <summary className="flex min-h-11 cursor-pointer items-center text-[14px] font-semibold">
             Algum tamanho com preço diferente?
           </summary>
-          <p className="text-[13px] text-secundario">Em branco, vale o preço do produto ({formatarPreco(precoBase)}).</p>
+          <p className="text-[13px] text-secundario">Em branco, vale o preço do modelo ({formatarPreco(precoBase)}).</p>
           <div className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-4">
             {marcados.map((t) => (
               <label key={t.id} className="block">

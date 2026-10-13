@@ -2,6 +2,7 @@ import "server-only";
 
 import { Prisma } from "@/generated/prisma/client";
 import { ehCamisetaLisa, STATUS_ESPERANDO_ENVIO } from "@/lib/estoque-regras";
+import { detalheDoItem } from "@/lib/pedidos";
 import { prisma } from "@/lib/prisma";
 
 type Transacao = Prisma.TransactionClient;
@@ -73,6 +74,7 @@ async function itensDoPedido(tx: Transacao, pedidoId: string) {
       estampar: true,
       estampadoEm: true,
       nomeProduto: true,
+      nomeModelo: true,
       nomeCor: true,
       nomeTamanho: true,
       variacaoId: true,
@@ -160,7 +162,7 @@ export async function baixarEstoqueDoPedido(tx: Transacao, pedidoId: string, obs
     const pecaLisaId = item.variacao.pecaLisa.id;
     const lisasAntes = Math.max(estoqueDaLisa.get(pecaLisaId)! + (porLisa.get(pecaLisaId) ?? 0), 0);
     if (daLisa > lisasAntes) {
-      faltas.push(`${item.nomeProduto} (${item.nomeCor}, ${item.nomeTamanho}): faltam ${daLisa - lisasAntes}`);
+      faltas.push(`${item.nomeProduto} (${detalheDoItem(item)}): faltam ${daLisa - lisasAntes}`);
     }
 
     somar(porVariacao, item.variacaoId, -prontas);

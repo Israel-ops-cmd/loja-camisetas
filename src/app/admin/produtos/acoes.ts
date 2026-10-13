@@ -122,6 +122,11 @@ const esquemaGrade = z.object({
       }),
     )
     .max(2000),
+  /** Preço de cada modelo com algo à venda. Vazio = usa o preço padrão do produto. */
+  precosDosModelos: z
+    .array(z.object({ modeloId: z.uuid(), preco: z.string().max(20) }))
+    .max(50)
+    .default([]),
 });
 
 /**
@@ -140,9 +145,9 @@ export async function salvarVariacoes(produtoId: unknown, dados: unknown): Promi
   const produto = await prisma.produto.findUnique({ where: { id: produtoId }, select: { slug: true } });
   if (!produto) return { ok: false, erro: "Produto não encontrado." };
 
-  const combinacoes = validacao.data.combinacoes;
+  const { combinacoes, precosDosModelos } = validacao.data;
   const modelos = await prisma.modelo.findMany({
-    where: { id: { in: combinacoes.map((c) => c.modeloId) } },
+    where: { id: { in: [...combinacoes.map((c) => c.modeloId), ...precosDosModelos.map((p) => p.modeloId)] } },
     select: {
       id: true,
       nome: true,
@@ -188,7 +193,31 @@ export async function salvarVariacoes(produtoId: unknown, dados: unknown): Promi
     precos.set(chaveDe(c), centavos);
   }
 
+  const precoDoModelo = new Map<string, number | null>();
+  for (const p of precosDosModelos) {
+    const modelo = porModelo.get(p.modeloId);
+    if (!modelo) return { ok: false, erro: "Algum modelo não existe mais. Recarregue a página." };
+    const texto = p.preco.trim();
+    const centavos = texto ? lerPrecoEmCentavos(texto) : null;
+    if (texto && (centavos === null || centavos <= 0)) {
+      return { ok: false, erro: `Confira o preço do modelo ${modelo.nome}. Use, por exemplo, 49,90, ou deixe em branco.` };
+    }
+    precoDoModelo.set(p.modeloId, centavos);
+  }
+
   await prisma.$transaction(async (tx) => {
+    for (const [modeloId, precoEmCentavos] of precoDoModelo) {
+      const chave = { produtoId_modeloId: { produtoId, modeloId } };
+      if (precoEmCentavos === null) {
+        await tx.precoDoModelo.deleteMany({ where: { produtoId, modeloId } });
+      } else {
+        await tx.precoDoModelo.upsert({
+          where: chave,
+          update: { precoEmCentavos },
+          create: { produtoId, modeloId, precoEmCentavos },
+        });
+      }
+    }
     for (const c of combinacoes) {
       const chave = { produtoId, modeloId: c.modeloId, corId: c.corId, tamanhoId: c.tamanhoId };
       const precoEmCentavos = precos.get(chaveDe(c)) ?? null;
@@ -213,7 +242,7 @@ export async function salvarVariacoes(produtoId: unknown, dados: unknown): Promi
 
   atualizarPaginasDoCatalogo(produto.slug);
   refresh();
-  return { ok: true, mensagem: "Cores e tamanhos salvos." };
+  return { ok: true, mensagem: "Preços, cores e tamanhos salvos." };
 }
 
 export async function criarCor(dados: unknown): Promise<Resultado> {
@@ -336,11 +365,12 @@ export async function atualizarFoto(fotoId: unknown, dados: unknown): Promise<Re
     .object({
       alt: z.string().trim().min(3, "Descreva a foto em poucas palavras (ajuda quem não enxerga e o Google).").max(200, "Descrição longa demais."),
       corId: z.uuid().nullable(),
+      modeloId: z.uuid().nullable(),
       enquadramento: z.string().max(20),
     })
     .safeParse(dados);
   if (!validacao.success) return { ok: false, erro: validacao.error.issues[0].message };
-  const { alt, corId, enquadramento } = validacao.data;
+  const { alt, corId, modeloId, enquadramento } = validacao.data;
 
   const enquadramentoValido =
     ENQUADRAMENTOS.some((e) => e.valor === enquadramento) || enquadramento === (foto.enquadramento ?? "");
@@ -348,10 +378,13 @@ export async function atualizarFoto(fotoId: unknown, dados: unknown): Promise<Re
   if (corId && !(await prisma.cor.findUnique({ where: { id: corId } }))) {
     return { ok: false, erro: "Essa cor não existe mais. Recarregue a página." };
   }
+  if (modeloId && !(await prisma.modelo.findUnique({ where: { id: modeloId } }))) {
+    return { ok: false, erro: "Esse modelo não existe mais. Recarregue a página." };
+  }
 
   await prisma.produtoImagem.update({
     where: { id: foto.id },
-    data: { alt, corId, enquadramento: enquadramento || null },
+    data: { alt, corId, modeloId, enquadramento: enquadramento || null },
   });
   atualizarPaginasDoCatalogo(foto.produto.slug);
   refresh();

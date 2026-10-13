@@ -80,7 +80,7 @@ export default async function PaginaCheckout() {
           itens={carrinho.itens.map((item) => ({
             variacaoId: item.variacaoId,
             nome: item.produto.nome,
-            detalhe: `${item.cor.nome} · ${item.tamanho}`,
+            detalhe: `${item.modelo} · ${item.cor.nome} · ${item.tamanho}`,
             quantidade: item.quantidade,
             subtotalEmCentavos: item.subtotalEmCentavos,
           }))}

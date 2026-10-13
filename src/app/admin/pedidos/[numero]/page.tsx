@@ -195,7 +195,7 @@ export default async function PaginaAdminPedido({ params }: PageProps<"/admin/pe
                       {item.quantidade}× {item.nomeProduto}
                     </span>
                     <span className="block text-[15px]">
-                      {item.variacao.modelo.nome} · {item.nomeCor} · Tamanho <strong>{item.nomeTamanho}</strong>
+                      {item.nomeModelo ?? item.variacao.modelo.nome} · {item.nomeCor} · Tamanho <strong>{item.nomeTamanho}</strong>
                     </span>
                     <OrigemDasPecas item={item} />
                     <span className="block text-[12px] text-secundario">{item.sku}</span>

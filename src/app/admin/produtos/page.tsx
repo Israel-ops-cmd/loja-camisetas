@@ -7,6 +7,7 @@ import { exigirAdministrador } from "@/lib/auth";
 import { ehCamisetaLisa } from "@/lib/estoque-regras";
 import { formatarPreco } from "@/lib/formatacao";
 import { prisma } from "@/lib/prisma";
+import { precoDaVariacao } from "@/lib/produtos-regras";
 
 export default async function PaginaAdminProdutos() {
   await exigirAdministrador();
@@ -19,9 +20,13 @@ export default async function PaginaAdminProdutos() {
       ativo: true,
       destaque: true,
       precoBaseEmCentavos: true,
+      precosDosModelos: { select: { modeloId: true, precoEmCentavos: true } },
       categoria: { select: { nome: true, slug: true } },
       imagens: { orderBy: { ordem: "asc" }, take: 1, select: { url: true, enquadramento: true } },
-      variacoes: { where: { ativo: true }, select: { estoque: true, pecaLisa: { select: { estoque: true } } } },
+      variacoes: {
+        where: { ativo: true },
+        select: { estoque: true, modeloId: true, precoEmCentavos: true, pecaLisa: { select: { estoque: true } } },
+      },
     },
   });
 
@@ -71,7 +76,7 @@ export default async function PaginaAdminProdutos() {
                     <span className="min-w-0 flex-1">
                       <span className="block font-semibold">{p.nome}</span>
                       <span className="block text-[14px] text-secundario">
-                        {p.categoria.nome} · {formatarPreco(p.precoBaseEmCentavos)}
+                        {p.categoria.nome} · {precoDaLista(p)}
                         {p.destaque && " · destaque"}
                       </span>
                       {avisos.length > 0 && (
@@ -92,4 +97,12 @@ export default async function PaginaAdminProdutos() {
       </div>
     </div>
   );
+}
+
+/** Menor preço à venda ("a partir de" quando os preços variam). */
+function precoDaLista(p: Parameters<typeof precoDaVariacao>[1] & { variacoes: Parameters<typeof precoDaVariacao>[0][] }) {
+  if (p.variacoes.length === 0) return formatarPreco(p.precoBaseEmCentavos);
+  const precos = p.variacoes.map((v) => precoDaVariacao(v, p));
+  const menor = Math.min(...precos);
+  return new Set(precos).size > 1 ? `a partir de ${formatarPreco(menor)}` : formatarPreco(menor);
 }

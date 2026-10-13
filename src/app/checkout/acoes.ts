@@ -86,6 +86,7 @@ export async function finalizarPedido(
       quantidade: item.quantidade,
       precoUnitarioEmCentavos: item.precoUnitarioEmCentavos,
       nomeProduto: item.produto.nome,
+      nomeModelo: item.modelo,
       nomeCor: item.cor.nome,
       nomeTamanho: item.tamanho,
       sku: item.sku,

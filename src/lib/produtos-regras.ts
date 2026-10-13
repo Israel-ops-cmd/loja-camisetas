@@ -29,7 +29,7 @@ export const LIMITES_DA_MEDIDA_CM = { minimo: 1, maximo: 300 };
 /** "11,5" ou "11.5" → 115 (milímetros). Nulo se não for uma medida válida. */
 export function lerMedidaEmMm(texto: string) {
   const limpo = texto.trim().replace(",", ".");
-  if (!/^d{1,3}(.d)?$/.test(limpo)) return null;
+  if (!/^\d{1,3}(\.\d)?$/.test(limpo)) return null;
   const mm = Math.round(Number(limpo) * 10);
   return mm >= LIMITES_DA_MEDIDA_CM.minimo * 10 && mm <= LIMITES_DA_MEDIDA_CM.maximo * 10 ? mm : null;
 }
@@ -49,4 +49,35 @@ export function gerarSku(slugDoProduto: string, nomeDoModelo: string, nomeDaCor:
       .replace(/[^A-Z0-9]+/g, "-")
       .replace(/^-|-$/g, "");
   return `CV-${limpar(slugDoProduto)}-${limpar(nomeDoModelo)}-${limpar(nomeDaCor)}-${limpar(nomeDoTamanho)}`;
+}
+
+/**
+ * Preço de uma variação: o próprio do tamanho, senão o do modelo neste
+ * produto, senão o preço base do produto (reserva).
+ */
+export function precoDaVariacao(
+  variacao: { modeloId: string; precoEmCentavos: number | null },
+  produto: { precoBaseEmCentavos: number; precosDosModelos: { modeloId: string; precoEmCentavos: number }[] },
+) {
+  return (
+    variacao.precoEmCentavos ??
+    produto.precosDosModelos.find((p) => p.modeloId === variacao.modeloId)?.precoEmCentavos ??
+    produto.precoBaseEmCentavos
+  );
+}
+
+/**
+ * Fotos que valem para a escolha (modelo e cor), as mais específicas primeiro
+ * e, entre iguais, na ordem do cadastro. Foto sem modelo ou sem cor vale para
+ * todos. Sem nenhuma que sirva, devolve todas.
+ */
+export function fotosDaEscolha<T extends { modeloId: string | null; corId: string | null }>(
+  imagens: T[],
+  escolha: { modeloId?: string | null; corId?: string | null },
+): T[] {
+  const serve = (valor: string | null, escolhido?: string | null) => !valor || !escolhido || valor === escolhido;
+  const servem = imagens.filter((i) => serve(i.modeloId, escolha.modeloId) && serve(i.corId, escolha.corId));
+  const pontos = (i: T) =>
+    (i.modeloId && i.modeloId === escolha.modeloId ? 2 : 0) + (i.corId && i.corId === escolha.corId ? 1 : 0);
+  return [...(servem.length > 0 ? servem : imagens)].sort((a, b) => pontos(b) - pontos(a));
 }

@@ -33,11 +33,11 @@ export function Personalizacao() {
 
           <div className="relative aspect-[3/2] overflow-hidden rounded-[20px] bg-painel">
             <Image
-              src="/fotos/nao-temas-creia-dobrada.jpg"
-              alt="Camiseta azul-marinho dobrada, frente e costas lado a lado: estampa pequena no peito e estampa grande nas costas"
+              src="/fotos/personalizacao-pilates-casal.jpg"
+              alt="Casal na praia vestindo camisetas cinza personalizadas com a arte de um estúdio de pilates"
               fill
               sizes="(min-width: 1280px) 600px, (min-width: 1024px) 45vw, 100vw"
-              className="object-cover"
+              className="object-cover object-[50%_15%]"
             />
           </div>
         </div>

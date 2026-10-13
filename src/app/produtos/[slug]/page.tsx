@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 
 import { DetalheProduto } from "@/components/produto/DetalheProduto";
 import { ProdutoCartao } from "@/components/produto/ProdutoCartao";
-import { TabelaDeMedidas } from "@/components/produto/TabelaDeMedidas";
 import { listarFaixasDeAtacado } from "@/lib/atacado";
 import { listarRelacionados } from "@/lib/catalogo";
 import { DadosEstruturados } from "@/components/seo/DadosEstruturados";
@@ -159,17 +158,6 @@ export default async function PaginaProduto({
               </div>
             )}
 
-            <details className="group mt-8 border-y border-borda">
-              <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-4 font-semibold [&::-webkit-details-marker]:hidden">
-                Tabela de medidas
-                <ChevronDown
-                  aria-hidden="true"
-                  className="size-5 shrink-0 transition group-open:rotate-180"
-                  strokeWidth={1.6}
-                />
-              </summary>
-              <TabelaDeMedidas modelos={produto.modelos} />
-            </details>
           </DetalheProduto>
         </div>
       </div>

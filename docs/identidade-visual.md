@@ -97,6 +97,7 @@ As fotos ficam em `public/fotos/`. A pasta `public/hero/` é de uma versão ante
 |---|---|---|
 | `nao-temas-creia-casal.jpg` | Casal com a camiseta azul-marinho "Não temas, creia": frente (estampa pequena no peito) e costas (estampa grande) | 6:5, horizontal |
 | `nao-temas-creia-dobrada.jpg` | A mesma camiseta dobrada sobre madeira, frente e costas lado a lado | 3:2, horizontal |
+| `personalizacao-pilates-casal.jpg` | Trabalho real de personalização: casal na praia com camisetas cinza com a arte de um estúdio de pilates | 4:5, vertical |
 | `nao-me-envergonho-casal.jpg` | Casal com a camiseta branca "Não me envergonho do evangelho": frente (Romanos 1:16) e costas (estampa grande) | quase quadrada |
 | `jesus-my-best-friend.jpg` | Mulher com a camiseta preta "Jesus, my best friend", de frente | 3:4, vertical |
 | `o-justo-vive-pela-fe.jpg` | Costas da camiseta clara "O justo vive pela fé" | 3:4, vertical |
@@ -106,9 +107,10 @@ Onde cada foto entra na página inicial:
 - **Hero:** `nao-temas-creia-casal.jpg` (principal) e `jesus-my-best-friend.jpg` (secundária).
 - **Cartão de categoria "Estampas da casa":** `nao-me-envergonho-casal.jpg` como fundo, com `object-position: 88% 40%` para enquadrar a estampa das costas, e um degradê escuro só na base, atrás do rótulo.
 - **Grade de produtos:** uma foto por produto, em recorte quadrado: `nao-temas-creia-casal.jpg`, `nao-me-envergonho-casal.jpg`, `jesus-my-best-friend.jpg` (`object-position: 50% 45%`) e `o-justo-vive-pela-fe.jpg` (`object-position: 50% 42%`). A foto ocupa o cartão inteiro, sem margem interna, com a etiqueta preta sobre o canto superior esquerdo.
-- **Seção Personalização:** `nao-temas-creia-dobrada.jpg` ao lado do título, em cartão 3:2 com cantos de 20px. Ela mostra as duas posições de estampa: pequena no peito e grande nas costas.
+- **Cartão de categoria "Personalizadas":** `personalizacao-pilates-casal.jpg` (trabalho real da loja, 4:5) como fundo, com `object-position: 50% 30%`.
+- **Seção Personalização:** `personalizacao-pilates-casal.jpg` ao lado do título, em cartão 3:2 com cantos de 20px e `object-position: 50% 15%`, para mostrar os rostos e a arte no peito. Texto alternativo: "Casal na praia vestindo camisetas cinza personalizadas com a arte de um estúdio de pilates". Sem depoimento e sem nome do cliente.
 
-Os cartões de categoria "Básicas", "Personalizadas" e "Atacado" continuam com o marcador `[FOTO DA CATEGORIA]` até haver fotos próprias.
+Os cartões de categoria "Básicas" e "Atacado" continuam com o marcador `[FOTO DA CATEGORIA]` até haver fotos próprias.
 
 ## Composição do hero
 

@@ -86,6 +86,7 @@ export type ItemParaPedido = {
   quantidade: number;
   precoUnitarioEmCentavos: number;
   nomeProduto: string;
+  nomeModelo: string;
   nomeCor: string;
   nomeTamanho: string;
   sku: string;

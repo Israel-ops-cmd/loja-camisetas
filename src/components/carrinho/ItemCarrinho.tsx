@@ -97,7 +97,7 @@ export function ItemCarrinho({ item }: { item: ItemDoCarrinho }) {
                 className="size-3.5 rounded border border-borda"
                 style={{ backgroundColor: item.cor.hex }}
               />
-              {item.cor.nome} · Tamanho {item.tamanho}
+              {item.modelo} · {item.cor.nome} · Tamanho {item.tamanho}
             </p>
             <p className="mt-1 text-[14px] text-secundario">
               {formatarPreco(item.precoUnitarioEmCentavos)} cada

@@ -46,6 +46,30 @@ export function Filtros({ filtros, opcoes }: FiltrosProps) {
         </Grupo>
       )}
 
+      {/* Com um modelo só, o filtro não ajuda. */}
+      {(opcoes.modelos.length > 1 || filtros.modelo) && (
+        <Grupo titulo="Modelo">
+          <ul>
+            {opcoes.modelos.map((modelo) => {
+              const ativo = modelo.slug === filtros.modelo;
+              return (
+                <li key={modelo.slug}>
+                  <OpcaoLink
+                    href={hrefCatalogo(filtros, {
+                      modelo: ativo ? undefined : modelo.slug,
+                    })}
+                    ativo={ativo}
+                    className="flex min-h-11 items-center"
+                  >
+                    {modelo.nome}
+                  </OpcaoLink>
+                </li>
+              );
+            })}
+          </ul>
+        </Grupo>
+      )}
+
       {opcoes.cores.length > 0 && (
         <Grupo titulo="Cor">
           <ul>
