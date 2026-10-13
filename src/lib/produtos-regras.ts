@@ -23,8 +23,24 @@ export const LIMITES_DO_PACOTE = {
   centimetros: { minimo: 1, maximo: 200 },
 };
 
-/** Código da variação: "CV-CAMISETA-LISA-PRETA-M". */
-export function gerarSku(slugDoProduto: string, nomeDaCor: string, nomeDoTamanho: string) {
+/** Medidas da peça (tabela de medidas), em centímetros com até uma casa. */
+export const LIMITES_DA_MEDIDA_CM = { minimo: 1, maximo: 300 };
+
+/** "11,5" ou "11.5" → 115 (milímetros). Nulo se não for uma medida válida. */
+export function lerMedidaEmMm(texto: string) {
+  const limpo = texto.trim().replace(",", ".");
+  if (!/^d{1,3}(.d)?$/.test(limpo)) return null;
+  const mm = Math.round(Number(limpo) * 10);
+  return mm >= LIMITES_DA_MEDIDA_CM.minimo * 10 && mm <= LIMITES_DA_MEDIDA_CM.maximo * 10 ? mm : null;
+}
+
+/** 115 → "11,5"; 160 → "16". */
+export function mmParaTexto(mm: number) {
+  return (mm % 10 === 0 ? String(mm / 10) : (mm / 10).toFixed(1)).replace(".", ",");
+}
+
+/** Código da variação: "CV-NAO-TEMAS-CREIA-TRADICIONAL-PRETA-M". */
+export function gerarSku(slugDoProduto: string, nomeDoModelo: string, nomeDaCor: string, nomeDoTamanho: string) {
   const limpar = (t: string) =>
     t
       .normalize("NFD")
@@ -32,5 +48,5 @@ export function gerarSku(slugDoProduto: string, nomeDaCor: string, nomeDoTamanho
       .toUpperCase()
       .replace(/[^A-Z0-9]+/g, "-")
       .replace(/^-|-$/g, "");
-  return `CV-${limpar(slugDoProduto)}-${limpar(nomeDaCor)}-${limpar(nomeDoTamanho)}`;
+  return `CV-${limpar(slugDoProduto)}-${limpar(nomeDoModelo)}-${limpar(nomeDaCor)}-${limpar(nomeDoTamanho)}`;
 }

@@ -5,7 +5,7 @@ Passos para pôr o site no ar em **https://lojacartaviva.com.br**, na ordem. Cad
 ## 1. Antes de tudo: conteúdo e decisões
 
 - [ ] `npm run conferir-marcadores` sem nada pendente. Ele lista:
-  - marcadores no código: tabela de medidas, fotos das categorias, regra do arrependimento nas personalizadas;
+  - marcadores no código: fotos das categorias, regra do arrependimento nas personalizadas;
   - dados da loja vazios em `src/lib/loja.ts`: razão social, CNPJ e data das políticas;
   - produtos à venda sem foto ou sem descrição.
 - [ ] CNPJ aberto. Razão social e CNPJ em `src/lib/loja.ts` (obrigatórios: Decreto 7.962/2013). Endereço e CEP já estão preenchidos.
@@ -33,7 +33,7 @@ Passos para pôr o site no ar em **https://lojacartaviva.com.br**, na ordem. Cad
 
 - [x] Projeto de produção criado na região São Paulo (`sa-east-1`) (10/10/2026). O antigo fica para testes.
 - [x] Migrations aplicadas (incluem as pastas do Storage e as regras de acesso).
-- [ ] **Migration nova no banco de produção (obrigatório antes de publicar):** `20261010120000_frete_gratis` (campo `freteDescontoEmCentavos` do pedido) e as que vierem depois. Rodar `npx prisma migrate deploy` com o `DATABASE_URL` e o `DIRECT_URL` de produção. Sem ela, nenhum pedido é criado no site publicado.
+- [ ] **Migration nova no banco de produção (obrigatório antes de publicar):** `20261010120000_frete_gratis` (campo `freteDescontoEmCentavos` do pedido), `20261013120000_modelos` (modelos, cores, tamanhos e medidas de lançamento) e as que vierem depois. Rodar `npx prisma migrate deploy` com o `DATABASE_URL` e o `DIRECT_URL` de produção. Sem ela, nenhum pedido é criado no site publicado.
 - [x] Seed aplicado: categorias, cores, tamanhos, tabela de atacado **e os produtos de exemplo** (preço de teste R$ 1,00, 10 peças por variação). Trocar ou esconder pelo painel antes de abrir a loja.
 - [x] Authentication > URL Configuration: Site URL e Redirect URLs com `https://lojacartaviva.com.br`.
 - [x] Authentication > SMTP: Resend, remetente `nao-responda@lojacartaviva.com.br`. Modelos de confirmação e de nova senha em português, com os links de `/auth/confirmar`.

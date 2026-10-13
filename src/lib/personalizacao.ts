@@ -144,7 +144,7 @@ export async function linksDosArquivos(
 // ---------------------------------------------------------------- Consultas
 
 export const incluirDetalhes = {
-  produto: { select: { id: true, nome: true, pesoEmGramas: true, larguraCm: true, alturaCm: true, comprimentoCm: true } },
+  produto: { select: { id: true, nome: true } },
   cor: { select: { id: true, nome: true, hex: true } },
   cliente: { select: { nome: true, email: true, telefone: true } },
   itens: {

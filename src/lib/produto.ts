@@ -22,8 +22,15 @@ export type ProdutoDetalhe = {
   }[];
   cores: { id: string; nome: string; hex: string }[];
   tamanhos: { id: string; nome: string }[];
+  /** Modelos à venda, com a tabela de medidas dos tamanhos vendidos. */
+  modelos: {
+    id: string;
+    nome: string;
+    medidas: { tamanho: string; comprimentoMm: number; larguraMm: number; mangaMm: number }[];
+  }[];
   variacoes: {
     id: string;
+    modeloId: string;
     corId: string;
     tamanhoId: string;
     estoque: number;
@@ -63,6 +70,23 @@ export const obterProduto = cache(
             id: true,
             estoque: true,
             precoEmCentavos: true,
+            modelo: {
+              select: {
+                id: true,
+                nome: true,
+                ordem: true,
+                medidas: {
+                  orderBy: { tamanho: { ordem: "asc" } },
+                  select: {
+                    tamanhoId: true,
+                    comprimentoMm: true,
+                    larguraMm: true,
+                    mangaMm: true,
+                    tamanho: { select: { nome: true } },
+                  },
+                },
+              },
+            },
             cor: { select: { id: true, nome: true, hex: true } },
             tamanho: { select: { id: true, nome: true, ordem: true } },
           },
@@ -74,9 +98,14 @@ export const obterProduto = cache(
 
     const cores = new Map<string, ProdutoDetalhe["cores"][number]>();
     const tamanhos = new Map<string, { id: string; nome: string; ordem: number }>();
-    for (const { cor, tamanho } of produto.variacoes) {
+    const modelos = new Map<string, (typeof produto.variacoes)[number]["modelo"]>();
+    const tamanhosDoModelo = new Map<string, Set<string>>();
+    for (const { cor, tamanho, modelo } of produto.variacoes) {
       cores.set(cor.id, cor);
       tamanhos.set(tamanho.id, tamanho);
+      modelos.set(modelo.id, modelo);
+      if (!tamanhosDoModelo.has(modelo.id)) tamanhosDoModelo.set(modelo.id, new Set());
+      tamanhosDoModelo.get(modelo.id)!.add(tamanho.id);
     }
 
     return {
@@ -90,8 +119,23 @@ export const obterProduto = cache(
       tamanhos: [...tamanhos.values()]
         .sort((a, b) => a.ordem - b.ordem)
         .map(({ id, nome }) => ({ id, nome })),
+      modelos: [...modelos.values()]
+        .sort((a, b) => a.ordem - b.ordem)
+        .map((m) => ({
+          id: m.id,
+          nome: m.nome,
+          medidas: m.medidas
+            .filter((medida) => tamanhosDoModelo.get(m.id)!.has(medida.tamanhoId))
+            .map((medida) => ({
+              tamanho: medida.tamanho.nome,
+              comprimentoMm: medida.comprimentoMm,
+              larguraMm: medida.larguraMm,
+              mangaMm: medida.mangaMm,
+            })),
+        })),
       variacoes: produto.variacoes.map((v) => ({
         id: v.id,
+        modeloId: v.modelo.id,
         corId: v.cor.id,
         tamanhoId: v.tamanho.id,
         estoque: v.estoque,

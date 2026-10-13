@@ -1,6 +1,10 @@
 // Dados de exemplo para desenvolvimento. Rode com `npm run db:seed`.
 // Pode ser executado mais de uma vez: só cria o que ainda não existe.
 //
+// Modelos (Tradicional, Baby Look...), as cores de cada um, os tamanhos e a
+// tabela de medidas vêm da migration 20261013120000_modelos. Os produtos de
+// exemplo são todos do modelo Tradicional.
+//
 // Preço de R$ 1,00 e estoque de 10 unidades são valores de teste,
 // não os reais da loja. Saem do banco antes da publicação.
 
@@ -133,6 +137,8 @@ async function main() {
     });
   }
 
+  const tradicional = await prisma.modelo.findUniqueOrThrow({ where: { slug: "tradicional" } });
+
   const estampas = await prisma.categoria.findUniqueOrThrow({
     where: { slug: "estampas-da-casa" },
   });
@@ -174,12 +180,13 @@ async function main() {
       });
       const chave = {
         produtoId: produto.id,
+        modeloId: tradicional.id,
         corId: cor.id,
         tamanhoId: tamanho.id,
       };
 
       const existente = await prisma.variacao.findUnique({
-        where: { produtoId_corId_tamanhoId: chave },
+        where: { produtoId_modeloId_corId_tamanhoId: chave },
       });
       if (existente) continue;
 
@@ -225,9 +232,9 @@ async function main() {
         const tamanho = await prisma.tamanho.findUniqueOrThrow({
           where: { nome: nomeTamanho },
         });
-        const chave = { produtoId: produto.id, corId: cor.id, tamanhoId: tamanho.id };
+        const chave = { produtoId: produto.id, modeloId: tradicional.id, corId: cor.id, tamanhoId: tamanho.id };
         const existente = await prisma.variacao.findUnique({
-          where: { produtoId_corId_tamanhoId: chave },
+          where: { produtoId_modeloId_corId_tamanhoId: chave },
         });
         if (existente) continue;
 

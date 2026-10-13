@@ -16,13 +16,7 @@ export type ValoresDoProduto = {
   preco: string;
   ativo: boolean;
   destaque: boolean;
-  pesoEmGramas: string;
-  larguraCm: string;
-  alturaCm: string;
-  comprimentoCm: string;
 };
-
-const numero = (texto: string) => (texto.trim() === "" ? Number.NaN : Number(texto.replace(",", ".")));
 
 function Chave({
   marcado,
@@ -81,10 +75,6 @@ export function FormularioProduto({
       preco: v.preco,
       ativo: v.ativo,
       destaque: v.destaque,
-      pesoEmGramas: numero(v.pesoEmGramas),
-      larguraCm: numero(v.larguraCm),
-      alturaCm: numero(v.alturaCm),
-      comprimentoCm: numero(v.comprimentoCm),
     };
     iniciar(async () => {
       const r = await salvarProduto(id, dados);
@@ -100,7 +90,6 @@ export function FormularioProduto({
   }
 
   const enderecoPrevisto = paraSlug(v.slug || v.nome);
-  const medidasComErro = ["pesoEmGramas", "larguraCm", "alturaCm", "comprimentoCm"].some((c) => erros[c]);
 
   return (
     <form onSubmit={salvar} noValidate className="space-y-6">
@@ -185,9 +174,9 @@ export function FormularioProduto({
         />
       </div>
 
-      <details className="group rounded-xl border border-borda" open={medidasComErro || !!erros.slug}>
+      <details className="group rounded-xl border border-borda" open={!!erros.slug}>
         <summary className="flex min-h-14 cursor-pointer items-center px-4 text-[16px] font-semibold">
-          Mais opções: endereço da página e medidas para o frete
+          Mais opções: endereço da página
         </summary>
         <div className="space-y-5 border-t border-borda p-4">
           <Campo
@@ -204,43 +193,6 @@ export function FormularioProduto({
             autoCapitalize="none"
             maxLength={120}
           />
-          <p className="text-[14px] text-apoio">
-            Peso e tamanho do pacote de <strong>uma</strong> peça embalada. Servem para calcular o frete.
-          </p>
-          <div className="grid grid-cols-2 gap-4">
-            <Campo
-              name="pesoEmGramas"
-              rotulo="Peso (gramas)"
-              inputMode="numeric"
-              value={v.pesoEmGramas}
-              onChange={(e) => mudar("pesoEmGramas", e.target.value)}
-              erro={erros.pesoEmGramas}
-            />
-            <Campo
-              name="larguraCm"
-              rotulo="Largura (cm)"
-              inputMode="numeric"
-              value={v.larguraCm}
-              onChange={(e) => mudar("larguraCm", e.target.value)}
-              erro={erros.larguraCm}
-            />
-            <Campo
-              name="comprimentoCm"
-              rotulo="Comprimento (cm)"
-              inputMode="numeric"
-              value={v.comprimentoCm}
-              onChange={(e) => mudar("comprimentoCm", e.target.value)}
-              erro={erros.comprimentoCm}
-            />
-            <Campo
-              name="alturaCm"
-              rotulo="Altura (cm)"
-              inputMode="numeric"
-              value={v.alturaCm}
-              onChange={(e) => mudar("alturaCm", e.target.value)}
-              erro={erros.alturaCm}
-            />
-          </div>
         </div>
       </details>
 

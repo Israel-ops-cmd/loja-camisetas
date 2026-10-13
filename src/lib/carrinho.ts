@@ -141,15 +141,12 @@ export async function obterCarrinho(): Promise<Carrinho> {
       corId: true,
       cor: { select: { nome: true, hex: true } },
       tamanho: { select: { nome: true } },
+      modelo: { select: { pesoEmGramas: true, larguraCm: true, alturaCm: true, comprimentoCm: true } },
       produto: {
         select: {
           nome: true,
           slug: true,
           precoBaseEmCentavos: true,
-          pesoEmGramas: true,
-          larguraCm: true,
-          alturaCm: true,
-          comprimentoCm: true,
           imagens: {
             orderBy: { ordem: "asc" },
             select: { url: true, alt: true, corId: true },
@@ -207,12 +204,7 @@ export async function obterCarrinho(): Promise<Carrinho> {
       precoUnitarioEmCentavos: preco,
       subtotalEmCentavos: esgotado ? 0 : preco * quantidadeFinal,
       produto: { nome: variacao.produto.nome, slug: variacao.produto.slug },
-      pacote: {
-        pesoEmGramas: variacao.produto.pesoEmGramas,
-        larguraCm: variacao.produto.larguraCm,
-        alturaCm: variacao.produto.alturaCm,
-        comprimentoCm: variacao.produto.comprimentoCm,
-      },
+      pacote: variacao.modelo,
       cor: variacao.cor,
       tamanho: variacao.tamanho.nome,
       foto: foto && { url: foto.url, alt: foto.alt },

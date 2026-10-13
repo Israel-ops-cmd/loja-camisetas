@@ -5,6 +5,7 @@ import { ChevronDown, ChevronRight } from "lucide-react";
 
 import { DetalheProduto } from "@/components/produto/DetalheProduto";
 import { ProdutoCartao } from "@/components/produto/ProdutoCartao";
+import { TabelaDeMedidas } from "@/components/produto/TabelaDeMedidas";
 import { listarFaixasDeAtacado } from "@/lib/atacado";
 import { listarRelacionados } from "@/lib/catalogo";
 import { DadosEstruturados } from "@/components/seo/DadosEstruturados";
@@ -167,7 +168,7 @@ export default async function PaginaProduto({
                   strokeWidth={1.6}
                 />
               </summary>
-              <p className="pb-5 text-apoio">[TABELA DE MEDIDAS]</p>
+              <TabelaDeMedidas modelos={produto.modelos} />
             </details>
           </DetalheProduto>
         </div>

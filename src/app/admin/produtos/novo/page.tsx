@@ -32,10 +32,6 @@ export default async function PaginaNovoProduto() {
                 preco: "",
                 ativo: false,
                 destaque: false,
-                pesoEmGramas: "300",
-                larguraCm: "22",
-                alturaCm: "4",
-                comprimentoCm: "28",
               }}
             />
           </Painel>

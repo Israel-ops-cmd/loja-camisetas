@@ -33,8 +33,14 @@ export default async function PaginaAdminEstoque({ searchParams }: PageProps<"/a
       ativo: true,
       variacoes: {
         where: { ativo: true, ...(estoque && { estoque }) },
-        orderBy: [{ cor: { nome: "asc" } }, { tamanho: { ordem: "asc" } }],
-        select: { id: true, estoque: true, cor: { select: { nome: true, hex: true } }, tamanho: { select: { nome: true } } },
+        orderBy: [{ modelo: { ordem: "asc" } }, { cor: { nome: "asc" } }, { tamanho: { ordem: "asc" } }],
+        select: {
+          id: true,
+          estoque: true,
+          modelo: { select: { nome: true } },
+          cor: { select: { nome: true, hex: true } },
+          tamanho: { select: { nome: true } },
+        },
       },
     },
   });
@@ -105,7 +111,7 @@ export default async function PaginaAdminEstoque({ searchParams }: PageProps<"/a
                     <AcoesDeEstoque
                       key={v.id}
                       variacaoId={v.id}
-                      rotulo={`${v.cor.nome} · ${v.tamanho.nome}`}
+                      rotulo={`${v.modelo.nome} · ${v.cor.nome} · ${v.tamanho.nome}`}
                       hex={v.cor.hex}
                       estoque={v.estoque}
                       reservadas={reservadas.get(v.id) ?? 0}
