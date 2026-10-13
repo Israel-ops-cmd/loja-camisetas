@@ -13,6 +13,7 @@ export type ValoresDoProduto = {
   slug: string;
   categoriaId: string;
   descricao: string;
+  referencia: string;
   preco: string;
   ativo: boolean;
   destaque: boolean;
@@ -72,6 +73,7 @@ export function FormularioProduto({
       slug: v.slug || undefined,
       categoriaId: v.categoriaId,
       descricao: v.descricao || undefined,
+      referencia: v.referencia || undefined,
       preco: v.preco,
       ativo: v.ativo,
       destaque: v.destaque,
@@ -135,6 +137,16 @@ export function FormularioProduto({
         erro={erros.preco}
         ajuda="Ex.: 49,90. Vale só para o modelo que não tiver preço próprio (o preço de cada modelo fica em Cores e tamanhos, abaixo)."
         required
+      />
+
+      <Campo
+        name="referencia"
+        rotulo="Referência (opcional)"
+        value={v.referencia}
+        onChange={(e) => mudar("referencia", e.target.value)}
+        erro={erros.referencia}
+        ajuda="Versículo da estampa, ex.: Romanos 1:16. Aparece abaixo do nome, na página do produto."
+        maxLength={100}
       />
 
       <div>
