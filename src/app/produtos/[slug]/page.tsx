@@ -9,7 +9,7 @@ import { DadosEstruturados } from "@/components/seo/DadosEstruturados";
 import { formatarPreco } from "@/lib/formatacao";
 import { FRETE_GRATIS_A_PARTIR_DE_EM_CENTAVOS } from "@/lib/frete-regras";
 import { MAXIMO_DE_PARCELAS } from "@/lib/pagamento";
-import { DIAS_PARA_TROCA } from "@/lib/politicas";
+import { DIAS_PARA_ARREPENDIMENTO, DIAS_PARA_TROCA } from "@/lib/politicas";
 import { LIMITE_ULTIMAS_UNIDADES, obterProduto } from "@/lib/produto";
 import { enderecoDoSite } from "@/lib/site";
 
@@ -22,6 +22,12 @@ export async function generateStaticParams() {
 }
 
 /** Descrição para o Google: uma linha, até 160 caracteres. */
+/** "Camiseta Amém (Salmos 41:13)": o nome sozinho ("Amém") não diz o que é. */
+function tituloDoProduto(nome: string, referencia: string | null) {
+  const comTipo = /^camiseta/i.test(nome) ? nome : `Camiseta ${nome}`;
+  return referencia ? `${comTipo} (${referencia})` : comTipo;
+}
+
 function resumir(texto: string) {
   const linha = texto.replace(/\s+/g, " ").trim();
   return linha.length <= 160 ? linha : `${linha.slice(0, 157).replace(/\s+\S*$/, "")}…`;
@@ -42,14 +48,19 @@ export async function generateMetadata({
   const imagem = foto
     ? [{ url: `/_next/image?url=${encodeURIComponent(foto.url)}&w=1200&q=75`, width: 1200, alt: foto.alt }]
     : [{ url: "/opengraph-image", width: 1200, height: 630, alt: "Carta Viva" }];
+  // Título e descrição com os termos que as pessoas buscam ("camiseta",
+  // "cristã", o versículo), e não só o nome da estampa.
+  const titulo = tituloDoProduto(produto.nome, produto.referencia);
   const descricao = resumir(
-    produto.descricao ?? `Camiseta ${produto.nome}, da linha ${produto.categoria.nome} da Carta Viva.`,
+    produto.categoria.slug === "basicas"
+      ? `${produto.descricao ?? ""} Camiseta da Carta Viva, com envio para todo o Brasil.`
+      : `${produto.descricao ?? ""} Camiseta cristã da Carta Viva, estampada em Natal, com envio para todo o Brasil.`,
   );
   return {
-    title: produto.nome,
+    title: titulo,
     description: descricao,
     alternates: { canonical: `/produtos/${produto.slug}` },
-    openGraph: { title: produto.nome, description: descricao, url: `/produtos/${produto.slug}`, images: imagem },
+    openGraph: { title: titulo, description: descricao, url: `/produtos/${produto.slug}`, images: imagem },
     twitter: { card: "summary_large_image", images: imagem },
   };
 }
@@ -73,6 +84,17 @@ export default async function PaginaProduto({
   const precos = produto.variacoes.map((v) => v.precoEmCentavos / 100);
   const disponivel = produto.variacoes.some((v) => v.estoque > 0);
   const disponibilidade = `https://schema.org/${disponivel ? "InStock" : "OutOfStock"}`;
+  // Política de devolução nas ofertas: o Google mostra nos resultados de compras.
+  const devolucao = {
+    hasMerchantReturnPolicy: {
+      "@type": "MerchantReturnPolicy",
+      applicableCountry: "BR",
+      returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
+      merchantReturnDays: DIAS_PARA_ARREPENDIMENTO,
+      returnMethod: "https://schema.org/ReturnByMail",
+      returnFees: "https://schema.org/FreeReturn",
+    },
+  };
 
   return (
     <>
@@ -80,7 +102,7 @@ export default async function PaginaProduto({
         dados={{
           "@context": "https://schema.org",
           "@type": "Product",
-          name: produto.nome,
+          name: tituloDoProduto(produto.nome, produto.referencia),
           url,
           ...(produto.descricao && { description: produto.descricao }),
           image: produto.imagens.map((i) => (i.url.startsWith("http") ? i.url : `${site}${i.url}`)),
@@ -88,7 +110,7 @@ export default async function PaginaProduto({
           category: produto.categoria.nome,
           offers:
             Math.min(...precos) === Math.max(...precos)
-              ? { "@type": "Offer", url, priceCurrency: "BRL", price: precos[0].toFixed(2), availability: disponibilidade }
+              ? { "@type": "Offer", url, priceCurrency: "BRL", price: precos[0].toFixed(2), availability: disponibilidade, ...devolucao }
               : {
                   "@type": "AggregateOffer",
                   url,
@@ -97,6 +119,7 @@ export default async function PaginaProduto({
                   highPrice: Math.max(...precos).toFixed(2),
                   offerCount: precos.length,
                   availability: disponibilidade,
+                  ...devolucao,
                 },
         }}
       />
@@ -170,7 +193,7 @@ export default async function PaginaProduto({
           <h2 id="titulo-relacionados" className="mb-7 border-t border-borda pt-7 font-titulo text-[26px] lg:text-[32px]">
             {produto.categoria.slug === CATEGORIA_DA_COLECAO ? "Da mesma coleção" : "Você também pode gostar"}
           </h2>
-          <div className="grid grid-cols-2 gap-x-3 gap-y-10 sm:gap-x-5 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-x-3 gap-y-10 sm:gap-x-5 md:grid-cols-4">
             {relacionados.map((relacionado) => (
               <ProdutoCartao
                 key={relacionado.id}

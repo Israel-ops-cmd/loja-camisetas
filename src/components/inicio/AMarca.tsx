@@ -6,13 +6,13 @@ import { AoRolar } from "@/components/ui/AoRolar";
 export function AMarca() {
   return (
     <section aria-labelledby="titulo-marca" className="bg-areia">
-      <AoRolar className="largura grid items-center gap-x-20 gap-y-12 py-20 lg:grid-cols-2 lg:py-26">
+      <AoRolar className="largura grid items-center gap-x-10 gap-y-12 py-20 md:grid-cols-2 lg:gap-x-20 lg:py-26">
         <div className="relative aspect-[3/2]">
           <Image
             src="/fotos/nao-temas-creia-dobrada.jpg"
             alt="Camiseta “Não temas, creia” dobrada, mostrando a frente e as costas"
             fill
-            sizes="(min-width: 1024px) 45vw, 100vw"
+            sizes="(min-width: 768px) 45vw, 100vw"
             className="object-cover"
           />
         </div>

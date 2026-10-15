@@ -130,16 +130,16 @@ export function DetalheProduto({ produto, limiteUltimasUnidades, condicoes, envi
     }
   }
 
-  const botaoAdicionar = (classe: string) => (
+  const botaoAdicionar = (classe: string, texto = "Adicionar à sacola") => (
     <button type="button" onClick={adicionar} disabled={!podeAdicionar} className={`${classesBotao("principal")} ${classe}`}>
-      {adicionando ? "Adicionando…" : "Adicionar à sacola"}
+      {adicionando ? "Adicionando…" : texto}
     </button>
   );
 
   return (
-    <div className="grid items-start gap-x-18 gap-y-8 lg:grid-cols-2">
+    <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-x-10 gap-y-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-x-18">
       {/* Fotos: carrossel no celular, grade no computador (a primeira grande). */}
-      <section aria-label="Fotos" className="-mx-[clamp(20px,5vw,72px)] sm:mx-0">
+      <section aria-label="Fotos" className="-mx-[clamp(20px,5vw,72px)] min-w-0 sm:mx-0">
         {imagens.length === 0 ? (
           <div className="flex aspect-square items-center justify-center bg-produto">
             <Shirt aria-hidden="true" className="size-24 text-secundario/40" strokeWidth={1} />
@@ -162,26 +162,32 @@ export function DetalheProduto({ produto, limiteUltimasUnidades, condicoes, envi
                     fill
                     loading={indice === 0 ? "eager" : undefined}
                     fetchPriority={indice === 0 ? "high" : undefined}
-                    sizes={indice === 0 ? "(min-width: 1024px) 45vw, 100vw" : "(min-width: 1024px) 23vw, 100vw"}
+                    sizes={indice === 0 ? "(min-width: 768px) 45vw, 100vw" : "(min-width: 1024px) 23vw, (min-width: 768px) 45vw, 100vw"}
                     className="object-cover"
                     style={imagem.enquadramento ? { objectPosition: imagem.enquadramento } : undefined}
                   />
                 </li>
               ))}
             </ul>
-            {imagens.length > 1 && (
+            {imagens.length > 1 && imagens.length <= 8 && (
               <div aria-hidden="true" className="mt-3.5 flex justify-center gap-1.5 lg:hidden">
                 {imagens.map((imagem, indice) => (
                   <span key={imagem.id} className={`h-0.5 w-4.5 ${indice === fotoVisivel ? "bg-tinta" : "bg-secundario-escuro"}`} />
                 ))}
               </div>
             )}
+            {/* Muitas fotos (vários modelos e cores): contador no lugar dos traços. */}
+            {imagens.length > 8 && (
+              <p aria-hidden="true" className="mt-3 text-center text-[13px] text-secundario tabular-nums lg:hidden">
+                {fotoVisivel + 1} / {imagens.length}
+              </p>
+            )}
           </>
         )}
       </section>
 
       {/* Informações e escolha */}
-      <section aria-labelledby="titulo-produto" className="flex max-w-[520px] flex-col gap-7">
+      <section aria-labelledby="titulo-produto" className="flex min-w-0 max-w-[520px] flex-col gap-7">
         <div className="flex flex-col gap-2">
           <span className="sobretitulo text-secundario">{produto.categoria.nome}</span>
           <h1 id="titulo-produto" className="font-titulo text-[38px] leading-[1.05] font-medium lg:text-[52px]">
@@ -370,13 +376,13 @@ export function DetalheProduto({ produto, limiteUltimasUnidades, condicoes, envi
 
       {/* Celular: barra fixa de compra. */}
       <div data-barra-de-compra className="fixed inset-x-0 bottom-0 z-30 flex items-center gap-3 border-t border-borda bg-fundo px-4 pt-3 pb-5 sm:hidden">
-        <div className="flex min-w-0 flex-col leading-tight">
+        <div className="flex min-w-0 flex-1 flex-col leading-tight">
           <span className="truncate text-[12px] text-secundario">
-            {[nomeDoModelo, nomeDoTamanho].filter(Boolean).join(" · ") || "Escolha o modelo e o tamanho"}
+            {[nomeDoModelo, nomeDoTamanho].filter(Boolean).join(" · ") || "Escolha modelo e tamanho"}
           </span>
           <span className="font-semibold">{formatarPreco(preco)}</span>
         </div>
-        {botaoAdicionar("min-h-[50px] flex-1 px-4")}
+        {botaoAdicionar("min-h-[50px] shrink-0 whitespace-nowrap px-6", "Adicionar")}
       </div>
     </div>
   );
