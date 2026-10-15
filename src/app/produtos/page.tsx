@@ -13,12 +13,52 @@ import {
 } from "@/lib/catalogo";
 import { hrefCatalogo } from "@/lib/url-catalogo";
 
-export const metadata: Metadata = {
-  alternates: { canonical: "/produtos" },
-  title: "Produtos",
-  description:
-    "Camisetas e personalizados da Carta Viva. Filtre por categoria, cor e tamanho.",
+/**
+ * Título e texto de cada categoria, para ela ter página própria no Google
+ * (`/produtos?categoria=...`). Categoria fora da lista usa o nome dela.
+ */
+const TEXTOS_DAS_CATEGORIAS: Record<string, { titulo: string; descricao: string }> = {
+  "colecao-carta-viva": {
+    titulo: "Coleção Carta Viva: camisetas cristãs",
+    descricao:
+      "A coleção que dá nome à marca: camisetas cristãs inspiradas em 2 Coríntios 3:3, nos modelos Tradicional, Baby Look, Oversized, Oversized Premium e Infantil.",
+  },
+  "estampas-da-casa": {
+    titulo: "Camisetas com versículos",
+    descricao:
+      "Camisetas evangélicas com versículos e frases de fé, estampadas em Natal pela Carta Viva. Modelos masculinos, femininos e infantis, com envio para todo o Brasil.",
+  },
+  basicas: {
+    titulo: "Camisetas lisas",
+    descricao:
+      "Camisetas lisas, sem estampa, nos modelos Tradicional, Oversized e Oversized Premium, em várias cores. A mesma peça que usamos nas nossas estampas.",
+  },
 };
+
+export async function generateMetadata({ searchParams }: PageProps<"/produtos">): Promise<Metadata> {
+  const parametros = await searchParams;
+  const categoria = typeof parametros.categoria === "string" ? parametros.categoria : undefined;
+  const outrosFiltros = ["modelo", "cor", "tamanho", "ordem"].some((p) => parametros[p] !== undefined);
+  const texto = categoria ? TEXTOS_DAS_CATEGORIAS[categoria] : undefined;
+
+  // Só a categoria sozinha vira página própria; combinações de filtros
+  // apontam para ela (ou para /produtos), para o Google não ver duplicatas.
+  if (texto) {
+    return {
+      title: texto.titulo,
+      description: texto.descricao,
+      alternates: { canonical: `/produtos?categoria=${categoria}` },
+      ...(outrosFiltros && { robots: { index: false, follow: true } }),
+    };
+  }
+  return {
+    alternates: { canonical: "/produtos" },
+    title: "Camisetas cristãs e evangélicas",
+    description:
+      "Todas as camisetas da Carta Viva: estampas com versículos, coleção Carta Viva e camisetas lisas. Filtre por modelo, cor e tamanho. Envio para todo o Brasil.",
+    ...((outrosFiltros || categoria) && { robots: { index: false, follow: true } }),
+  };
+}
 
 export default async function PaginaProdutos({
   searchParams,
@@ -35,6 +75,9 @@ export default async function PaginaProdutos({
     <div className="largura pt-10 pb-24 lg:pt-14">
       <div>
         <h1 className="titulo-destaque">{categoria?.nome ?? "Produtos"}</h1>
+        {categoria && TEXTOS_DAS_CATEGORIAS[categoria.slug] && (
+          <p className="mt-4 max-w-[620px] text-apoio">{TEXTOS_DAS_CATEGORIAS[categoria.slug].descricao}</p>
+        )}
 
         <div className="mt-10 grid gap-10 lg:grid-cols-[220px_1fr] lg:gap-14">
           <aside aria-label="Filtros" className="hidden lg:block">
@@ -78,7 +121,7 @@ export default async function PaginaProdutos({
             {/* Título para leitores de tela: os cartões usam h3. */}
             <h2 className="sr-only">Lista de produtos</h2>
             {produtos.length > 0 ? (
-              <div className="mt-8 grid grid-cols-2 gap-x-3 gap-y-10 sm:gap-x-5 xl:grid-cols-3">
+              <div className="mt-8 grid grid-cols-2 gap-x-3 gap-y-10 sm:gap-x-5 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3">
                 {produtos.map((produto) => (
                   <ProdutoCartao
                     key={produto.id}

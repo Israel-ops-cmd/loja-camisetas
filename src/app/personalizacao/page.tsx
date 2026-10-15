@@ -8,9 +8,9 @@ import { listarPecasPersonalizaveis } from "@/lib/personalizacao";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/personalizacao" },
-  title: "Personalização",
+  title: "Camisetas personalizadas com a sua arte",
   description:
-    "Envie a sua estampa ou conte a ideia. A gente prepara a prévia, aprova com você e produz.",
+    "Camisetas personalizadas com a sua arte ou logo, para igrejas, empresas, eventos e presentes. Envie a estampa, aprove a prévia e receba em todo o Brasil.",
 };
 
 function hojeEmSaoPaulo() {

@@ -17,12 +17,12 @@ export async function ColecaoCartaViva() {
           titulo="Coleção Carta Viva"
           link={{ href: `/produtos?categoria=${CATEGORIA_DA_COLECAO}`, texto: `Ver as ${total} estampas` }}
         />
-        <div className="grid grid-cols-2 gap-x-5 gap-y-10 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-x-5 gap-y-10 md:grid-cols-4">
           {produtos.map((produto) => (
             <ProdutoCartao
               key={produto.id}
               produto={produto}
-              sizes="(min-width: 1440px) 330px, (min-width: 1024px) 23vw, 50vw"
+              sizes="(min-width: 1440px) 330px, (min-width: 768px) 23vw, 50vw"
             />
           ))}
         </div>
