@@ -65,7 +65,7 @@ export function ItemCarrinho({ item }: { item: ItemDoCarrinho }) {
     >
       <Link
         href={`/produtos/${item.produto.slug}`}
-        className="relative size-24 shrink-0 overflow-hidden rounded-xl bg-produto sm:size-32"
+        className="relative size-24 shrink-0 overflow-hidden rounded-[2px] bg-produto sm:size-32"
         tabIndex={-1}
         aria-hidden="true"
       >
@@ -115,7 +115,7 @@ export function ItemCarrinho({ item }: { item: ItemDoCarrinho }) {
             type="button"
             onClick={remover}
             disabled={salvando}
-            className="-mt-2 -mr-2 flex size-11 shrink-0 items-center justify-center rounded-full transition hover:bg-fundo"
+            className="-mt-2 -mr-2 flex size-11 shrink-0 items-center justify-center rounded-full transition hover:bg-areia"
           >
             <Trash2 aria-hidden="true" className="size-5" strokeWidth={1.6} />
             <span className="sr-only">Remover {item.produto.nome}</span>

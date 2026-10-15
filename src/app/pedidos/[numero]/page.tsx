@@ -175,7 +175,7 @@ export default async function PaginaPedido({
                   separação depois que o pagamento for confirmado.
                 </Aviso>
               )}
-              <div className=" bg-papel p-6">
+              <div className="border border-borda p-6">
                 <BotaoPagar
                   numero={pedido.numero}
                   rotulo={
@@ -191,7 +191,7 @@ export default async function PaginaPedido({
           )}
         </div>
 
-        <section className="mt-6 bg-papel p-6 sm:p-8">
+        <section className="mt-6 border-t border-borda pt-6 sm:pt-8">
           <dl className="grid gap-4 text-[15px] sm:grid-cols-3">
             <div>
               <dt className="text-[13px] text-secundario">Data</dt>
@@ -210,7 +210,7 @@ export default async function PaginaPedido({
 
         <section
           aria-labelledby="titulo-itens"
-          className="mt-6 bg-papel p-6 sm:p-8"
+          className="mt-6 border-t border-borda pt-6 sm:pt-8"
         >
           <h2 id="titulo-itens" className="sobretitulo">
             Itens
@@ -263,7 +263,7 @@ export default async function PaginaPedido({
 
         <section
           aria-labelledby="titulo-entrega"
-          className="mt-6 bg-papel p-6 sm:p-8"
+          className="mt-6 border-t border-borda pt-6 sm:pt-8"
         >
           <h2 id="titulo-entrega" className="sobretitulo">
             Entrega

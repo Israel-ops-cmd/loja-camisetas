@@ -111,7 +111,7 @@ export function Filtros({ filtros, opcoes }: FiltrosProps) {
                     })}
                     scroll={false}
                     aria-current={ativo ? "true" : undefined}
-                    className={`flex size-11 items-center justify-center rounded-lg border text-[13px] font-bold transition ${ativo ? "border-tinta bg-tinta text-papel" : "border-borda bg-papel hover:border-tinta"}`}
+                    className={`flex size-11 items-center justify-center rounded-[2px] border text-[13px] font-bold transition ${ativo ? "border-tinta bg-tinta text-papel" : "border-borda bg-papel hover:border-tinta"}`}
                   >
                     {tamanho}
                   </Link>

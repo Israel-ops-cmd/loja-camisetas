@@ -58,7 +58,7 @@ export default async function PaginaCarrinho() {
         )}
 
         {carrinho.itens.length === 0 ? (
-          <div className="mt-12 flex flex-col items-center bg-papel px-6 py-16 text-center">
+          <div className="mt-12 flex flex-col items-center border-y border-borda px-6 py-16 text-center">
             <p className="font-titulo text-[28px] font-medium">
               Sua sacola está vazia
             </p>
@@ -79,7 +79,7 @@ export default async function PaginaCarrinho() {
 
             <section
               aria-labelledby="titulo-resumo"
-              className=" bg-papel p-6 lg:sticky lg:top-24"
+              className="border border-borda p-6 lg:sticky lg:top-24"
             >
               <h2 id="titulo-resumo" className="sobretitulo">
                 Resumo
@@ -150,7 +150,7 @@ export default async function PaginaCarrinho() {
                 </div>
               </dl>
               {carrinho.atacado.proxima && carrinho.quantidadeDePecas > 0 && (
-                <p className="mt-4 rounded-xl bg-fundo px-4 py-3 text-[14px]">
+                <p className="mt-4 rounded-[2px] bg-areia px-4 py-3 text-[14px]">
                   {carrinho.atacado.proxima.faltam === 1
                     ? "Falta 1 peça"
                     : `Faltam ${carrinho.atacado.proxima.faltam} peças`}{" "}
@@ -165,7 +165,7 @@ export default async function PaginaCarrinho() {
                 <p className="mt-4 text-[14px] text-apoio">{textoDoPrazoDeDespacho(carrinho.pecasAEstampar)}</p>
               )}
               {carrinho.itens.some((item) => item.esgotado) ? (
-                <p className="mt-6 rounded-xl border border-borda px-4 py-3 text-center text-[14px] font-semibold">
+                <p className="mt-6 rounded-[2px] border border-borda px-4 py-3 text-center text-[14px] font-semibold">
                   Remova os itens esgotados para finalizar a compra.
                 </p>
               ) : (

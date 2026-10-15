@@ -49,7 +49,8 @@ export default function PaginaPoliticaDeTroca() {
                 <li>Devolvemos o valor total pago, incluindo o frete da entrega.</li>
               </ul>
               <p>
-                Peças personalizadas seguem uma regra própria, explicada em “Peças personalizadas”, mais abaixo.
+                Vale também para as peças personalizadas. As regras de troca delas estão em “Peças personalizadas”, mais
+                abaixo.
               </p>
             </>
           ),
@@ -116,7 +117,9 @@ export default function PaginaPoliticaDeTroca() {
                 </li>
                 <li>
                   <strong>Desistência ({DIAS_PARA_ARREPENDIMENTO} dias):</strong>{" "}
-                  {"[REGRA DO ARREPENDIMENTO PARA PEÇAS PERSONALIZADAS, A DEFINIR NA REVISÃO JURÍDICA]"}
+                  o direito de arrependimento também vale para as peças personalizadas. Se desistir em até{" "}
+                  {DIAS_PARA_ARREPENDIMENTO} dias corridos do recebimento, devolvemos o valor total pago, nas mesmas condições
+                  de “Desistiu da compra?”, acima.
                 </li>
               </ul>
               <p>Confira com atenção a prévia e os tamanhos antes de aprovar: é ela que vale para a produção.</p>

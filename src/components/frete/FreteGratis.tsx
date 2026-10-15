@@ -23,7 +23,7 @@ export function AvisoFreteGratis({
   );
 
   return (
-    <div className={`rounded-xl bg-fundo px-4 py-3 text-[14px] ${className}`}>
+    <div className={`rounded-[2px] bg-areia px-4 py-3 text-[14px] ${className}`}>
       <p className="flex items-start gap-2">
         <Truck aria-hidden="true" className="mt-0.5 size-4 shrink-0" strokeWidth={1.8} />
         {falta === 0 ? (

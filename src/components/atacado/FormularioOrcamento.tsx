@@ -101,7 +101,7 @@ export function FormularioOrcamento({ inicial, hoje }: Props) {
           onChange={(e) => mudar("uf", e.target.value)}
           autoComplete="address-level1"
           aria-invalid={erros.uf ? true : undefined}
-          className={`mt-2 h-12 w-full rounded-xl border bg-papel px-3 text-[16px] outline-none focus:border-tinta ${erros.uf ? "border-tinta" : "border-borda"}`}
+          className={`mt-2 h-12 w-full rounded-[2px] border bg-papel px-3 text-[16px] outline-none focus:border-tinta ${erros.uf ? "border-tinta" : "border-borda"}`}
         >
           <option value="">UF</option>
           {UFS.map((uf) => <option key={uf}>{uf}</option>)}
@@ -140,7 +140,7 @@ export function FormularioOrcamento({ inicial, hoje }: Props) {
           value={v.mensagem}
           onChange={(e) => mudar("mensagem", e.target.value)}
           placeholder="Ex.: 80 camisetas pretas para o encontro de jovens, tamanhos variados, logo na frente."
-          className="mt-2 w-full rounded-xl border border-borda bg-papel px-4 py-3 text-[16px] outline-none focus:border-tinta"
+          className="mt-2 w-full rounded-[2px] border border-borda bg-papel px-4 py-3 text-[16px] outline-none focus:border-tinta"
         />
         {erros.mensagem && <p className="mt-1.5 text-[13px] font-semibold">{erros.mensagem}</p>}
       </div>

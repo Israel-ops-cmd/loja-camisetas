@@ -354,7 +354,7 @@ export function FormularioCheckout({
                   onChange={(e) => mudarNovo("uf", e.target.value)}
                   autoComplete="address-level1"
                   aria-invalid={erroNovo("uf") ? true : undefined}
-                  className={`mt-2 h-12 w-full rounded-xl border bg-papel px-3 text-[16px] outline-none focus:border-tinta ${erroNovo("uf") ? "border-tinta" : "border-borda"}`}
+                  className={`mt-2 h-12 w-full rounded-[2px] border bg-papel px-3 text-[16px] outline-none focus:border-tinta ${erroNovo("uf") ? "border-tinta" : "border-borda"}`}
                 >
                   <option value="">UF</option>
                   {UFS.map((uf) => (
@@ -468,7 +468,7 @@ export function FormularioCheckout({
       {/* Resumo */}
       <section
         aria-labelledby="titulo-resumo"
-        className=" bg-papel p-6 lg:sticky lg:top-24"
+        className="border border-borda p-6 lg:sticky lg:top-24"
       >
         <h2 id="titulo-resumo" className="sobretitulo">
           Resumo
@@ -567,7 +567,7 @@ function Bloco({
   children: ReactNode;
 }) {
   return (
-    <section className=" bg-papel p-6 sm:p-8">
+    <section className="border-t border-borda pt-6 sm:pt-8">
       <h2 className="flex items-center gap-3 font-titulo text-[24px] font-medium">
         <span className="flex size-8 items-center justify-center rounded-full bg-tinta text-[14px] text-papel">
           {numero}
@@ -592,7 +592,7 @@ function Opcao({
 }) {
   return (
     <label
-      className={`flex min-h-14 cursor-pointer items-start gap-3 rounded-xl border px-4 py-3 transition ${marcada ? "border-tinta" : "border-borda hover:border-secundario"}`}
+      className={`flex min-h-14 cursor-pointer items-start gap-3 rounded-[2px] border px-4 py-3 transition ${marcada ? "border-tinta" : "border-borda hover:border-secundario"}`}
     >
       <input
         type="radio"

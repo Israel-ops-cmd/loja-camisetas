@@ -57,7 +57,7 @@ export function FormularioDoOrcamentoNoPainel({
           maxLength={5000}
           value={anotacoes}
           onChange={(e) => setAnotacoes(e.target.value)}
-          className="mt-2 w-full rounded-xl border border-borda bg-papel px-4 py-3 text-[16px] outline-none focus:border-tinta"
+          className="mt-2 w-full rounded-[2px] border border-borda bg-papel px-4 py-3 text-[16px] outline-none focus:border-tinta"
         />
       </div>
       {resultado && <Aviso tipo={resultado.tipo}>{resultado.texto}</Aviso>}

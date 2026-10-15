@@ -15,7 +15,7 @@ export function Aviso({
   return (
     <div
       role={tipo === "erro" ? "alert" : "status"}
-      className={`flex items-start gap-3 rounded-xl border px-4 py-3 text-[15px] ${tipo === "erro" ? "border-tinta bg-papel font-semibold" : "border-borda bg-papel"}`}
+      className={`flex items-start gap-3 rounded-[2px] border px-4 py-3 text-[15px] ${tipo === "erro" ? "border-tinta bg-papel font-semibold" : "border-borda bg-papel"}`}
     >
       <Icone
         aria-hidden="true"

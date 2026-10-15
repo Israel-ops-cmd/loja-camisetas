@@ -40,7 +40,11 @@ Passos para pôr o site no ar em **https://lojacartaviva.com.br**, na ordem. Cad
   2. `npm run catalogo:importar`: só mostra o que faria. Confira na primeira linha que o banco é o de produção e leia o relatório.
   3. `npm run catalogo:importar -- --aplicar`: grava. Tudo numa transação: se der erro, nada fica pela metade.
   4. Feche o PowerShell (ou `Remove-Item Env:DIRECT_URL`), para o próximo comando não ir para a produção por engano.
-  Pode rodar de novo sem duplicar nada. Ele cadastra as 20 estampas, completa a "Camiseta lisa" e esconde "Jesus, my best friend".
+  Pode rodar de novo sem duplicar nada. Ele cadastra as 20 estampas, completa a "Camiseta lisa" (com a descrição, se ela não tiver) e esconde "Jesus, my best friend".
+- [ ] **Zerar o estoque de teste no banco de produção** (depois do importador), no mesmo PowerShell com o `DIRECT_URL` de produção:
+  1. `npm run estoque:zerar-teste`: só mostra as peças lisas e prontas com estoque. Confira o banco na primeira linha.
+  2. `npm run estoque:zerar-teste -- --aplicar`: zera tudo, com uma linha de ajuste no histórico de cada peça. Se o banco já tiver pedido pago, ele para sem mexer em nada.
+  3. Lance o estoque real no painel, em Estoque ("Chegaram peças"). Produto sem estoque aparece como esgotado.
 - [x] Authentication > URL Configuration: Site URL e Redirect URLs com `https://lojacartaviva.com.br`.
 - [x] Authentication > SMTP: Resend, remetente `nao-responda@lojacartaviva.com.br`. Modelos de confirmação e de nova senha em português, com os links de `/auth/confirmar`.
 - [ ] Criar as contas do Israel e do pai em `/cadastro` e promover com `npm run admin:promover -- email`, usando o `DIRECT_URL` de produção.

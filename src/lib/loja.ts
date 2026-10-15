@@ -24,7 +24,7 @@ export const LOJA = {
 };
 
 /** Data da versão das políticas e dos termos (preencher ao publicar). */
-export const ATUALIZACAO_DAS_POLITICAS: string | null = null;
+export const ATUALIZACAO_DAS_POLITICAS: string | null = "15 de outubro de 2026";
 
 /** Valor obrigatório: o próprio valor ou o marcador, bem visível. */
 export function ou(valor: string | null, marcador: string) {

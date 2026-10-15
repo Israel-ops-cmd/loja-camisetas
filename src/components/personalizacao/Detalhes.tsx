@@ -82,7 +82,7 @@ export function ListaDeArquivos({ arquivos, grande = false }: { arquivos: Arquiv
   return (
     <ul className={`grid gap-4 ${grande ? "sm:grid-cols-2" : "grid-cols-2 sm:grid-cols-3"}`}>
       {arquivos.map((arquivo) => (
-        <li key={arquivo.id} className="overflow-hidden rounded-xl border border-borda">
+        <li key={arquivo.id} className="overflow-hidden rounded-[2px] border border-borda">
           <div className={`flex items-center justify-center bg-produto ${grande ? "aspect-[4/3]" : "aspect-square"}`}>
             {arquivo.urlVer ? (
               // Link temporário do Storage: o otimizador de imagens não se aplica.
@@ -100,7 +100,7 @@ export function ListaDeArquivos({ arquivos, grande = false }: { arquivos: Arquiv
             {arquivo.urlBaixar && (
               <a
                 href={arquivo.urlBaixar}
-                className="flex size-11 shrink-0 items-center justify-center rounded-full hover:bg-fundo"
+                className="flex size-11 shrink-0 items-center justify-center rounded-full hover:bg-areia"
               >
                 <Download aria-hidden="true" className="size-4" strokeWidth={1.8} />
                 <span className="sr-only">Baixar {arquivo.nome}</span>
@@ -120,7 +120,7 @@ export function Conversa({ p, nomeDoCliente }: { p: PersonalizacaoDetalhada; nom
       {p.mensagens.map((m) => (
         <li
           key={m.id}
-          className={`rounded-xl px-4 py-3 text-[15px] ${m.autor === "LOJA" ? "bg-fundo" : "border border-borda"}`}
+          className={`rounded-[2px] px-4 py-3 text-[15px] ${m.autor === "LOJA" ? "bg-areia" : "border border-borda"}`}
         >
           <p className="text-[12px] font-bold tracking-[0.12em] text-secundario uppercase">
             {m.autor === "LOJA" ? "Carta Viva" : nomeDoCliente} · {formatarData(m.criadoEm)}

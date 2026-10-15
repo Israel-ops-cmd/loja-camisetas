@@ -122,7 +122,7 @@ export function EnvioDeArquivos({
             return (
               <li
                 key={arquivo.caminho}
-                className="flex items-center gap-3 rounded-xl border border-borda bg-papel px-4 py-2"
+                className="flex items-center gap-3 rounded-[2px] border border-borda bg-papel px-4 py-2"
               >
                 <Icone aria-hidden="true" className="size-5 shrink-0" strokeWidth={1.6} />
                 <span className="min-w-0 flex-1 truncate text-[14px]">{arquivo.nome}</span>
@@ -132,7 +132,7 @@ export function EnvioDeArquivos({
                 <button
                   type="button"
                   onClick={() => aoMudar(arquivos.filter((a) => a.caminho !== arquivo.caminho))}
-                  className="-mr-2 flex size-11 items-center justify-center rounded-full hover:bg-fundo"
+                  className="-mr-2 flex size-11 items-center justify-center rounded-full hover:bg-areia"
                 >
                   <X aria-hidden="true" className="size-4" strokeWidth={1.8} />
                   <span className="sr-only">Remover {arquivo.nome}</span>
@@ -143,7 +143,7 @@ export function EnvioDeArquivos({
           {enviando.map((nome) => (
             <li
               key={nome}
-              className="flex items-center gap-3 rounded-xl border border-dashed border-borda px-4 py-3 text-[14px] text-secundario"
+              className="flex items-center gap-3 rounded-[2px] border border-dashed border-borda px-4 py-3 text-[14px] text-secundario"
             >
               <LoaderCircle aria-hidden="true" className="size-5 shrink-0 animate-spin" strokeWidth={1.6} />
               Enviando {nome}…

@@ -15,6 +15,7 @@
     "postdb:migrate": "prisma generate",
     "admin:promover": "tsx scripts/promover-admin.ts",
     "catalogo:importar": "tsx scripts/importar-catalogo.ts",
+    "estoque:zerar-teste": "tsx scripts/zerar-estoque-de-teste.ts",
     "conferir-marcadores": "node scripts/conferir-marcadores.mjs"
   },
   "dependencies": {
