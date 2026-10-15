@@ -22,10 +22,11 @@ export function AMarca() {
             Uma carta que se veste.
           </h2>
           <p className="text-apoio">
-            O nome vem de 2 Coríntios 3:3: somos cartas escritas não com tinta, mas com o Espírito do Deus vivo. Cada
-            camiseta leva uma mensagem curta, com letra limpa e espaço para respirar.
+            O nome vem de 2 Coríntios 3:3, que fala de cartas escritas não com tinta, mas com o Espírito do Deus vivo.
+            Nossa primeira coleção nasceu desse versículo. Hoje tem estampa para todo gosto, mas o jeito de fazer
+            continua o mesmo: mensagem curta, letra limpa e espaço para respirar.
           </p>
-          <p className="text-apoio">Estampamos depois do pedido, aqui em Natal, e conferimos cada peça antes de enviar.</p>
+          <p className="text-apoio">A gente estampa aqui em Natal e confere cada peça antes de enviar.</p>
         </div>
       </AoRolar>
     </section>

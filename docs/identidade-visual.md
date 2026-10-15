@@ -6,6 +6,8 @@ Identidade aprovada pelo Israel. Vale para todas as telas da loja. Desde o redes
 
 "Carta Viva": a peça como mensagem. A loja vende camisetas e personalizados (canecas, caixinhas e bonés também estão nos planos), por isso o nome é só "Carta Viva". O logo é um envelope cuja aba forma o "V", fechado com um lacre. O lacre é o único ponto de cor da marca.
 
+**Posicionamento (15/10/2026):** a camiseta é o carro-forte, e a loja vende para todos os públicos. As estampas cristãs são uma das linhas (a Coleção Carta Viva, que deu origem ao nome); outras estampas, de outros temas, entram com o tempo. O título da página inicial é "Vista o que você quer dizer." Os textos são verdadeiros e conversados, como quem atende no balcão: nada de promessa que a loja não cumpre nem frase de efeito vazia.
+
 O clima é minimalista, leve e editorial: muito espaço em branco, fundo papel, linhas finas no lugar de caixas, cantos retos (no máximo 2 px), títulos em serifa e as fotos como protagonistas. O preto fica para o botão principal e o rodapé.
 
 ## Logo

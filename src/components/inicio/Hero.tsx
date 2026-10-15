@@ -1,24 +1,24 @@
 import Image from "next/image";
 
 import { Botao } from "@/components/ui/Botao";
-import { CATEGORIA_DA_COLECAO } from "@/lib/catalogo";
 
 export function Hero() {
   return (
     <section className="largura grid items-center gap-x-10 gap-y-12 pt-12 pb-20 md:grid-cols-2 lg:gap-x-18 lg:pt-18 lg:pb-24">
       <div className="flex max-w-[520px] flex-col gap-7">
-        <span className="sobretitulo text-secundario">Coleção Carta Viva</span>
-        <h1 className="titulo-hero">Vós sois a carta de Cristo.</h1>
+        <span className="sobretitulo text-secundario">Camisetas e personalizados</span>
+        <h1 className="titulo-hero">Vista o que você quer dizer.</h1>
         <p className="max-w-[440px] text-[17px] text-apoio">
-          Camisetas cristãs com versículos, estampadas uma a uma em Natal e enviadas para todo o Brasil. Para vestir o que você crê, todos os dias.
+          Tem estampa nossa, tem camiseta lisa e, se você já tem uma ideia, a gente estampa a sua arte. Mandamos para
+          todo o Brasil.
         </p>
         <div className="flex flex-wrap items-center gap-x-7 gap-y-3.5">
-          <Botao href={`/produtos?categoria=${CATEGORIA_DA_COLECAO}`}>Ver a coleção</Botao>
+          <Botao href="/produtos">Ver as camisetas</Botao>
           <Botao href="/personalizacao" variante="texto">
             Personalizar
           </Botao>
         </div>
-        <span className="font-titulo text-[17px] text-secundario italic">2 Coríntios 3:3</span>
+        <span className="font-titulo text-[17px] text-secundario italic">Estampado em Natal, RN</span>
       </div>
 
       <figure className="flex flex-col gap-3">
