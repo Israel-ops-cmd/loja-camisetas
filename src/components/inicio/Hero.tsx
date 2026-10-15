@@ -9,7 +9,7 @@ export function Hero() {
         <span className="sobretitulo text-secundario">Camisetas e personalizados</span>
         <h1 className="titulo-hero">Vista o que você quer dizer.</h1>
         <p className="max-w-[440px] text-[17px] text-apoio">
-          Tem estampa nossa, tem camiseta lisa e, se você já tem uma ideia, a gente estampa a sua arte. Mandamos para
+          Estampas autorais, modelos lisos e personalização sob medida para quem quer vestir uma ideia. Enviamos para
           todo o Brasil.
         </p>
         <div className="flex flex-wrap items-center gap-x-7 gap-y-3.5">
@@ -18,7 +18,7 @@ export function Hero() {
             Personalizar
           </Botao>
         </div>
-        <span className="font-titulo text-[17px] text-secundario italic">Estampado em Natal, RN</span>
+        <span className="font-titulo text-[17px] text-secundario italic">Produção própria em Natal, RN</span>
       </div>
 
       <figure className="flex flex-col gap-3">
