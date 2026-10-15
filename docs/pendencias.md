@@ -227,7 +227,7 @@ Desde a etapa 12, produtos, preços, cores, tamanhos, descrições e fotos são 
 - [ ] Painel de produtos: arrastar para reordenar fotos (hoje são botões "Subir" e "Descer") e editar ou esconder cores e tamanhos já criados (hoje só dá para criar).
 - [ ] Estoque: lançar a chegada de um lote com vários tamanhos numa tela só. Hoje é um tamanho por vez.
 - [x] Limpeza de fotos órfãs na pasta `produtos` do Storage: mesmo botão de Manutenção do painel (etapa 13b).
-- [ ] Avaliar se o texto do hero e do menu deve dizer que a loja é de camisetas cristãs.
+- [x] Posicionamento (15/10/2026): a loja não é só de camisetas cristãs. A camiseta é o carro-forte, para todos os públicos, e as estampas cristãs são uma das linhas. Hero, "A marca", títulos, descrições e imagem de compartilhamento reescritos (ver `docs/identidade-visual.md`).
 - [ ] Depoimentos de clientes, quando houver avaliações reais.
 
 ## Limpeza

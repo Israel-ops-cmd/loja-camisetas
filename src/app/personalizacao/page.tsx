@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/personalizacao" },
   title: "Camisetas personalizadas com a sua arte",
   description:
-    "Camisetas personalizadas com a sua arte ou logo, para igrejas, empresas, eventos e presentes. Envie a estampa, aprove a prévia e receba em todo o Brasil.",
+    "Camiseta com a sua arte, o logo da empresa ou o nome do evento. Você manda a ideia, a gente mostra a prévia e só produz depois que você aprovar.",
 };
 
 function hojeEmSaoPaulo() {

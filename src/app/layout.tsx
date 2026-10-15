@@ -21,11 +21,11 @@ const manrope = Manrope({
   weight: ["400", "500", "600", "700"],
 });
 
-// Os termos que as pessoas buscam (camiseta cristã, evangélica, com
-// versículo, personalizada, atacado) entram no título e na descrição.
-const TITULO = "Carta Viva | Camisetas cristãs com versículos";
+// A camiseta é o carro-forte e a loja atende todos os públicos (as estampas
+// cristãs são uma das linhas). Os termos buscados entram no título e na descrição.
+const TITULO = "Carta Viva | Camisetas estampadas e personalizadas";
 const DESCRICAO =
-  "Camisetas cristãs e evangélicas com versículos, estampadas em Natal e enviadas para todo o Brasil. Estampas próprias, camisetas lisas, personalizadas com a sua arte e atacado para igrejas e eventos.";
+  "Camisetas estampadas em Natal e enviadas para todo o Brasil. Estampas da casa, camisetas lisas e personalizadas com a sua arte, também no atacado.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(enderecoDoSite()),

@@ -49,12 +49,16 @@ export async function generateMetadata({
     ? [{ url: `/_next/image?url=${encodeURIComponent(foto.url)}&w=1200&q=75`, width: 1200, alt: foto.alt }]
     : [{ url: "/opengraph-image", width: 1200, height: 630, alt: "Carta Viva" }];
   // Título e descrição com os termos que as pessoas buscam ("camiseta",
-  // "cristã", o versículo), e não só o nome da estampa.
+  // o versículo), e não só o nome da estampa.
   const titulo = tituloDoProduto(produto.nome, produto.referencia);
   const descricao = resumir(
-    produto.categoria.slug === "basicas"
-      ? `${produto.descricao ?? ""} Camiseta da Carta Viva, com envio para todo o Brasil.`
-      : `${produto.descricao ?? ""} Camiseta cristã da Carta Viva, estampada em Natal, com envio para todo o Brasil.`,
+    `${produto.descricao ?? ""} ${
+      produto.categoria.slug === "basicas"
+        ? "Camiseta lisa da Carta Viva."
+        : produto.categoria.slug === CATEGORIA_DA_COLECAO
+          ? "Camiseta da Coleção Carta Viva, estampada em Natal."
+          : "Camiseta estampada em Natal pela Carta Viva."
+    } Enviamos para todo o Brasil.`,
   );
   return {
     title: titulo,
