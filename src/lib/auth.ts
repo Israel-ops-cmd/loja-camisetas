@@ -68,6 +68,16 @@ export async function garantirCliente(usuario: {
       ? usuario.user_metadata.nome.trim()
       : usuario.email.split("@")[0];
 
+  // Mesmo e-mail com outro id: a conta foi apagada e criada de novo no
+  // Supabase Auth (que não deixa duas contas com o mesmo e-mail). Como o
+  // e-mail já foi confirmado, o cadastro antigo, com endereços e pedidos,
+  // passa para a conta nova (as chaves estrangeiras têm ON UPDATE CASCADE).
+  const mesmoEmail = await prisma.cliente.findUnique({ where: { email: usuario.email }, select: { id: true } });
+  if (mesmoEmail && mesmoEmail.id !== usuario.id) {
+    await prisma.cliente.update({ where: { id: mesmoEmail.id }, data: { id: usuario.id } });
+    return;
+  }
+
   await prisma.cliente.upsert({
     where: { id: usuario.id },
     update: { email: usuario.email },
