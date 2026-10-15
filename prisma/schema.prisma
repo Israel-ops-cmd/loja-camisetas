@@ -1,0 +1,686 @@
+// Schema do banco da Carta Viva.
+// Preços sempre em centavos (Int). Estoque: peças lisas por modelo + cor + tamanho
+// (PecaLisa) e peças prontas de cada arte (Variacao.estoque).
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------------------------------------------------------------- Catálogo
+
+model Categoria {
+  id       String    @id @default(uuid(7)) @db.Uuid
+  nome     String
+  slug     String    @unique
+  ordem    Int       @default(0)
+  produtos Produto[]
+
+  @@map("categorias")
+}
+
+model Produto {
+  id                  String           @id @default(uuid(7)) @db.Uuid
+  nome                String
+  slug                String           @unique
+  descricao           String?
+  /// Referência bíblica da estampa (ex.: Romanos 1:16), mostrada abaixo do nome.
+  referencia          String?
+  /// Reserva: vale quando o modelo não tem preço neste produto (PrecoDoModelo).
+  precoBaseEmCentavos Int
+  ativo               Boolean          @default(true)
+  destaque            Boolean          @default(false)
+  categoriaId         String           @db.Uuid
+  categoria           Categoria        @relation(fields: [categoriaId], references: [id])
+  variacoes           Variacao[]
+  precosDosModelos    PrecoDoModelo[]
+  imagens             ProdutoImagem[]
+  personalizacoes     Personalizacao[]
+  criadoEm            DateTime         @default(now())
+  atualizadoEm        DateTime         @updatedAt
+
+  @@index([categoriaId])
+  @@map("produtos")
+}
+
+/// Modelo da peça (Tradicional, Baby Look...): define as cores, os tamanhos
+/// com a tabela de medidas e o pacote para o frete.
+model Modelo {
+  id                                 String           @id @default(uuid(7)) @db.Uuid
+  nome                               String           @unique
+  slug                               String           @unique
+  /// Ordem de exibição na loja e no painel.
+  ordem                              Int              @default(0)
+  ativo                              Boolean          @default(true)
+  // Pacote de uma unidade, para o cálculo de frete. Padrão PROVISÓRIO
+  // (camiseta embalada estimada): confirmar com a medida real de cada modelo.
+  pesoEmGramas                       Int              @default(300)
+  larguraCm                          Int              @default(22)
+  alturaCm                           Int              @default(4)
+  comprimentoCm                      Int              @default(28)
+  /// Preços de referência, sugeridos ao ligar o modelo num produto: arte
+  /// (estampada) e camiseta lisa. Sem preço de lisa, a lisa não usa o modelo.
+  precoReferenciaEstampadaEmCentavos Int?
+  precoReferenciaLisaEmCentavos      Int?
+  cores                              ModeloCor[]
+  medidas                            MedidaDoModelo[]
+  variacoes                          Variacao[]
+  pecasLisas                         PecaLisa[]
+  personalizacoes                    Personalizacao[]
+  precos                             PrecoDoModelo[]
+  imagens                            ProdutoImagem[]
+  criadoEm                           DateTime         @default(now())
+  atualizadoEm                       DateTime         @updatedAt
+
+  @@map("modelos")
+}
+
+/// Preço de um modelo dentro de um produto (ex.: a arte no Oversized). O
+/// preço próprio de um tamanho (Variacao.precoEmCentavos) vale por cima dele.
+model PrecoDoModelo {
+  produtoId       String  @db.Uuid
+  produto         Produto @relation(fields: [produtoId], references: [id], onDelete: Cascade)
+  modeloId        String  @db.Uuid
+  modelo          Modelo  @relation(fields: [modeloId], references: [id])
+  precoEmCentavos Int
+
+  @@id([produtoId, modeloId])
+  @@map("precos_dos_modelos")
+}
+
+/// Cores em que o modelo existe.
+model ModeloCor {
+  modeloId String @db.Uuid
+  modelo   Modelo @relation(fields: [modeloId], references: [id], onDelete: Cascade)
+  corId    String @db.Uuid
+  cor      Cor    @relation(fields: [corId], references: [id])
+
+  @@id([modeloId, corId])
+  @@map("modelo_cores")
+}
+
+/// Tamanhos do modelo, com a tabela de medidas da peça (em milímetros, para
+/// aceitar meio centímetro sem arredondar).
+model MedidaDoModelo {
+  modeloId      String  @db.Uuid
+  modelo        Modelo  @relation(fields: [modeloId], references: [id], onDelete: Cascade)
+  tamanhoId     String  @db.Uuid
+  tamanho       Tamanho @relation(fields: [tamanhoId], references: [id])
+  comprimentoMm Int
+  larguraMm     Int
+  mangaMm       Int
+
+  @@id([modeloId, tamanhoId])
+  @@map("medidas_dos_modelos")
+}
+
+model Cor {
+  id              String           @id @default(uuid(7)) @db.Uuid
+  nome            String           @unique
+  /// Hexadecimal, ex.: #141414
+  hex             String
+  modelos         ModeloCor[]
+  variacoes       Variacao[]
+  pecasLisas      PecaLisa[]
+  imagens         ProdutoImagem[]
+  personalizacoes Personalizacao[]
+
+  @@map("cores")
+}
+
+model Tamanho {
+  id                    String               @id @default(uuid(7)) @db.Uuid
+  nome                  String               @unique
+  /// Ordem de exibição (P antes de M...)
+  ordem                 Int
+  variacoes             Variacao[]
+  pecasLisas            PecaLisa[]
+  medidas               MedidaDoModelo[]
+  itensDePersonalizacao PersonalizacaoItem[]
+
+  @@map("tamanhos")
+}
+
+/// Peça lisa (sem estampa) de um modelo, numa cor e num tamanho: o estoque
+/// principal. Vende como camiseta lisa e vira arte ou personalização quando
+/// estampada. Existe uma linha para cada cor e tamanho do modelo.
+model PecaLisa {
+  id            String                @id @default(uuid(7)) @db.Uuid
+  modeloId      String                @db.Uuid
+  modelo        Modelo                @relation(fields: [modeloId], references: [id])
+  corId         String                @db.Uuid
+  cor           Cor                   @relation(fields: [corId], references: [id])
+  tamanhoId     String                @db.Uuid
+  tamanho       Tamanho               @relation(fields: [tamanhoId], references: [id])
+  /// Pode ficar negativo quando um pedido é pago sem peça (indica quantas faltam).
+  estoque       Int                   @default(0)
+  variacoes     Variacao[]
+  movimentacoes MovimentacaoEstoque[]
+
+  @@unique([modeloId, corId, tamanhoId])
+  @@map("pecas_lisas")
+}
+
+/// Uma combinação vendável de produto + modelo + cor + tamanho. Numa arte, o
+/// estoque são as peças prontas (já estampadas); na falta delas, a venda usa
+/// a peça lisa. Nas camisetas lisas (categoria Camisetas Básicas), o estoque
+/// da variação não é usado: a venda sai direto da peça lisa.
+model Variacao {
+  id              String                @id @default(uuid(7)) @db.Uuid
+  sku             String                @unique
+  /// Peças prontas desta arte.
+  estoque         Int                   @default(0)
+  /// Quando nulo, vale o preço base do produto.
+  precoEmCentavos Int?
+  ativo           Boolean               @default(true)
+  produtoId       String                @db.Uuid
+  produto         Produto               @relation(fields: [produtoId], references: [id], onDelete: Cascade)
+  modeloId        String                @db.Uuid
+  modelo          Modelo                @relation(fields: [modeloId], references: [id])
+  corId           String                @db.Uuid
+  cor             Cor                   @relation(fields: [corId], references: [id])
+  tamanhoId       String                @db.Uuid
+  tamanho         Tamanho               @relation(fields: [tamanhoId], references: [id])
+  pecaLisa        PecaLisa              @relation(fields: [modeloId, corId, tamanhoId], references: [modeloId, corId, tamanhoId])
+  movimentacoes   MovimentacaoEstoque[]
+  itensPedido     ItemPedido[]
+
+  @@unique([produtoId, modeloId, corId, tamanhoId])
+  @@index([modeloId])
+  @@map("variacoes")
+}
+
+model ProdutoImagem {
+  id               String  @id @default(uuid(7)) @db.Uuid
+  url              String
+  alt              String
+  ordem            Int     @default(0)
+  /// Valor de `object-position` para enquadrar a estampa no recorte (ex.: "50% 45%").
+  /// Nulo: centralizado.
+  enquadramento    String?
+  /// Caminho na pasta pública "produtos" do Storage (fotos enviadas pelo painel).
+  /// Nulo para as fotos que ficam em /public/fotos.
+  caminhoNoStorage String? @unique
+  produtoId        String  @db.Uuid
+  produto          Produto @relation(fields: [produtoId], references: [id], onDelete: Cascade)
+  /// Quando preenchida, a foto aparece ao escolher essa cor.
+  corId            String? @db.Uuid
+  cor              Cor?    @relation(fields: [corId], references: [id])
+  /// Quando preenchido, a foto aparece ao escolher esse modelo.
+  modeloId         String? @db.Uuid
+  modelo           Modelo? @relation(fields: [modeloId], references: [id])
+
+  @@index([produtoId])
+  @@map("produto_imagens")
+}
+
+enum MotivoMovimentacao {
+  ENTRADA
+  VENDA
+  AJUSTE
+  CANCELAMENTO
+  /// Peças lisas estampadas para o estoque de uma arte (sai lisa, entra pronta).
+  ESTAMPA
+
+  @@map("motivo_movimentacao")
+}
+
+/// Histórico do estoque, das peças prontas (variação) ou das lisas: cada linha
+/// tem um dos dois. A baixa por venda guarda o pedido, e a combinação
+/// (pedido, peça, motivo) é única: um webhook repetido não desconta duas vezes.
+model MovimentacaoEstoque {
+  id         String             @id @default(uuid(7)) @db.Uuid
+  /// Positiva para entrada, negativa para saída.
+  quantidade Int
+  motivo     MotivoMovimentacao
+  observacao String?
+  variacaoId String?            @db.Uuid
+  variacao   Variacao?          @relation(fields: [variacaoId], references: [id], onDelete: Restrict)
+  pecaLisaId String?            @db.Uuid
+  pecaLisa   PecaLisa?          @relation(fields: [pecaLisaId], references: [id], onDelete: Restrict)
+  pedidoId   String?            @db.Uuid
+  pedido     Pedido?            @relation(fields: [pedidoId], references: [id])
+  criadoEm   DateTime           @default(now())
+
+  @@unique([pedidoId, variacaoId, motivo])
+  @@unique([pedidoId, pecaLisaId, motivo])
+  @@index([variacaoId])
+  @@index([pecaLisaId])
+  @@map("movimentacoes_estoque")
+}
+
+// ---------------------------------------------------------------- Clientes
+
+model Cliente {
+  /// Mesmo id do usuário no Supabase Auth (auth.users.id).
+  id              String           @id @db.Uuid
+  nome            String
+  email           String           @unique
+  telefone        String?
+  /// Opcional no cadastro; exigido no checkout (boleto e etiqueta de envio).
+  cpf             String?
+  enderecos       Endereco[]
+  pedidos         Pedido[]
+  personalizacoes Personalizacao[]
+  criadoEm        DateTime         @default(now())
+  atualizadoEm    DateTime         @updatedAt
+
+  @@map("clientes")
+}
+
+model Endereco {
+  id           String   @id @default(uuid(7)) @db.Uuid
+  destinatario String
+  cep          String
+  logradouro   String
+  numero       String
+  complemento  String?
+  bairro       String
+  cidade       String
+  uf           String   @db.Char(2)
+  principal    Boolean  @default(false)
+  clienteId    String   @db.Uuid
+  cliente      Cliente  @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  criadoEm     DateTime @default(now())
+
+  @@index([clienteId])
+  @@map("enderecos")
+}
+
+// ---------------------------------------------------------------- Pedidos
+
+enum StatusPedido {
+  AGUARDANDO_PAGAMENTO
+  PAGO
+  EM_SEPARACAO
+  ENVIADO
+  ENTREGUE
+  CANCELADO
+
+  @@map("status_pedido")
+}
+
+model Pedido {
+  id     String       @id @default(uuid(7)) @db.Uuid
+  /// Número mostrado ao cliente (#1001, #1002...).
+  numero Int          @unique @default(autoincrement())
+  status StatusPedido @default(AGUARDANDO_PAGAMENTO)
+
+  clienteId String  @db.Uuid
+  cliente   Cliente @relation(fields: [clienteId], references: [id])
+
+  /// Gerada ao abrir o checkout. Um segundo envio com a mesma chave
+  /// (clique duplo, internet oscilando) devolve o pedido já criado.
+  chaveIdempotencia String? @unique @db.Uuid
+
+  // Cópia dos dados do comprador no momento da compra.
+  compradorNome     String
+  compradorEmail    String
+  /// Só os 11 dígitos.
+  compradorCpf      String
+  /// Só os dígitos, com DDD.
+  compradorTelefone String
+
+  subtotalEmCentavos      Int
+  /// Frete cobrado do cliente (0 com frete grátis na opção mais barata).
+  freteEmCentavos         Int
+  /// Parte do frete paga pela loja (frete grátis). Cotação original =
+  /// freteEmCentavos + freteDescontoEmCentavos.
+  freteDescontoEmCentavos Int @default(0)
+  descontoEmCentavos      Int @default(0)
+  /// Percentual de desconto de atacado aplicado (0 = sem desconto). Cada peça
+  /// é cobrada com o preço já descontado e arredondado para baixo ao centavo.
+  descontoPercentual      Int @default(0)
+  totalEmCentavos         Int
+
+  // Cópia do endereço no momento da compra.
+  entregaDestinatario String
+  entregaCep          String
+  entregaLogradouro   String
+  entregaNumero       String
+  entregaComplemento  String?
+  entregaBairro       String
+  entregaCidade       String
+  entregaUf           String  @db.Char(2)
+
+  // Frete (Melhor Envio)
+  /// ID do serviço no Melhor Envio (1 = PAC, 2 = SEDEX...), para a etiqueta.
+  freteServicoId        Int?
+  freteServico          String?
+  freteTransportadora   String?
+  fretePrazoMinimoDias  Int?
+  /// Prazo máximo em dias úteis.
+  fretePrazoDias        Int?
+  melhorEnvioEtiquetaId String?
+  codigoRastreio        String?
+
+  // Pagamento (Mercado Pago)
+  mercadoPagoPreferenciaId String?
+  /// Link da cobrança (init_point), reaproveitado enquanto o prazo valer.
+  mercadoPagoLink          String?
+  /// Última situação informada pelo Mercado Pago (pending, rejected...).
+  mercadoPagoStatus        String?
+  /// Preenchido só no pagamento aprovado.
+  mercadoPagoPagamentoId   String?   @unique
+  metodoPagamento          String?
+  pagoEm                   DateTime?
+
+  /// Algo para o administrador decidir (ex.: pago sem estoque, valor
+  /// divergente). Nulo quando está tudo certo.
+  alerta String?
+
+  /// Última conferência do pagamento na API (limita a uma por minuto na
+  /// página do pedido).
+  pagamentoConferidoEm DateTime?
+  enviadoEm            DateTime?
+  entregueEm           DateTime?
+  canceladoEm          DateTime?
+  /// Motivo do cancelamento, mostrado ao cliente.
+  motivoCancelamento   String?
+
+  itens          ItemPedido[]
+  historico      PedidoHistorico[]
+  movimentacoes  MovimentacaoEstoque[]
+  /// Preenchido quando o pedido nasce de uma personalização aprovada.
+  personalizacao Personalizacao?
+  criadoEm       DateTime              @default(now())
+  atualizadoEm   DateTime              @updatedAt
+
+  @@index([clienteId])
+  @@index([status])
+  @@map("pedidos")
+}
+
+/// O que aconteceu com o pedido e quem fez (só o painel mostra).
+model PedidoHistorico {
+  id       String   @id @default(uuid(7)) @db.Uuid
+  texto    String
+  /// Nome de quem fez a mudança; nulo quando foi o sistema (pagamento, tarefa).
+  autor    String?
+  pedidoId String   @db.Uuid
+  pedido   Pedido   @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+  criadoEm DateTime @default(now())
+
+  @@index([pedidoId])
+  @@map("pedido_historico")
+}
+
+/// Guarda uma cópia de nome, cor, tamanho e preço: mudanças no catálogo
+/// não alteram pedidos antigos.
+model ItemPedido {
+  id                      String    @id @default(uuid(7)) @db.Uuid
+  quantidade              Int
+  precoUnitarioEmCentavos Int
+  nomeProduto             String
+  /// Nulo nos pedidos feitos antes da escolha de modelo (todos Tradicional).
+  nomeModelo              String?
+  nomeCor                 String
+  nomeTamanho             String
+  sku                     String
+  /// Definidos na baixa do estoque (pagamento confirmado): quantas peças
+  /// saíram das lisas (o resto saiu das prontas da arte) e se elas precisam
+  /// ser estampadas (arte ou personalização; camiseta lisa não).
+  quantidadeDaLisa        Int       @default(0)
+  estampar                Boolean   @default(false)
+  /// Quando as peças a estampar ficaram prontas (lista de produção).
+  estampadoEm             DateTime?
+  pedidoId                String    @db.Uuid
+  pedido                  Pedido    @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+  variacaoId              String    @db.Uuid
+  variacao                Variacao  @relation(fields: [variacaoId], references: [id])
+
+  @@index([pedidoId])
+  @@map("itens_pedido")
+}
+
+// ---------------------------------------------------------------- Personalização
+
+enum StatusPersonalizacao {
+  /// Enviado pelo cliente, esperando a prévia.
+  RECEBIDA
+  PREVIA_ENVIADA
+  AJUSTE_SOLICITADO
+  /// Cliente aprovou; falta escolher entrega e pagar.
+  APROVADA
+  /// Virou um pedido (pagamento pelo fluxo normal).
+  CONVERTIDA
+  CANCELADA
+  /// Recusado pela loja (ex.: arte sem direito de uso). O motivo aparece para o cliente.
+  RECUSADA
+
+  @@map("status_personalizacao")
+}
+
+enum PosicaoEstampa {
+  FRENTE_PEITO
+  FRENTE_GRANDE
+  COSTAS
+
+  @@map("posicao_estampa")
+}
+
+enum TipoArquivoPersonalizacao {
+  ARTE
+  PREVIA
+
+  @@map("tipo_arquivo_personalizacao")
+}
+
+enum AutorMensagem {
+  CLIENTE
+  LOJA
+
+  @@map("autor_mensagem")
+}
+
+/// Pedido de camiseta com a arte do cliente. O preço é orçado caso a caso
+/// pelo administrador junto com a prévia.
+model Personalizacao {
+  id     String               @id @default(uuid(7)) @db.Uuid
+  /// Número mostrado ao cliente ("Personalização nº 1").
+  numero Int                  @unique @default(autoincrement())
+  status StatusPersonalizacao @default(RECEBIDA)
+
+  clienteId String           @db.Uuid
+  cliente   Cliente          @relation(fields: [clienteId], references: [id])
+  /// Peça base (camiseta lisa), cor escolhida e posições da estampa.
+  produtoId String           @db.Uuid
+  produto   Produto          @relation(fields: [produtoId], references: [id])
+  modeloId  String           @db.Uuid
+  modelo    Modelo           @relation(fields: [modeloId], references: [id])
+  corId     String           @db.Uuid
+  cor       Cor              @relation(fields: [corId], references: [id])
+  posicoes  PosicaoEstampa[]
+
+  /// Ideia, textos da estampa e observações do cliente.
+  descricao     String?
+  prazoDesejado DateTime? @db.Date
+
+  /// Quando o cliente declarou ter direito de uso da arte enviada
+  /// (obrigatório para enviar o pedido; nulo só em pedidos anteriores à regra).
+  declaracaoDireitosEm DateTime?
+
+  /// Definido pelo administrador ao enviar a prévia.
+  precoUnitarioEmCentavos Int?
+
+  /// Motivo da recusa, mostrado ao cliente.
+  motivoRecusa String?
+
+  /// Pedido criado depois da aprovação.
+  pedidoId String? @unique @db.Uuid
+  pedido   Pedido? @relation(fields: [pedidoId], references: [id])
+
+  itens     PersonalizacaoItem[]
+  arquivos  PersonalizacaoArquivo[]
+  mensagens PersonalizacaoMensagem[]
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  @@index([clienteId])
+  @@index([status])
+  @@map("personalizacoes")
+}
+
+model PersonalizacaoItem {
+  id               String         @id @default(uuid(7)) @db.Uuid
+  quantidade       Int
+  personalizacaoId String         @db.Uuid
+  personalizacao   Personalizacao @relation(fields: [personalizacaoId], references: [id], onDelete: Cascade)
+  tamanhoId        String         @db.Uuid
+  tamanho          Tamanho        @relation(fields: [tamanhoId], references: [id])
+
+  @@unique([personalizacaoId, tamanhoId])
+  @@map("personalizacao_itens")
+}
+
+/// Arquivo guardado no Supabase Storage (pasta privada "personalizacao").
+model PersonalizacaoArquivo {
+  id               String                    @id @default(uuid(7)) @db.Uuid
+  tipo             TipoArquivoPersonalizacao
+  /// Caminho no Storage: "<clienteId>/artes/..." ou "<clienteId>/previas/...".
+  caminho          String                    @unique
+  nomeOriginal     String
+  tamanhoBytes     Int
+  personalizacaoId String                    @db.Uuid
+  personalizacao   Personalizacao            @relation(fields: [personalizacaoId], references: [id], onDelete: Cascade)
+  criadoEm         DateTime                  @default(now())
+
+  @@index([personalizacaoId])
+  @@map("personalizacao_arquivos")
+}
+
+/// Pedidos de ajuste do cliente e recados da loja junto com a prévia.
+model PersonalizacaoMensagem {
+  id               String         @id @default(uuid(7)) @db.Uuid
+  autor            AutorMensagem
+  texto            String
+  personalizacaoId String         @db.Uuid
+  personalizacao   Personalizacao @relation(fields: [personalizacaoId], references: [id], onDelete: Cascade)
+  criadoEm         DateTime       @default(now())
+
+  @@index([personalizacaoId])
+  @@map("personalizacao_mensagens")
+}
+
+// ---------------------------------------------------------------- Atacado
+
+/// Desconto progressivo por quantidade: vale o maior "minimoDePecas" que o
+/// total de peças do carrinho alcança. Editável pelo painel (etapa 12).
+model FaixaAtacado {
+  id            String   @id @default(uuid(7)) @db.Uuid
+  minimoDePecas Int      @unique
+  /// Percentual inteiro (10 = 10%).
+  percentual    Int
+  ativo         Boolean  @default(true)
+  criadoEm      DateTime @default(now())
+  atualizadoEm  DateTime @updatedAt
+
+  @@map("faixas_atacado")
+}
+
+enum StatusOrcamento {
+  NOVO
+  EM_CONTATO
+  FECHADO
+  SEM_RETORNO
+
+  @@map("status_orcamento")
+}
+
+enum TipoDePecaOrcamento {
+  LISA
+  ESTAMPA_DA_CASA
+  PERSONALIZADA
+  NAO_SEI
+
+  @@map("tipo_de_peca_orcamento")
+}
+
+/// Pedido de orçamento enviado pela página /atacado (sem login).
+model Orcamento {
+  id     String          @id @default(uuid(7)) @db.Uuid
+  numero Int             @unique @default(autoincrement())
+  status StatusOrcamento @default(NOVO)
+
+  nome          String
+  empresa       String?
+  email         String
+  /// Só os dígitos, com DDD.
+  telefone      String
+  cidade        String
+  uf            String              @db.Char(2)
+  tipoDePeca    TipoDePecaOrcamento
+  quantidade    Int
+  prazoDesejado DateTime?           @db.Date
+  mensagem      String?
+
+  /// Anotações da loja (não aparecem para o cliente).
+  anotacoes String?
+  /// Hash do IP de envio, só para limitar envios repetidos (não guarda o IP).
+  ipHash    String?
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  @@index([status])
+  @@index([ipHash, criadoEm])
+  @@map("orcamentos")
+}
+
+// ---------------------------------------------------------------- E-mails
+
+enum TipoEmail {
+  // Para o cliente
+  PAGAMENTO_APROVADO
+  PEDIDO_ENVIADO
+  PEDIDO_CANCELADO
+  LEMBRETE_PAGAMENTO
+  PREVIA_PRONTA
+  PERSONALIZACAO_RECUSADA
+  PERSONALIZACAO_RECEBIDA
+  ORCAMENTO_RECEBIDO
+  // Para a loja
+  LOJA_PEDIDO_PAGO
+  LOJA_ALERTA
+  LOJA_NOVA_PERSONALIZACAO
+  LOJA_AJUSTE_SOLICITADO
+  LOJA_NOVO_ORCAMENTO
+
+  @@map("tipo_email")
+}
+
+enum StatusEmail {
+  PENDENTE
+  ENVIADO
+  FALHOU
+
+  @@map("status_email")
+}
+
+/// Fila e registro dos e-mails. Gravado na mesma transação do evento (ex.:
+/// pedido pago) e enviado logo depois; a tarefa diária reenvia o que falhou.
+model Email {
+  id           String      @id @default(uuid(7)) @db.Uuid
+  tipo         TipoEmail
+  /// Evita o mesmo e-mail duas vezes (ex.: "PAGAMENTO_APROVADO:<pedidoId>").
+  chave        String      @unique
+  destinatario String
+  assunto      String
+  html         String
+  texto        String
+  status       StatusEmail @default(PENDENTE)
+  tentativas   Int         @default(0)
+  erro         String?
+  /// Id do e-mail no Resend.
+  idNoServico  String?
+  criadoEm     DateTime    @default(now())
+  enviadoEm    DateTime?
+
+  @@index([status, criadoEm])
+  @@map("emails")
+}

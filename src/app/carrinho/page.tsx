@@ -1,0 +1,189 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { CircleAlert } from "lucide-react";
+
+import { CalculoFrete } from "@/components/carrinho/CalculoFrete";
+import { AvisoFreteGratis } from "@/components/frete/FreteGratis";
+import { ItemCarrinho } from "@/components/carrinho/ItemCarrinho";
+import { SincronizarCarrinho } from "@/components/carrinho/SincronizarCarrinho";
+import { Botao } from "@/components/ui/Botao";
+import { obterCarrinho } from "@/lib/carrinho";
+import { formatarPreco } from "@/lib/formatacao";
+import { cotarFreteDoCarrinho, lerEscolhaDeFrete } from "@/lib/frete";
+import { textoDoPrazoDeDespacho } from "@/lib/politicas";
+
+export const metadata: Metadata = {
+  title: "Sacola",
+  robots: { index: false },
+};
+
+export default async function PaginaCarrinho() {
+  const carrinho = await obterCarrinho();
+
+  // Com CEP guardado, a cotação é refeita a cada visita (com cache de 10 min):
+  // se o carrinho mudou, o frete acompanha. O preço nunca vem do cookie.
+  const escolha = await lerEscolhaDeFrete();
+  const cotacao =
+    escolha && carrinho.quantidadeDePecas > 0
+      ? await cotarFreteDoCarrinho(carrinho, escolha.cep, escolha.servicoId)
+      : null;
+  const frete = cotacao?.ok ? cotacao.escolhida.precoEmCentavos : null;
+
+  return (
+    <div className="secao">
+      <div className="mx-auto max-w-6xl">
+        <h1 className="titulo-listagem">Sacola</h1>
+
+        {carrinho.precisaSincronizar && <SincronizarCarrinho />}
+
+        {carrinho.avisos.length > 0 && (
+          <ul
+            role="status"
+            className="mx-auto mt-10 max-w-3xl space-y-2 border border-borda bg-papel p-5"
+          >
+            {carrinho.avisos.map((aviso) => (
+              <li
+                key={aviso}
+                className="flex items-start gap-2 text-[15px] font-semibold"
+              >
+                <CircleAlert
+                  aria-hidden="true"
+                  className="mt-0.5 size-5 shrink-0"
+                  strokeWidth={1.6}
+                />
+                {aviso}
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {carrinho.itens.length === 0 ? (
+          <div className="mt-12 flex flex-col items-center border-y border-borda px-6 py-16 text-center">
+            <p className="font-titulo text-[28px] font-medium">
+              Sua sacola está vazia
+            </p>
+            <p className="mt-3 max-w-md text-apoio">
+              Escolha suas camisetas e elas aparecem aqui.
+            </p>
+            <Botao href="/produtos" className="mt-8">
+              Ver produtos
+            </Botao>
+          </div>
+        ) : (
+          <div className="mt-12 grid gap-10 lg:grid-cols-[1fr_360px] lg:items-start">
+            <ul className="divide-y divide-borda border-y border-borda">
+              {carrinho.itens.map((item) => (
+                <ItemCarrinho key={item.variacaoId} item={item} />
+              ))}
+            </ul>
+
+            <section
+              aria-labelledby="titulo-resumo"
+              className="border border-borda p-6 lg:sticky lg:top-24"
+            >
+              <h2 id="titulo-resumo" className="sobretitulo">
+                Resumo
+              </h2>
+              <dl className="mt-5 space-y-3 text-[15px]">
+                <div className="flex justify-between gap-4">
+                  <dt className="text-apoio">
+                    Subtotal (
+                    {carrinho.quantidadeDePecas === 1
+                      ? "1 peça"
+                      : `${carrinho.quantidadeDePecas} peças`}
+                    )
+                  </dt>
+                  <dd className="font-semibold">
+                    {formatarPreco(carrinho.subtotalEmCentavos)}
+                  </dd>
+                </div>
+                {carrinho.atacado.descontoEmCentavos > 0 && (
+                  <div className="flex justify-between gap-4">
+                    <dt className="text-apoio">
+                      Desconto de atacado ({carrinho.atacado.percentual}%)
+                    </dt>
+                    <dd className="font-semibold">
+                      −{formatarPreco(carrinho.atacado.descontoEmCentavos)}
+                    </dd>
+                  </div>
+                )}
+                <div className="flex justify-between gap-4">
+                  <dt className="text-apoio">Frete</dt>
+                  <dd
+                    className={
+                      frete === null
+                        ? "text-right text-secundario"
+                        : "font-semibold"
+                    }
+                  >
+                    {frete === null ? "Informe o CEP" : frete === 0 ? "Grátis" : formatarPreco(frete)}
+                  </dd>
+                </div>
+              </dl>
+
+              {carrinho.quantidadeDePecas > 0 && (
+                <AvisoFreteGratis
+                  totalDosProdutosEmCentavos={carrinho.subtotalEmCentavos - carrinho.atacado.descontoEmCentavos}
+                  className="mt-5"
+                />
+              )}
+
+              {carrinho.quantidadeDePecas > 0 && (
+                <div className="mt-5 border-t border-borda pt-5">
+                  {/* A chave recria o componente quando o CEP muda. */}
+                  <CalculoFrete key={cotacao?.cep ?? "sem-cep"} cotacao={cotacao} />
+                </div>
+              )}
+
+              <dl className="mt-5 text-[15px]">
+                <div className="flex items-baseline justify-between gap-4 border-t border-borda pt-4">
+                  <dt className="font-semibold">
+                    {frete === null ? "Total sem frete" : "Total"}
+                  </dt>
+                  <dd className="text-[24px] font-medium">
+                    {formatarPreco(
+                      carrinho.subtotalEmCentavos -
+                        carrinho.atacado.descontoEmCentavos +
+                        (frete ?? 0),
+                    )}
+                  </dd>
+                </div>
+              </dl>
+              {carrinho.atacado.proxima && carrinho.quantidadeDePecas > 0 && (
+                <p className="mt-4 rounded-[2px] bg-areia px-4 py-3 text-[14px]">
+                  {carrinho.atacado.proxima.faltam === 1
+                    ? "Falta 1 peça"
+                    : `Faltam ${carrinho.atacado.proxima.faltam} peças`}{" "}
+                  para <strong>{carrinho.atacado.proxima.percentual}% de desconto</strong>{" "}
+                  em toda a sacola.{" "}
+                  <Link href="/atacado" className="underline underline-offset-4">
+                    Ver tabela
+                  </Link>
+                </p>
+              )}
+              {carrinho.quantidadeDePecas > 0 && (
+                <p className="mt-4 text-[14px] text-apoio">{textoDoPrazoDeDespacho(carrinho.pecasAEstampar)}</p>
+              )}
+              {carrinho.itens.some((item) => item.esgotado) ? (
+                <p className="mt-6 rounded-[2px] border border-borda px-4 py-3 text-center text-[14px] font-semibold">
+                  Remova os itens esgotados para finalizar a compra.
+                </p>
+              ) : (
+                <Botao href="/checkout" className="mt-6 w-full">
+                  Finalizar compra
+                </Botao>
+              )}
+              <Botao
+                href="/produtos"
+                variante="secundario"
+                className="mt-3 w-full"
+              >
+                Continuar comprando
+              </Botao>
+            </section>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

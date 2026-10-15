@@ -1,26 +1,144 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/*
+ * Tema da Carta Viva (redesign de 16/10/2026: docs/redesign/redesign.md e
+ * docs/identidade-visual.md). Cores e fontes ficam só aqui; os componentes
+ * usam os nomes do tema.
+ */
+@theme {
+  /* Texto, botão principal e rodapé */
+  --color-tinta: #1c1b19;
+  /* Branco: texto sobre a Tinta e opção escolhida */
+  --color-papel: #ffffff;
+  /* Fundo geral (Papel do redesign) */
+  --color-fundo: #f5f2ec;
+  /* Faixa de aviso e seções de destaque */
+  --color-areia: #ece6db;
+  /* Atrás das fotos de produto */
+  --color-produto: #e2ded6;
+  /* Divisórias e bordas */
+  --color-borda: #ddd6ca;
+  /* Borda das opções não escolhidas (modelo, tamanho) */
+  --color-opcao: #cfc7ba;
+  /* Só detalhes pequenos (lacre do logo, ponto do prazo). Nunca botão ou fundo. */
+  --color-lacre: #c8102e;
+  /* Hover sobre a Tinta */
+  --color-painel: #34322e;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  /* Texto sobre fundo claro */
+  --color-secundario: #6b665e;
+  --color-apoio: #4a4640;
+  /* Texto sobre fundo escuro (rodapé) */
+  --color-secundario-escuro: #b9b2a6;
+  --color-apoio-escuro: #e9e4da;
+  /* Divisória sobre a Tinta */
+  --color-linha-escura: #3a3833;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  --font-titulo: var(--font-cormorant), ui-serif, Georgia, serif;
+
+  /* Cantos retos: no máximo 2 px. */
+  --radius-md: 2px;
+  --radius-lg: 2px;
+  --radius-xl: 2px;
+  --radius-2xl: 2px;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-fundo);
+  color: var(--color-tinta);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+/* Tipografia */
+
+@utility titulo-hero {
+  font-family: var(--font-titulo);
+  font-weight: 500;
+  font-size: clamp(48px, 5.6vw, 84px);
+  line-height: 1.02;
+  letter-spacing: -0.01em;
+}
+
+@utility titulo-destaque {
+  font-family: var(--font-titulo);
+  font-weight: 500;
+  font-size: clamp(36px, 4vw, 44px);
+  line-height: 1.1;
+}
+
+@utility titulo-listagem {
+  font-family: var(--font-titulo);
+  font-weight: 500;
+  font-size: 36px;
+  line-height: 1.15;
+}
+
+@utility sobretitulo {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+}
+
+@utility texto-menu {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+@utility texto-destaque {
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+/* Rótulo dos campos de escolha (MODELO, COR, TAMANHO). */
+@utility rotulo {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+/* Espaçamento padrão das seções */
+@utility secao {
+  padding-block: 72px;
+  padding-inline: clamp(20px, 5vw, 72px);
+
+  @media (width >= 64rem) {
+    padding-block: 96px;
+  }
+}
+
+/*
+ * Fade curto ao rolar (componente AoRolar). Sem JavaScript ou com
+ * "reduzir movimento" no aparelho, o conteúdo aparece direto.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  .aparece {
+    transition:
+      opacity 0.6s ease,
+      transform 0.6s ease;
+  }
+  .aparece[data-escondido] {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+/* Largura e margens laterais do conteúdo (1440 px, como nos protótipos). */
+@utility largura {
+  max-width: 1440px;
+  margin-inline: auto;
+  padding-inline: clamp(20px, 5vw, 72px);
+}
+
+/* Página do produto no celular: espaço para a barra fixa de compra não cobrir o rodapé. */
+@media (width < 40rem) {
+  body:has([data-barra-de-compra]) {
+    padding-bottom: 84px;
+  }
 }

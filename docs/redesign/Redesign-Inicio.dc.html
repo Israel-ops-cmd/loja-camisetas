@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Carta Viva, página inicial (redesign)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:inherit;text-decoration:none}
+a:hover{opacity:.7}
+</style>
+</helmet>
+<div style="font-family: 'Manrope', sans-serif; color: #1C1B19; background: {{ground}}; font-size: 16px; line-height: 1.6">
+
+<div style="background: #ECE6DB; color: #3D3A35; text-align: center; padding: 9px 20px; font-size: 12px; letter-spacing: 0.08em">Frete grátis para todo o Brasil acima de R$ 400 · Pix, cartão em até 6x e boleto</div>
+
+<header style="display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16px 32px; padding: 22px clamp(20px, 5vw, 72px); border-bottom: 1px solid #DDD6CA">
+<nav aria-label="Principal" style="display: flex; flex-wrap: wrap; gap: 8px 28px; font-size: 13px; letter-spacing: 0.04em">
+<a href="#colecao">Coleção Carta Viva</a>
+<a href="#estampas">Estampas</a>
+<a href="#lisas">Lisas</a>
+<a href="#personalizar">Personalizar</a>
+<a href="#atacado">Atacado</a>
+</nav>
+<a href="#inicio" aria-label="Carta Viva, início" style="display: flex; align-items: center; gap: 10px">
+<svg width="30" height="30" viewBox="0 0 44 44" fill="none" aria-hidden="true"><rect x="4" y="9" width="36" height="26" rx="3" stroke="#1C1B19" stroke-width="1.8"></rect><path d="M5 12 L22 26 L39 12" stroke="#1C1B19" stroke-width="1.8" stroke-linejoin="round"></path><circle cx="22" cy="27" r="4" fill="{{accent}}"></circle></svg>
+<span style="font-weight: 600; font-size: 14px; letter-spacing: 0.32em">CARTA VIVA</span>
+</a>
+<div style="display: flex; justify-content: flex-end; gap: 6px">
+<button type="button" aria-label="Buscar" style="width: 44px; height: 44px; border: 0; background: none; cursor: pointer; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1C1B19" stroke-width="1.5" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg></button>
+<a href="#conta" aria-label="Minha conta" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1C1B19" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"></path></svg></a>
+<a href="#sacola" aria-label="Sacola, 0 itens" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1C1B19" stroke-width="1.5" aria-hidden="true"><path d="M5 8h14l-1 13H6L5 8z"></path><path d="M9 8V6a3 3 0 0 1 6 0v2"></path></svg></a>
+</div>
+</header>
+
+<section id="inicio" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 48px 72px; align-items: center; padding: 72px clamp(20px, 5vw, 72px) 96px; max-width: 1440px; margin: 0 auto; box-sizing: border-box">
+<div style="display: flex; flex-direction: column; gap: 28px; max-width: 520px">
+<span style="font-size: 11px; letter-spacing: 0.32em; font-weight: 600; color: #6B665E">COLEÇÃO CARTA VIVA</span>
+<h1 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: clamp(48px, 5.6vw, 84px); line-height: 1.02; letter-spacing: -0.01em">Vós sois a carta de Cristo.</h1>
+<p style="margin: 0; font-size: 17px; color: #4A4640; max-width: 440px">Camisetas com mensagem, estampadas uma a uma em Natal. Para vestir o que você crê, todos os dias.</p>
+<div style="display: flex; flex-wrap: wrap; gap: 14px 28px; align-items: center">
+<a href="#colecao" style="background: #1C1B19; color: #FFFFFF; padding: 16px 34px; font-size: 13px; font-weight: 600; letter-spacing: 0.14em">VER A COLEÇÃO</a>
+<a href="#personalizar" style="font-size: 13px; font-weight: 600; letter-spacing: 0.14em; border-bottom: 1px solid #1C1B19; padding: 6px 0">PERSONALIZAR</a>
+</div>
+<span style="font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 17px; color: #6B665E">2 Coríntios 3:3</span>
+</div>
+<figure style="margin: 0; display: flex; flex-direction: column; gap: 12px">
+<img src="/_blob/1bb55116085306d45d3cfe086ca2016c" alt="Camiseta Carta Viva Oversized off-white, costas com Vós sois a carta de Cristo" style="width: 100%; aspect-ratio: 1 / 1; object-fit: cover; display: block; background: #ECE6DB">
+<figcaption style="font-size: 12px; color: #6B665E; letter-spacing: 0.04em">Carta Viva · Oversized off-white</figcaption>
+</figure>
+</section>
+
+<section aria-labelledby="modelos-t" style="padding: 0 clamp(20px, 5vw, 72px) 104px; max-width: 1440px; margin: 0 auto; box-sizing: border-box">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 32px; border-top: 1px solid #DDD6CA; padding-top: 28px">
+<h2 id="modelos-t" style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: 36px">Escolha o seu modelo</h2>
+<a href="#produtos" style="font-size: 13px; letter-spacing: 0.08em; border-bottom: 1px solid #1C1B19">Ver todos</a>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px">
+<a href="#oversized" style="display: flex; flex-direction: column; gap: 14px"><img src="/_blob/eb18c0d8c2e8a5a8686f50c1e63a8c46" alt="Camiseta Oversized preta, costas" style="width: 100%; aspect-ratio: 3 / 4; object-fit: cover; display: block; background: #E2DED6"><span style="display: flex; justify-content: space-between; font-size: 14px"><span style="font-weight: 600">Oversized</span><span style="color: #6B665E">a partir de R$ 69,90</span></span></a>
+<a href="#tradicional" style="display: flex; flex-direction: column; gap: 14px"><img src="/_blob/f2e4ae122131ce3f757528547e6a3565" alt="Camiseta Tradicional preta, costas" style="width: 100%; aspect-ratio: 3 / 4; object-fit: cover; display: block; background: #E2DED6"><span style="display: flex; justify-content: space-between; font-size: 14px"><span style="font-weight: 600">Tradicional</span><span style="color: #6B665E">a partir de R$ 49,90</span></span></a>
+<a href="#babylook" style="display: flex; flex-direction: column; gap: 14px"><img src="/_blob/c0f4cef362398fd7952731012860fe93" alt="Baby Look areia, costas" style="width: 100%; aspect-ratio: 3 / 4; object-fit: cover; display: block; background: #E2DED6"><span style="display: flex; justify-content: space-between; font-size: 14px"><span style="font-weight: 600">Baby Look</span><span style="color: #6B665E">a partir de R$ 49,90</span></span></a>
+<a href="#premium" style="display: flex; flex-direction: column; gap: 14px"><img src="/_blob/b2a4c8bc8a095d616525864234f4f721" alt="Oversized Premium estonada bege, costas" style="width: 100%; aspect-ratio: 3 / 4; object-fit: cover; display: block; background: #E2DED6"><span style="display: flex; justify-content: space-between; font-size: 14px"><span style="font-weight: 600">Oversized Premium</span><span style="color: #6B665E">a partir de R$ 89,90</span></span></a>
+</div>
+</section>
+
+<section id="colecao" aria-labelledby="colecao-t" style="padding: 0 clamp(20px, 5vw, 72px) 112px; max-width: 1440px; margin: 0 auto; box-sizing: border-box">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 32px; border-top: 1px solid #DDD6CA; padding-top: 28px">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<span style="font-size: 11px; letter-spacing: 0.32em; font-weight: 600; color: #6B665E">NOVIDADES</span>
+<h2 id="colecao-t" style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: 36px">Coleção Carta Viva</h2>
+</div>
+<a href="#colecao-toda" style="font-size: 13px; letter-spacing: 0.08em; border-bottom: 1px solid #1C1B19">Ver as 8 estampas</a>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 40px 20px">
+<a href="#p-carta-viva" style="display: flex; flex-direction: column; gap: 12px"><img src="/_blob/1bb55116085306d45d3cfe086ca2016c" alt="Carta Viva, costas off-white" style="width: 100%; aspect-ratio: 1 / 1; object-fit: cover; display: block; background: #E2DED6"><span style="font-family: 'Cormorant Garamond', serif; font-size: 22px; line-height: 1.2">Carta Viva</span><span style="font-size: 13px; color: #6B665E; margin-top: -8px">2 Coríntios 3:3</span><span style="font-size: 14px">a partir de R$ 49,90</span><span style="display: flex; gap: 6px" aria-label="5 cores"><span style="width: 12px; height: 12px; border-radius: 50%; background: #EEE8DA; border: 1px solid #C9C2B6"></span><span style="width: 12px; height: 12px; border-radius: 50%; background: #1D1D1D"></span><span style="width: 12px; height: 12px; border-radius: 50%; background: #D9CCB2"></span><span style="width: 12px; height: 12px; border-radius: 50%; background: #1F2A44"></span><span style="font-size: 12px; color: #6B665E; line-height: 12px">+3</span></span></a>
+<a href="#p-selado" style="display: flex; flex-direction: column; gap: 12px"><img src="/_blob/fed8539528ac507260f5fdde0ed5eced" alt="Selado, frente off-white" style="width: 100%; aspect-ratio: 1 / 1; object-fit: cover; display: block; background: #E2DED6"><span style="font-family: 'Cormorant Garamond', serif; font-size: 22px; line-height: 1.2">Selado</span><span style="font-size: 13px; color: #6B665E; margin-top: -8px">Efésios 1:13</span><span style="font-size: 14px">a partir de R$ 49,90</span><span style="display: flex; gap: 6px" aria-label="4 cores"><span style="width: 12px; height: 12px; border-radius: 50%; background: #1D1D1D"></span><span style="width: 12px; height: 12px; border-radius: 50%; background: #EEE8DA; border: 1px solid #C9C2B6"></span><span style="width: 12px; height: 12px; border-radius: 50%; background: #F7F7F4; border: 1px solid #C9C2B6"></span><span style="width: 12px; height: 12px; border-radius: 50%; background: #4A4A48"></span></span></a>
+<a href="#p-de-deus" style="display: flex; flex-direction: column; gap: 12px"><img src="/_blob/1bc7fb21f06798ead5ebb514b4c25935" alt="De: Deus, para você, frente branca com selo" style="width: 100%; aspect-ratio: 1 / 1; object-fit: cover; display: block; background: #E2DED6"><span style="font-family: 'Cormorant Garamond', serif; font-size: 22px; line-height: 1.2">De: Deus / Para: você</span><span style="font-size: 13px; color: #6B665E; margin-top: -8px">João 3:16</span><span style="font-size: 14px">a partir de R$ 49,90</span><span style="display: flex; gap: 6px" aria-label="3 cores"><span style="width: 12px; height: 12px; border-radius: 50%; background: #D9CCB2"></span><span style="width: 12px; height: 12px; border-radius: 50%; background: #F7F7F4; border: 1px solid #C9C2B6"></span><span style="width: 12px; height: 12px; border-radius: 50%; background: #EEE8DA; border: 1px solid #C9C2B6"></span></span></a>
+<a href="#p-escrito" style="display: flex; flex-direction: column; gap: 12px"><img src="/_blob/e16a05976889475133051842ba27f9d0" alt="Escrito no coração, frente off-white" style="width: 100%; aspect-ratio: 1 / 1; object-fit: cover; display: block; background: #E2DED6"><span style="font-family: 'Cormorant Garamond', serif; font-size: 22px; line-height: 1.2">Escrito no coração</span><span style="font-size: 13px; color: #6B665E; margin-top: -8px">Hebreus 8:10</span><span style="font-size: 14px">a partir de R$ 49,90</span><span style="display: flex; gap: 6px" aria-label="3 cores"><span style="width: 12px; height: 12px; border-radius: 50%; background: #1F2A44"></span><span style="width: 12px; height: 12px; border-radius: 50%; background: #1D1D1D"></span><span style="width: 12px; height: 12px; border-radius: 50%; background: #EEE8DA; border: 1px solid #C9C2B6"></span></span></a>
+</div>
+</section>
+
+<section aria-labelledby="historia-t" style="background: #ECE6DB">
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 48px 80px; align-items: center; padding: 104px clamp(20px, 5vw, 72px); max-width: 1440px; margin: 0 auto; box-sizing: border-box">
+<img src="/_blob/68a3f980891c3892ec3862ba2d33b6ac" alt="Camiseta Não temas, creia dobrada, mostrando frente e costas" style="width: 100%; aspect-ratio: 3 / 2; object-fit: cover; display: block">
+<div style="display: flex; flex-direction: column; gap: 22px; max-width: 480px">
+<span style="font-size: 11px; letter-spacing: 0.32em; font-weight: 600; color: #6B665E">A MARCA</span>
+<h2 id="historia-t" style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: 44px; line-height: 1.1">Uma carta que se veste.</h2>
+<p style="margin: 0; color: #4A4640">O nome vem de 2 Coríntios 3:3: somos cartas escritas não com tinta, mas com o Espírito do Deus vivo. Cada camiseta leva uma mensagem curta, com letra limpa e espaço para respirar.</p>
+<p style="margin: 0; color: #4A4640">Estampamos depois do pedido, aqui em Natal, e conferimos cada peça antes de enviar.</p>
+<a href="#sobre" style="align-self: flex-start; font-size: 13px; font-weight: 600; letter-spacing: 0.14em; border-bottom: 1px solid #1C1B19; padding: 6px 0">CONHEÇA A CARTA VIVA</a>
+</div>
+</div>
+</section>
+
+<section id="personalizar" aria-labelledby="pers-t" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 48px 80px; align-items: center; padding: 112px clamp(20px, 5vw, 72px); max-width: 1440px; margin: 0 auto; box-sizing: border-box">
+<div style="display: flex; flex-direction: column; gap: 22px; max-width: 520px">
+<span style="font-size: 11px; letter-spacing: 0.32em; font-weight: 600; color: #6B665E">PERSONALIZADAS</span>
+<h2 id="pers-t" style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: 44px; line-height: 1.1">Sua arte, na sua camiseta.</h2>
+<p style="margin: 0; color: #4A4640">Para a igreja, o estúdio, a família ou o evento. Você envia a arte, a gente prepara a prévia e só produz depois da sua aprovação.</p>
+<ol style="margin: 8px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; border-top: 1px solid #DDD6CA">
+<li style="display: flex; gap: 20px; padding: 16px 0; border-bottom: 1px solid #DDD6CA"><span style="font-family: 'Cormorant Garamond', serif; font-size: 20px; color: #6B665E; width: 28px">01</span><span>Escolha o modelo, a cor e os tamanhos</span></li>
+<li style="display: flex; gap: 20px; padding: 16px 0; border-bottom: 1px solid #DDD6CA"><span style="font-family: 'Cormorant Garamond', serif; font-size: 20px; color: #6B665E; width: 28px">02</span><span>Envie a sua arte ou conte a ideia</span></li>
+<li style="display: flex; gap: 20px; padding: 16px 0; border-bottom: 1px solid #DDD6CA"><span style="font-family: 'Cormorant Garamond', serif; font-size: 20px; color: #6B665E; width: 28px">03</span><span>Aprove a prévia e receba em casa</span></li>
+</ol>
+<a href="#comecar" style="align-self: flex-start; background: #1C1B19; color: #FFFFFF; padding: 16px 34px; font-size: 13px; font-weight: 600; letter-spacing: 0.14em">COMEÇAR PERSONALIZAÇÃO</a>
+</div>
+<figure style="margin: 0; display: flex; flex-direction: column; gap: 12px">
+<img src="/_blob/293890fa6410f9ab70897e372c11ea9f" alt="Casal na praia vestindo camisetas cinza personalizadas com a arte de um estúdio de pilates" style="width: 100%; aspect-ratio: 4 / 5; object-fit: cover; display: block">
+<figcaption style="font-size: 12px; color: #6B665E; letter-spacing: 0.04em">Feita pela Carta Viva para um estúdio de pilates</figcaption>
+</figure>
+</section>
+
+<section id="atacado" aria-labelledby="atacado-t" style="padding: 0 clamp(20px, 5vw, 72px) 112px; max-width: 1440px; margin: 0 auto; box-sizing: border-box">
+<div style="border-top: 1px solid #DDD6CA; border-bottom: 1px solid #DDD6CA; padding: 44px 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 28px 48px; align-items: center">
+<h2 id="atacado-t" style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: 32px; line-height: 1.15">Comprando em quantidade?</h2>
+<dl style="margin: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; text-align: center">
+<div><dt style="font-size: 12px; color: #6B665E">10 a 19 peças</dt><dd style="margin: 4px 0 0; font-family: 'Cormorant Garamond', serif; font-size: 30px">5%</dd></div>
+<div><dt style="font-size: 12px; color: #6B665E">20 a 49 peças</dt><dd style="margin: 4px 0 0; font-family: 'Cormorant Garamond', serif; font-size: 30px">10%</dd></div>
+<div><dt style="font-size: 12px; color: #6B665E">50 ou mais</dt><dd style="margin: 4px 0 0; font-family: 'Cormorant Garamond', serif; font-size: 30px">15%</dd></div>
+</dl>
+<div style="display: flex; flex-direction: column; gap: 10px">
+<p style="margin: 0; font-size: 14px; color: #4A4640">O desconto vale para qualquer estampa e modelo, somando o carrinho. Para pedidos grandes, pedimos um orçamento.</p>
+<a href="#orcamento" style="align-self: flex-start; font-size: 13px; font-weight: 600; letter-spacing: 0.14em; border-bottom: 1px solid #1C1B19; padding: 6px 0">PEDIR ORÇAMENTO</a>
+</div>
+</div>
+</section>
+
+<section aria-label="Vantagens" style="padding: 0 clamp(20px, 5vw, 72px) 104px; max-width: 1440px; margin: 0 auto; box-sizing: border-box">
+<ul style="margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 32px">
+<li style="display: flex; flex-direction: column; gap: 10px"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1C1B19" stroke-width="1.3" aria-hidden="true"><path d="M3 7h11v9H3z"></path><path d="M14 10h4l3 3v3h-7"></path><circle cx="7" cy="17.5" r="1.5"></circle><circle cx="17" cy="17.5" r="1.5"></circle></svg><span style="font-weight: 600; font-size: 14px">Frete grátis acima de R$ 400</span><span style="font-size: 13px; color: #6B665E">Para todo o Brasil, na opção mais econômica.</span></li>
+<li style="display: flex; flex-direction: column; gap: 10px"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1C1B19" stroke-width="1.3" aria-hidden="true"><rect x="3" y="6" width="18" height="12" rx="1.5"></rect><path d="M3 10h18"></path></svg><span style="font-weight: 600; font-size: 14px">Pix, cartão e boleto</span><span style="font-size: 13px; color: #6B665E">No cartão, em até 6x.</span></li>
+<li style="display: flex; flex-direction: column; gap: 10px"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1C1B19" stroke-width="1.3" aria-hidden="true"><path d="M4 12a8 8 0 0 1 14-5l2 2"></path><path d="M20 4v5h-5"></path><path d="M20 12a8 8 0 0 1-14 5l-2-2"></path><path d="M4 20v-5h5"></path></svg><span style="font-weight: 600; font-size: 14px">Troca em 7 dias</span><span style="font-size: 13px; color: #6B665E">Tamanho ou cor, depois de receber.</span></li>
+<li style="display: flex; flex-direction: column; gap: 10px"><svg width="26" height="26" viewBox="0 0 44 44" fill="none" aria-hidden="true"><rect x="4" y="9" width="36" height="26" rx="3" stroke="#1C1B19" stroke-width="2"></rect><path d="M5 12 L22 26 L39 12" stroke="#1C1B19" stroke-width="2" stroke-linejoin="round"></path><circle cx="22" cy="27" r="4" fill="{{accent}}"></circle></svg><span style="font-weight: 600; font-size: 14px">Estampada em Natal</span><span style="font-size: 13px; color: #6B665E">Despacho em até 4 dias úteis.</span></li>
+</ul>
+</section>
+
+<footer style="background: #1C1B19; color: #E9E4DA">
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 40px; padding: 72px clamp(20px, 5vw, 72px) 48px; max-width: 1440px; margin: 0 auto; box-sizing: border-box; font-size: 14px">
+<div style="display: flex; flex-direction: column; gap: 14px">
+<span style="display: flex; align-items: center; gap: 10px"><svg width="28" height="28" viewBox="0 0 44 44" fill="none" aria-hidden="true"><rect x="4" y="9" width="36" height="26" rx="3" stroke="#E9E4DA" stroke-width="1.8"></rect><path d="M5 12 L22 26 L39 12" stroke="#E9E4DA" stroke-width="1.8" stroke-linejoin="round"></path><circle cx="22" cy="27" r="4" fill="{{accent}}"></circle></svg><span style="font-weight: 600; letter-spacing: 0.32em; font-size: 13px">CARTA VIVA</span></span>
+<span style="color: #B9B2A6">Natal, RN</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 10px"><span style="font-size: 11px; letter-spacing: 0.28em; color: #B9B2A6">LOJA</span><a href="#colecao">Coleção Carta Viva</a><a href="#estampas">Estampas</a><a href="#lisas">Lisas</a><a href="#personalizar">Personalizar</a></div>
+<div style="display: flex; flex-direction: column; gap: 10px"><span style="font-size: 11px; letter-spacing: 0.28em; color: #B9B2A6">AJUDA</span><a href="#faq">Perguntas frequentes</a><a href="#troca">Trocas e devoluções</a><a href="#privacidade">Privacidade</a><a href="#termos">Termos de uso</a></div>
+<div style="display: flex; flex-direction: column; gap: 10px"><span style="font-size: 11px; letter-spacing: 0.28em; color: #B9B2A6">CONTATO</span><a href="#whatsapp">WhatsApp (84) 98713-7644</a><a href="#email">contato@lojacartaviva.com.br</a><span style="color: #B9B2A6">Todos os dias, das 8h às 18h</span></div>
+</div>
+<div style="border-top: 1px solid #3A3833; padding: 20px clamp(20px, 5vw, 72px); max-width: 1440px; margin: 0 auto; box-sizing: border-box; font-size: 12px; color: #B9B2A6">[RAZÃO SOCIAL] · CNPJ [CNPJ] · Avenida Interventor Mário Câmara, 2038, Dix-Sept Rosado, Natal/RN</div>
+</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#C8102E"},"ground":{"editor":"color","default":"#F5F2EC","options":["#F5F2EC","#FFFFFF","#F1F1EF"]},"$preview":{"width":1440,"height":4600}}'>
+class Component extends DCLogic {
+renderVals() {
+return { accent: this.props.accent ?? '#C8102E', ground: this.props.ground ?? '#F5F2EC' };
+}
+}
+</script>
+</body>
+</html>
