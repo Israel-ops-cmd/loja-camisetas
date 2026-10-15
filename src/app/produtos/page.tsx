@@ -21,17 +21,17 @@ const TEXTOS_DAS_CATEGORIAS: Record<string, { titulo: string; descricao: string 
   "colecao-carta-viva": {
     titulo: "Coleção Carta Viva: camisetas cristãs",
     descricao:
-      "A coleção que dá nome à marca: camisetas cristãs inspiradas em 2 Coríntios 3:3, nos modelos Tradicional, Baby Look, Oversized, Oversized Premium e Infantil.",
+      "A coleção que deu nome à loja, nascida de 2 Coríntios 3:3. Camisetas cristãs em cinco modelos, do Tradicional ao Infantil.",
   },
   "estampas-da-casa": {
-    titulo: "Camisetas com versículos",
+    titulo: "Camisetas estampadas",
     descricao:
-      "Camisetas evangélicas com versículos e frases de fé, estampadas em Natal pela Carta Viva. Modelos masculinos, femininos e infantis, com envio para todo o Brasil.",
+      "As estampas que a gente cria e estampa aqui em Natal. Tem frase de fé, tem outros temas, e sempre chega coisa nova.",
   },
   basicas: {
     titulo: "Camisetas lisas",
     descricao:
-      "Camisetas lisas, sem estampa, nos modelos Tradicional, Oversized e Oversized Premium, em várias cores. A mesma peça que usamos nas nossas estampas.",
+      "Camiseta sem estampa, a mesma que usamos nas nossas estampas. Boa para o dia a dia e para quem vai personalizar depois.",
   },
 };
 
@@ -53,9 +53,9 @@ export async function generateMetadata({ searchParams }: PageProps<"/produtos">)
   }
   return {
     alternates: { canonical: "/produtos" },
-    title: "Camisetas cristãs e evangélicas",
+    title: "Camisetas estampadas e lisas",
     description:
-      "Todas as camisetas da Carta Viva: estampas com versículos, coleção Carta Viva e camisetas lisas. Filtre por modelo, cor e tamanho. Envio para todo o Brasil.",
+      "Todas as camisetas da Carta Viva: as estampas da casa, a Coleção Carta Viva e as lisas. Escolha o modelo, a cor e o tamanho. Enviamos para todo o Brasil.",
     ...((outrosFiltros || categoria) && { robots: { index: false, follow: true } }),
   };
 }

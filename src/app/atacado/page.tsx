@@ -10,7 +10,7 @@ import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/atacado" },
-  title: "Camisetas no atacado para igrejas e eventos",
+  title: "Camisetas no atacado para empresas, igrejas e eventos",
   description:
     "Camisetas e personalizados em quantidade para empresas, igrejas, eventos e revenda, com desconto progressivo e orçamento sob medida.",
 };

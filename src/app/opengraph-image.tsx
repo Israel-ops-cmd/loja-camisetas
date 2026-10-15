@@ -10,7 +10,7 @@ import { enderecoDoSite } from "@/lib/site";
 // produto usa a foto do produto. Gerada no build, com as cores do redesign
 // e a Manrope (assets/fontes).
 
-export const alt = "Carta Viva: camisetas com mensagem.";
+export const alt = "Carta Viva: camisetas estampadas e personalizadas.";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -48,15 +48,15 @@ export default async function Imagem() {
         </div>
 
         <div style={{ display: "flex", flexDirection: "column" }}>
-          <span style={{ fontSize: 76, fontWeight: 500, lineHeight: 1.05, letterSpacing: "-0.02em" }}>Vós sois a carta de Cristo.</span>
+          <span style={{ fontSize: 76, fontWeight: 500, lineHeight: 1.05, letterSpacing: "-0.02em" }}>Vista o que você quer dizer.</span>
           <span style={{ fontSize: 30, fontWeight: 500, color: COR.apoio, marginTop: 24, maxWidth: 900, lineHeight: 1.4 }}>
-            Camisetas com mensagem, estampadas uma a uma em Natal. Estampas da casa, peças lisas e personalizados.
+            Camisetas estampadas em Natal e enviadas para todo o Brasil. Estampas da casa, lisas e personalizadas com a sua arte.
           </span>
         </div>
 
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderTop: `1px solid ${COR.borda}`, paddingTop: 24 }}>
           <span style={{ fontSize: 24, fontWeight: 500, color: COR.secundario }}>{dominio}</span>
-          <span style={{ fontSize: 20, fontWeight: 600, letterSpacing: "0.2em", color: COR.secundario }}>2 CORÍNTIOS 3:3</span>
+          <span style={{ fontSize: 20, fontWeight: 600, letterSpacing: "0.2em", color: COR.secundario }}>CAMISETAS E PERSONALIZADOS</span>
         </div>
       </div>
     ),
