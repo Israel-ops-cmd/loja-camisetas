@@ -1,9 +1,9 @@
 import type { ReactNode } from "react";
 
-/** Bloco branco com título pequeno, usado nas páginas de detalhe. */
+/** Bloco com linha fina no topo e título pequeno, usado nas páginas de detalhe. */
 export function Painel({ titulo, children }: { titulo: string; children: ReactNode }) {
   return (
-    <section className=" bg-papel p-6 sm:p-8">
+    <section className="border-t border-borda pt-6 sm:pt-8">
       <h2 className="sobretitulo">{titulo}</h2>
       <div className="mt-4">{children}</div>
     </section>

@@ -137,7 +137,7 @@ export default function PaginaTermos() {
                 <li>As cores impressas podem variar um pouco em relação às da tela.</li>
               </ul>
               <p>Ao enviar a arte, você confirma esta declaração:</p>
-              <p className="rounded-xl bg-fundo p-4 text-tinta">“{DECLARACAO_DE_DIREITOS}”</p>
+              <p className="rounded-[2px] bg-areia p-4 text-tinta">“{DECLARACAO_DE_DIREITOS}”</p>
               <p>
                 A loja pode recusar um pedido de personalização, explicando o motivo, por exemplo quando a arte usa marcas,
                 personagens ou imagens de terceiros sem autorização, ou tem conteúdo ofensivo ou ilegal. Nesses casos nada é

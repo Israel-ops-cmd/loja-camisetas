@@ -48,7 +48,7 @@ export default async function PaginaPersonalizacao() {
       <div className="secao">
         <div className="mx-auto max-w-7xl">
           {pecas.length === 0 ? (
-            <div className="mx-auto max-w-xl bg-papel p-8 text-center">
+            <div className="mx-auto max-w-xl border border-borda p-8 text-center">
               <p className="font-titulo text-[28px] font-medium">Em breve</p>
               <p className="mt-3 text-apoio">
                 Ainda não há peças disponíveis para personalizar. Volte em alguns dias.
@@ -58,7 +58,7 @@ export default async function PaginaPersonalizacao() {
             <FormularioPersonalizacao pecas={pecas} hoje={hojeEmSaoPaulo()} />
           ) : (
             <div className="grid gap-10 lg:grid-cols-[1fr_400px] lg:items-center">
-              <div className=" bg-papel p-8">
+              <div className="border border-borda p-8">
                 <h2 className="font-titulo text-[28px] font-medium">Entre para pedir a sua</h2>
                 <p className="mt-3 text-apoio">
                   O pedido de personalização fica na sua conta. É por lá que você vê a

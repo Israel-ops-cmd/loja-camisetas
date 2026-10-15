@@ -151,7 +151,7 @@ export function FormularioPersonalizacao({
             </legend>
             <div className="mt-2 flex flex-wrap gap-2">
               {modelo.cores.map((c) => (
-                <label key={c.id} title={c.nome} className="flex size-11 cursor-pointer items-center justify-center rounded-lg">
+                <label key={c.id} title={c.nome} className="flex size-11 cursor-pointer items-center justify-center rounded-[2px]">
                   <input
                     type="radio"
                     name="cor"
@@ -161,7 +161,7 @@ export function FormularioPersonalizacao({
                     aria-label={c.nome}
                   />
                   <span
-                    className={`size-8 rounded-md border ${c.id === cor?.id ? "border-tinta ring-2 ring-tinta ring-offset-2" : "border-borda"}`}
+                    className={`size-8 rounded-full border ${c.id === cor?.id ? "border-tinta ring-2 ring-tinta ring-offset-2" : "border-borda"}`}
                     style={{ backgroundColor: c.hex }}
                   />
                 </label>
@@ -199,7 +199,7 @@ export function FormularioPersonalizacao({
                 return (
                   <label
                     key={posicao}
-                    className={`relative flex min-h-16 cursor-pointer flex-col rounded-xl border px-4 py-3 ${marcada ? "border-tinta" : "border-borda hover:border-secundario"}`}
+                    className={`relative flex min-h-16 cursor-pointer flex-col rounded-[2px] border px-4 py-3 ${marcada ? "border-tinta" : "border-borda hover:border-secundario"}`}
                   >
                     <input
                       type="checkbox"
@@ -250,7 +250,7 @@ export function FormularioPersonalizacao({
               maxLength={2000}
               placeholder="Ex.: logo da igreja nas costas, nome do evento embaixo, letras brancas."
               aria-invalid={erros.descricao ? true : undefined}
-              className={`mt-2 w-full rounded-xl border bg-papel px-4 py-3 text-[16px] outline-none focus:border-tinta ${erros.descricao ? "border-tinta" : "border-borda"}`}
+              className={`mt-2 w-full rounded-[2px] border bg-papel px-4 py-3 text-[16px] outline-none focus:border-tinta ${erros.descricao ? "border-tinta" : "border-borda"}`}
             />
             {erros.descricao && <p className="mt-1 text-[13px] font-semibold">{erros.descricao}</p>}
           </div>
@@ -265,7 +265,7 @@ export function FormularioPersonalizacao({
               min={hoje}
               value={prazo}
               onChange={(e) => setPrazo(e.target.value)}
-              className="mt-2 h-12 w-full rounded-xl border border-borda bg-papel px-4 text-[16px] outline-none focus:border-tinta"
+              className="mt-2 h-12 w-full rounded-[2px] border border-borda bg-papel px-4 text-[16px] outline-none focus:border-tinta"
             />
             {erros.prazoDesejado && <p className="mt-1 text-[13px] font-semibold">{erros.prazoDesejado}</p>}
           </div>
@@ -274,7 +274,7 @@ export function FormularioPersonalizacao({
 
       <section aria-labelledby="titulo-revisao" className="space-y-5 lg:sticky lg:top-24">
         <IlustracaoCamiseta hex={cor?.hex} posicoes={posicoes} />
-        <div className=" bg-papel p-6">
+        <div className="border border-borda p-6">
           <h2 id="titulo-revisao" className="sobretitulo">
             03 · Aprove e receba
           </h2>
@@ -323,7 +323,7 @@ export function FormularioPersonalizacao({
 
 function Bloco({ numero, titulo, children }: { numero: string; titulo: string; children: ReactNode }) {
   return (
-    <section className=" bg-papel p-6 sm:p-8">
+    <section className="border-t border-borda pt-6 sm:pt-8">
       <h2 className="flex items-baseline gap-3 font-titulo text-[24px] font-medium">
         <span className="font-black text-secundario">{numero}</span>
         {titulo}

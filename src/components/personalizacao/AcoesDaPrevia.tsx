@@ -54,7 +54,7 @@ export function AcoesDaPrevia({ numero }: { numero: number }) {
             onChange={(e) => setTexto(e.target.value)}
             rows={4}
             maxLength={2000}
-            className="mt-2 w-full rounded-xl border border-borda bg-papel px-4 py-3 text-[16px] outline-none focus:border-tinta"
+            className="mt-2 w-full rounded-[2px] border border-borda bg-papel px-4 py-3 text-[16px] outline-none focus:border-tinta"
           />
           <div className="mt-3 flex flex-col gap-3 sm:flex-row">
             <button

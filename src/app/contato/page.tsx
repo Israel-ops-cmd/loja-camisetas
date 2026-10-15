@@ -25,7 +25,7 @@ export default function PaginaContato() {
 
       <div className="secao">
         <div className="mx-auto max-w-3xl space-y-6">
-          <section className=" bg-papel p-6 sm:p-8">
+          <section className="border-t border-borda pt-6 sm:pt-8">
             <a
               href={linkDoWhatsapp("Olá! Vim pelo site da Carta Viva.")}
               target="_blank"
@@ -76,7 +76,7 @@ export default function PaginaContato() {
             </ul>
           </section>
 
-          <section className=" bg-papel p-6 sm:p-8">
+          <section className="border-t border-borda pt-6 sm:pt-8">
             <h2 className="sobretitulo">Atalhos</h2>
             <ul className="mt-4 grid gap-2 sm:grid-cols-2">
               {[
@@ -88,7 +88,7 @@ export default function PaginaContato() {
                 <li key={a.href}>
                   <Link
                     href={a.href}
-                    className="flex min-h-12 items-center rounded-xl border border-borda px-4 font-semibold hover:border-tinta"
+                    className="flex min-h-12 items-center rounded-[2px] border border-borda px-4 font-semibold hover:border-tinta"
                   >
                     {a.rotulo}
                   </Link>

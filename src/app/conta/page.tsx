@@ -63,7 +63,7 @@ export default async function PaginaConta({
 
         <section
           aria-labelledby="titulo-dados"
-          className="mt-6 bg-papel p-6 sm:p-8"
+          className="mt-6 border-t border-borda pt-6 sm:pt-8"
         >
           <h2 id="titulo-dados" className="sobretitulo">
             Seus dados
@@ -90,7 +90,7 @@ export default async function PaginaConta({
 
         <section
           aria-labelledby="titulo-pedidos"
-          className="mt-6 bg-papel p-6 sm:p-8"
+          className="mt-6 border-t border-borda pt-6 sm:pt-8"
         >
           <h2 id="titulo-pedidos" className="sobretitulo">
             Pedidos
@@ -127,7 +127,7 @@ export default async function PaginaConta({
         {personalizacoes.length > 0 && (
           <section
             aria-labelledby="titulo-personalizacoes"
-            className="mt-6 bg-papel p-6 sm:p-8"
+            className="mt-6 border-t border-borda pt-6 sm:pt-8"
           >
             <h2 id="titulo-personalizacoes" className="sobretitulo">
               Personalizações

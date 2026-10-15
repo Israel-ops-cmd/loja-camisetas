@@ -85,7 +85,7 @@ export function FormularioPrevia({
           onChange={(e) => setMensagem(e.target.value)}
           rows={3}
           maxLength={2000}
-          className="mt-2 w-full rounded-xl border border-borda bg-papel px-4 py-3 text-[16px] outline-none focus:border-tinta"
+          className="mt-2 w-full rounded-[2px] border border-borda bg-papel px-4 py-3 text-[16px] outline-none focus:border-tinta"
         />
       </div>
       {resultado && <Aviso tipo={resultado.tipo}>{resultado.texto}</Aviso>}
@@ -133,7 +133,7 @@ function AcaoComMotivo({
   }
 
   return (
-    <div className="space-y-3 rounded-xl border border-borda bg-papel p-4">
+    <div className="space-y-3 rounded-[2px] border border-borda bg-papel p-4">
       <label htmlFor={idCampo} className="block text-[14px] font-semibold">
         {rotuloCampo}
       </label>
@@ -144,7 +144,7 @@ function AcaoComMotivo({
         rows={3}
         maxLength={2000}
         required={motivoObrigatorio}
-        className="w-full rounded-xl border border-borda bg-papel px-4 py-3 text-[16px] outline-none focus:border-tinta"
+        className="w-full rounded-[2px] border border-borda bg-papel px-4 py-3 text-[16px] outline-none focus:border-tinta"
       />
       {erro && <Aviso tipo="erro">{erro}</Aviso>}
       <div className="flex flex-wrap gap-3">

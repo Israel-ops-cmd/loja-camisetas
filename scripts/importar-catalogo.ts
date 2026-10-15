@@ -31,6 +31,9 @@ const CATEGORIA_DAS_ESTAMPAS = "estampas-da-casa";
 /** Categoria das 8 estampas da coleção (criada pela migration 20261017120000_categoria_colecao). */
 const CATEGORIA_DA_COLECAO = "colecao-carta-viva";
 const CAMISETA_LISA = "camiseta-lisa";
+/** Descrição da camiseta lisa, gravada só se ela ainda não tiver uma. */
+const DESCRICAO_DA_LISA =
+  "Camiseta sem estampa, a mesma peça que usamos nas nossas estampas e nas personalizações. Escolha o modelo, a cor e o tamanho: as medidas de cada modelo estão logo abaixo.";
 /**
  * Fotos de uma cor só, com o nome padrão (sem a cor no fim do nome). As que
  * terminam com a cor (ex.: carta-viva-oversized-costas-preta.jpg) já são
@@ -363,11 +366,18 @@ async function importar(tx: Tx, catalogo: ReturnType<typeof lerCatalogo>, relato
   }
 
   // Camiseta lisa: os modelos com preço de lisa, em todas as cores do catálogo.
-  const lisa = await tx.produto.findUnique({ where: { slug: CAMISETA_LISA }, select: { id: true, slug: true, ativo: true } });
+  const lisa = await tx.produto.findUnique({
+    where: { slug: CAMISETA_LISA },
+    select: { id: true, slug: true, ativo: true, descricao: true },
+  });
   if (!lisa) {
     relatorio.push(`! Não achei a "${CAMISETA_LISA}". Cadastre a camiseta lisa pelo painel.`);
   } else {
     relatorio.push(`= Camiseta lisa (/produtos/${CAMISETA_LISA}): ${lisa.ativo ? "visível" : "escondida"}`);
+    if (!lisa.descricao) {
+      await tx.produto.update({ where: { id: lisa.id }, data: { descricao: DESCRICAO_DA_LISA } });
+      relatorio.push("+ Camiseta lisa: descrição");
+    }
     const modelosDaLisa = new Map(catalogo.modelos.filter((m) => m.lisa !== null).map((m) => [m.nome, m.cores]));
     relatorio.push(...(await completarGrade(lisa, modelosDaLisa, true)));
   }

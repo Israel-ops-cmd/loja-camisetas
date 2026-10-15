@@ -70,7 +70,7 @@ export function CalculoFrete({
               return (
                 <label
                   key={opcao.servicoId}
-                  className={`flex min-h-14 cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 transition ${ativa ? "border-tinta" : "border-borda hover:border-secundario"}`}
+                  className={`flex min-h-14 cursor-pointer items-center gap-3 rounded-[2px] border px-4 py-3 transition ${ativa ? "border-tinta" : "border-borda hover:border-secundario"}`}
                 >
                   <input
                     type="radio"
