@@ -1,63 +1,54 @@
 import Image from "next/image";
 
+import { AoRolar } from "@/components/ui/AoRolar";
 import { Botao } from "@/components/ui/Botao";
 
 const passos = [
-  { numero: "01", titulo: "Escolha a peça" },
-  { numero: "02", titulo: "Envie a sua arte" },
-  { numero: "03", titulo: "Aprove e receba" },
+  "Escolha o modelo, a cor e os tamanhos",
+  "Envie a sua arte ou conte a ideia",
+  "Aprove a prévia e receba em casa",
 ];
 
 export function Personalizacao() {
   return (
-    <section
-      id="personalizacao"
-      aria-labelledby="titulo-personalizacao"
-      className="secao scroll-mt-18 bg-tinta text-papel"
-    >
-      <div className="mx-auto max-w-7xl">
-        <div className="grid items-center gap-12 lg:grid-cols-2">
-          <div>
-            <p className="sobretitulo text-secundario-escuro">Personalização</p>
-            <h2 id="titulo-personalizacao" className="titulo-destaque mt-5">
-              Sua arte, na sua camiseta.
-            </h2>
-            <p className="texto-destaque mt-6 max-w-lg text-apoio-escuro">
-              Envie a sua estampa ou conte a ideia. A gente prepara, aprova com
-              você e produz.
-            </p>
-            <Botao href="/personalizacao" className="mt-9">
-              Quero personalizar
-            </Botao>
-          </div>
-
-          <div className="relative aspect-[3/2] overflow-hidden rounded-[20px] bg-painel">
+    <section id="personalizacao" aria-labelledby="titulo-personalizacao" className="scroll-mt-20">
+      <AoRolar className="largura grid items-center gap-x-20 gap-y-12 py-24 lg:grid-cols-2 lg:py-28">
+        <div className="flex max-w-[520px] flex-col gap-5.5">
+          <span className="sobretitulo text-secundario">Personalizadas</span>
+          <h2 id="titulo-personalizacao" className="titulo-destaque">
+            Sua arte, na sua camiseta.
+          </h2>
+          <p className="text-apoio">
+            Para a igreja, o estúdio, a família ou o evento. Você envia a arte, a gente prepara a prévia e só produz
+            depois da sua aprovação.
+          </p>
+          <ol className="mt-2 border-t border-borda">
+            {passos.map((passo, i) => (
+              <li key={passo} className="flex gap-5 border-b border-borda py-4">
+                <span className="w-7 font-titulo text-[20px] text-secundario">{String(i + 1).padStart(2, "0")}</span>
+                <span>{passo}</span>
+              </li>
+            ))}
+          </ol>
+          <Botao href="/personalizacao" className="self-start">
+            Começar personalização
+          </Botao>
+        </div>
+        <figure className="flex flex-col gap-3">
+          <div className="relative aspect-[4/5]">
             <Image
               src="/fotos/personalizacao-pilates-casal.jpg"
               alt="Casal na praia vestindo camisetas cinza personalizadas com a arte de um estúdio de pilates"
               fill
-              sizes="(min-width: 1280px) 600px, (min-width: 1024px) 45vw, 100vw"
-              className="object-cover object-[50%_15%]"
+              sizes="(min-width: 1024px) 45vw, 100vw"
+              className="object-cover object-[50%_30%]"
             />
           </div>
-        </div>
-
-        <ol className="mt-12 grid gap-4 md:grid-cols-3">
-          {passos.map((passo) => (
-            <li
-              key={passo.numero}
-              className="flex items-center gap-6 rounded-[20px] bg-painel px-7 py-6"
-            >
-              <span className="font-titulo text-[34px] font-black text-secundario-escuro">
-                {passo.numero}
-              </span>
-              <span className="font-titulo text-[20px] font-bold uppercase">
-                {passo.titulo}
-              </span>
-            </li>
-          ))}
-        </ol>
-      </div>
+          <figcaption className="text-[12px] tracking-[0.04em] text-secundario">
+            Feita pela Carta Viva para um estúdio de pilates
+          </figcaption>
+        </figure>
+      </AoRolar>
     </section>
   );
 }

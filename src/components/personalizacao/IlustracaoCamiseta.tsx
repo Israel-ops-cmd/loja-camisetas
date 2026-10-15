@@ -82,7 +82,7 @@ export function IlustracaoCamiseta({
   return (
     <div className="grid grid-cols-2 gap-4">
       {vistas.map((vista) => (
-        <figure key={vista.titulo} className="rounded-[20px] bg-produto p-4">
+        <figure key={vista.titulo} className=" bg-produto p-4">
           <svg viewBox="0 0 320 300" role="img" aria-label={`${vista.titulo} da camiseta`} className="h-auto w-full">
             <path d={CORPO} fill={hex} className="stroke-borda" strokeWidth="3" strokeLinejoin="round" />
             <path

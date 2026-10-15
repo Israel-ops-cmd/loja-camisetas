@@ -55,7 +55,7 @@ export default async function PaginaPainel() {
             >
               <Package aria-hidden="true" className="size-7 shrink-0" strokeWidth={1.5} />
               <span>
-                <span className="block font-titulo text-[20px] font-bold uppercase">Pedidos</span>
+                <span className="block font-titulo text-[24px] font-medium">Pedidos</span>
                 <span className={`mt-1 block text-[14px] ${paraSeparar + comAlerta > 0 ? "" : "text-apoio"}`}>
                   {paraSeparar === 0
                     ? "Nenhum pedido para separar."
@@ -74,7 +74,7 @@ export default async function PaginaPainel() {
             >
               <Stamp aria-hidden="true" className="size-7 shrink-0" strokeWidth={1.5} />
               <span>
-                <span className="block font-titulo text-[20px] font-bold uppercase">Produção</span>
+                <span className="block font-titulo text-[24px] font-medium">Produção</span>
                 <span className={`mt-1 block text-[14px] ${pecasParaEstampar > 0 ? "" : "text-apoio"}`}>
                   {pecasParaEstampar === 0
                     ? "Nada para estampar."
@@ -92,7 +92,7 @@ export default async function PaginaPainel() {
             >
               <Shirt aria-hidden="true" className="size-7 shrink-0" strokeWidth={1.5} />
               <span>
-                <span className="block font-titulo text-[20px] font-bold uppercase">Produtos</span>
+                <span className="block font-titulo text-[24px] font-medium">Produtos</span>
                 <span className="mt-1 block text-[14px] text-apoio">
                   {produtosNaLoja === 1 ? "1 produto na loja." : `${produtosNaLoja} produtos na loja.`} Cadastrar,
                   editar e trocar fotos.
@@ -113,7 +113,7 @@ export default async function PaginaPainel() {
             >
               <Boxes aria-hidden="true" className="size-7 shrink-0" strokeWidth={1.5} />
               <span>
-                <span className="block font-titulo text-[20px] font-bold uppercase">Estoque</span>
+                <span className="block font-titulo text-[24px] font-medium">Estoque</span>
                 <span className="mt-1 block text-[14px] text-apoio">
                   {faltando > 0
                     ? `${faltando === 1 ? "1 tamanho" : `${faltando} tamanhos`} com peça faltando para pedido pago.`
@@ -131,7 +131,7 @@ export default async function PaginaPainel() {
             >
               <Percent aria-hidden="true" className="size-7 shrink-0" strokeWidth={1.5} />
               <span>
-                <span className="block font-titulo text-[20px] font-bold uppercase">Atacado</span>
+                <span className="block font-titulo text-[24px] font-medium">Atacado</span>
                 <span className="mt-1 block text-[14px] text-apoio">
                   {faixasLigadas === 0
                     ? "Desconto por quantidade desligado."
@@ -147,7 +147,7 @@ export default async function PaginaPainel() {
             >
               <Palette aria-hidden="true" className="size-7 shrink-0" strokeWidth={1.5} />
               <span>
-                <span className="block font-titulo text-[20px] font-bold uppercase">Personalizações</span>
+                <span className="block font-titulo text-[24px] font-medium">Personalizações</span>
                 <span className="mt-1 block text-[14px] text-apoio">
                   {aguardandoLoja === 0
                     ? "Nada esperando a loja."
@@ -165,7 +165,7 @@ export default async function PaginaPainel() {
             >
               <ClipboardList aria-hidden="true" className="size-7 shrink-0" strokeWidth={1.5} />
               <span>
-                <span className="block font-titulo text-[20px] font-bold uppercase">Orçamentos</span>
+                <span className="block font-titulo text-[24px] font-medium">Orçamentos</span>
                 <span className="mt-1 block text-[14px] text-apoio">
                   {orcamentosNovos === 0
                     ? "Nenhum orçamento novo."

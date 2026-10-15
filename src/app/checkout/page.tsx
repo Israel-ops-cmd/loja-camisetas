@@ -93,7 +93,7 @@ export default async function PaginaCheckout() {
           servicoPreferido={escolhaDeFrete?.servicoId ?? null}
           cotar={cotarFreteDoCheckout}
           finalizar={finalizarPedido}
-          voltar={{ href: "/carrinho", rotulo: "Voltar ao carrinho" }}
+          voltar={{ href: "/carrinho", rotulo: "Voltar à sacola" }}
           prazoDeDespacho={textoDoPrazoDeDespacho(carrinho.pecasAEstampar)}
         />
       </div>

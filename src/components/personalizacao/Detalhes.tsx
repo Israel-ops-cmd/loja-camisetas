@@ -68,7 +68,7 @@ export function Orcamento({ p }: { p: PersonalizacaoDetalhada }) {
       </div>
       <div className="flex items-baseline justify-between gap-4 border-t border-borda pt-3">
         <dt className="font-semibold">Total sem frete</dt>
-        <dd className="font-titulo text-[24px] font-extrabold">
+        <dd className="text-[22px] font-medium">
           {formatarPreco(p.precoUnitarioEmCentavos * total)}
         </dd>
       </div>

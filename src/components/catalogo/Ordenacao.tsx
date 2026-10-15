@@ -21,7 +21,7 @@ export function Ordenacao({ filtros }: { filtros: FiltrosCatalogo }) {
             href={hrefCatalogo(filtros, { ordem: valor })}
             scroll={false}
             aria-current={ativo ? "true" : undefined}
-            className={`inline-flex min-h-11 items-center rounded-full px-3 text-[14px] transition ${ativo ? "font-bold text-tinta" : "text-apoio hover:text-tinta"}`}
+            className={`inline-flex min-h-11 items-center px-3 text-[14px] transition ${ativo ? "font-bold text-tinta" : "text-apoio hover:text-tinta"}`}
           >
             {rotulo}
           </Link>

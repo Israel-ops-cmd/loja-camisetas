@@ -63,8 +63,8 @@ export async function adicionarAoCarrinho(
       erro:
         jaNoCarrinho > 0
           ? restante > 0
-            ? `Você já tem ${unidades(jaNoCarrinho)} no carrinho. Dá para adicionar mais ${unidades(restante)}.`
-            : `Você já tem no carrinho todo o estoque desse tamanho (${unidades(divisao.limite)}).`
+            ? `Você já tem ${unidades(jaNoCarrinho)} na sacola. Dá para adicionar mais ${unidades(restante)}.`
+            : `Você já tem na sacola todo o estoque desse tamanho (${unidades(divisao.limite)}).`
           : `Só temos ${unidades(divisao.limite)} desse tamanho.`,
     };
   }
@@ -72,7 +72,7 @@ export async function adicionarAoCarrinho(
   if (!existente && itens.length >= MAXIMO_DE_ITENS) {
     return {
       ok: false,
-      erro: "O carrinho chegou ao limite de itens diferentes. Finalize ou remova algum item.",
+      erro: "A sacola chegou ao limite de itens diferentes. Finalize ou remova algum item.",
     };
   }
 
@@ -98,14 +98,14 @@ export async function alterarQuantidade(
 
   const itens = await lerItensDoCarrinho();
   const item = itens.find((i) => i.variacaoId === variacaoId.toLowerCase());
-  if (!item) return { ok: false, erro: "Esse item não está no carrinho." };
+  if (!item) return { ok: false, erro: "Esse item não está na sacola." };
 
   const divisao = (
     await conferirCarrinho(itens.map((i) => (i === item ? { ...i, quantidade } : i)))
   ).get(item.variacaoId);
   if (!divisao || divisao.limite <= 0) {
     refresh();
-    return { ok: false, erro: "Esse item esgotou. Remova-o do carrinho." };
+    return { ok: false, erro: "Esse item esgotou. Remova-o da sacola." };
   }
   if (quantidade > divisao.limite) {
     return {

@@ -13,7 +13,7 @@ import { cotarFreteDoCarrinho, lerEscolhaDeFrete } from "@/lib/frete";
 import { textoDoPrazoDeDespacho } from "@/lib/politicas";
 
 export const metadata: Metadata = {
-  title: "Carrinho",
+  title: "Sacola",
   robots: { index: false },
 };
 
@@ -32,14 +32,14 @@ export default async function PaginaCarrinho() {
   return (
     <div className="secao">
       <div className="mx-auto max-w-6xl">
-        <h1 className="titulo-listagem">Carrinho</h1>
+        <h1 className="titulo-listagem">Sacola</h1>
 
         {carrinho.precisaSincronizar && <SincronizarCarrinho />}
 
         {carrinho.avisos.length > 0 && (
           <ul
             role="status"
-            className="mx-auto mt-10 max-w-3xl space-y-2 rounded-[20px] border border-borda bg-papel p-5"
+            className="mx-auto mt-10 max-w-3xl space-y-2 border border-borda bg-papel p-5"
           >
             {carrinho.avisos.map((aviso) => (
               <li
@@ -58,9 +58,9 @@ export default async function PaginaCarrinho() {
         )}
 
         {carrinho.itens.length === 0 ? (
-          <div className="mt-12 flex flex-col items-center rounded-[20px] bg-papel px-6 py-16 text-center">
-            <p className="font-titulo text-[22px] font-bold uppercase">
-              Seu carrinho está vazio
+          <div className="mt-12 flex flex-col items-center bg-papel px-6 py-16 text-center">
+            <p className="font-titulo text-[28px] font-medium">
+              Sua sacola está vazia
             </p>
             <p className="mt-3 max-w-md text-apoio">
               Escolha suas camisetas e elas aparecem aqui.
@@ -79,7 +79,7 @@ export default async function PaginaCarrinho() {
 
             <section
               aria-labelledby="titulo-resumo"
-              className="rounded-[20px] bg-papel p-6 lg:sticky lg:top-24"
+              className=" bg-papel p-6 lg:sticky lg:top-24"
             >
               <h2 id="titulo-resumo" className="sobretitulo">
                 Resumo
@@ -140,7 +140,7 @@ export default async function PaginaCarrinho() {
                   <dt className="font-semibold">
                     {frete === null ? "Total sem frete" : "Total"}
                   </dt>
-                  <dd className="font-titulo text-[26px] font-extrabold">
+                  <dd className="text-[24px] font-medium">
                     {formatarPreco(
                       carrinho.subtotalEmCentavos -
                         carrinho.atacado.descontoEmCentavos +
@@ -155,7 +155,7 @@ export default async function PaginaCarrinho() {
                     ? "Falta 1 peça"
                     : `Faltam ${carrinho.atacado.proxima.faltam} peças`}{" "}
                   para <strong>{carrinho.atacado.proxima.percentual}% de desconto</strong>{" "}
-                  em todo o carrinho.{" "}
+                  em toda a sacola.{" "}
                   <Link href="/atacado" className="underline underline-offset-4">
                     Ver tabela
                   </Link>

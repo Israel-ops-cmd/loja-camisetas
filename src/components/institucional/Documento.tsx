@@ -19,13 +19,13 @@ export function Documento({
 }) {
   return (
     <>
-      <section className="secao bg-tinta text-papel">
+      <section className="secao bg-areia">
         <div className="mx-auto max-w-3xl">
-          <p className="sobretitulo text-secundario-escuro">{sobretitulo}</p>
+          <p className="sobretitulo text-secundario">{sobretitulo}</p>
           <h1 className="titulo-destaque mt-5">{titulo}</h1>
-          <div className="texto-destaque mt-6 text-apoio-escuro">{resumo}</div>
+          <div className="texto-destaque mt-6 text-apoio">{resumo}</div>
           {mostrarData && (
-            <p className="mt-6 text-[13px] text-secundario-escuro">
+            <p className="mt-6 text-[13px] text-secundario">
               Última atualização: {ou(ATUALIZACAO_DAS_POLITICAS, "DATA DA PUBLICAÇÃO")}
             </p>
           )}
@@ -35,7 +35,7 @@ export function Documento({
       <div className="secao">
         <div className="mx-auto max-w-3xl">
           {secoes.length > 3 && (
-            <nav aria-labelledby="titulo-sumario" className="rounded-[20px] bg-papel p-6">
+            <nav aria-labelledby="titulo-sumario" className=" bg-papel p-6">
               <h2 id="titulo-sumario" className="sobretitulo">Nesta página</h2>
               <ol className="mt-3 space-y-1">
                 {secoes.map((s, i) => (
@@ -55,9 +55,9 @@ export function Documento({
                 key={s.id}
                 id={s.id}
                 aria-labelledby={`titulo-${s.id}`}
-                className="scroll-mt-24 rounded-[20px] bg-papel p-6 sm:p-8"
+                className="scroll-mt-24 bg-papel p-6 sm:p-8"
               >
-                <h2 id={`titulo-${s.id}`} className="font-titulo text-[22px] leading-tight font-bold">
+                <h2 id={`titulo-${s.id}`} className="font-titulo text-[26px] leading-tight font-medium">
                   {secoes.length > 3 && `${i + 1}. `}
                   {s.titulo}
                 </h2>

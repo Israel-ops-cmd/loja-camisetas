@@ -27,32 +27,32 @@ export default async function PaginaProdutos({
   const filtros = lerFiltros(await searchParams, opcoes);
   const produtos = await listarProdutos(filtros, opcoes);
 
-  const totalDeFiltros = [filtros.categoria, filtros.cor, filtros.tamanho]
+  const totalDeFiltros = [filtros.categoria, filtros.modelo, filtros.cor, filtros.tamanho]
     .filter(Boolean).length;
   const categoria = opcoes.categorias.find((c) => c.slug === filtros.categoria);
 
   return (
-    <div className="secao">
-      <div className="mx-auto max-w-7xl">
-        <h1 className="titulo-listagem">{categoria?.nome ?? "Produtos"}</h1>
+    <div className="largura pt-10 pb-24 lg:pt-14">
+      <div>
+        <h1 className="titulo-destaque">{categoria?.nome ?? "Produtos"}</h1>
 
-        <div className="mt-12 grid gap-10 lg:grid-cols-[220px_1fr]">
+        <div className="mt-10 grid gap-10 lg:grid-cols-[220px_1fr] lg:gap-14">
           <aside aria-label="Filtros" className="hidden lg:block">
             <Filtros filtros={filtros} opcoes={opcoes} />
           </aside>
 
           <div>
             {/* No celular, os filtros abrem num painel. Funciona sem JavaScript. */}
-            <details className="group mb-6 rounded-[20px] border border-borda bg-papel lg:hidden">
-              <summary className="texto-menu flex min-h-12 cursor-pointer list-none items-center justify-center gap-2 px-5 font-bold [&::-webkit-details-marker]:hidden">
+            <details className="group mb-6 border border-borda lg:hidden">
+              <summary className="texto-menu flex min-h-12 cursor-pointer list-none items-center justify-center gap-2 px-5 [&::-webkit-details-marker]:hidden">
                 <SlidersHorizontal
                   aria-hidden="true"
                   className="size-5"
-                  strokeWidth={1.6}
+                  strokeWidth={1.4}
                 />
                 Filtrar
                 {totalDeFiltros > 0 && (
-                  <span className="rounded-full bg-tinta px-2 py-0.5 text-[11px] text-papel">
+                  <span className=" bg-tinta px-2 py-0.5 text-[11px] text-papel">
                     {totalDeFiltros}
                   </span>
                 )}
@@ -78,18 +78,18 @@ export default async function PaginaProdutos({
             {/* Título para leitores de tela: os cartões usam h3. */}
             <h2 className="sr-only">Lista de produtos</h2>
             {produtos.length > 0 ? (
-              <div className="mt-8 grid gap-x-5 gap-y-10 sm:grid-cols-2 xl:grid-cols-3">
+              <div className="mt-8 grid grid-cols-2 gap-x-3 gap-y-10 sm:gap-x-5 xl:grid-cols-3">
                 {produtos.map((produto) => (
                   <ProdutoCartao
                     key={produto.id}
                     produto={produto}
-                    sizes="(min-width: 1280px) 320px, (min-width: 640px) 50vw, 100vw"
+                    sizes="(min-width: 1280px) 340px, 50vw"
                   />
                 ))}
               </div>
             ) : (
-              <div className="mt-8 flex flex-col items-center rounded-[20px] bg-papel px-6 py-16 text-center">
-                <p className="font-titulo text-[22px] font-bold uppercase">
+              <div className="mt-8 flex flex-col items-center border-y border-borda px-6 py-16 text-center">
+                <p className="font-titulo text-[28px]">
                   Nenhum produto encontrado
                 </p>
                 <p className="mt-3 max-w-md text-apoio">

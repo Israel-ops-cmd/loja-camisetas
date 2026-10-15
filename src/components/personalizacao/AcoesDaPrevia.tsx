@@ -38,7 +38,7 @@ export function AcoesDaPrevia({ numero }: { numero: number }) {
             type="button"
             disabled={pendente}
             onClick={() => setModo("ajuste")}
-            className="inline-flex min-h-12 items-center justify-center rounded-full border border-tinta px-7 text-[13px] font-bold tracking-[0.16em] uppercase transition hover:bg-tinta hover:text-papel"
+            className="inline-flex min-h-12 items-center justify-center border border-tinta px-7 text-[13px] font-bold tracking-[0.16em] uppercase transition hover:bg-tinta hover:text-papel"
           >
             Pedir ajuste
           </button>

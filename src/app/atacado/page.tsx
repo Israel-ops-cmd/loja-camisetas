@@ -27,11 +27,11 @@ export default async function PaginaAtacado() {
 
   return (
     <>
-      <section className="secao bg-tinta text-papel">
+      <section className="secao bg-areia">
         <div className="mx-auto max-w-7xl">
-          <p className="sobretitulo text-secundario-escuro">Atacado</p>
+          <p className="sobretitulo text-secundario">Atacado</p>
           <h1 className="titulo-destaque mt-5">Comprando em quantidade?</h1>
-          <p className="texto-destaque mt-6 max-w-2xl text-apoio-escuro">
+          <p className="texto-destaque mt-6 max-w-2xl text-apoio">
             Camisetas e personalizados para empresas, igrejas, eventos e revenda, com
             preço menor por quantidade. Conte o que você precisa e a gente monta o orçamento.
           </p>
@@ -43,13 +43,13 @@ export default async function PaginaAtacado() {
           <div className="mx-auto max-w-5xl">
             <h2 id="titulo-descontos" className="titulo-listagem">Desconto por quantidade</h2>
             <p className="mx-auto mt-4 max-w-2xl text-center text-apoio">
-              O desconto entra sozinho no carrinho, somando todas as peças, de qualquer
+              O desconto entra sozinho na sacola, somando todas as peças, de qualquer
               produto da loja.
             </p>
             <ul className="mt-10 grid gap-4 sm:grid-cols-3">
               {faixas.map((faixa, i) => (
-                <li key={faixa.minimoDePecas} className="rounded-[20px] bg-papel p-6 text-center">
-                  <p className="font-titulo text-[44px] leading-none font-black">{faixa.percentual}%</p>
+                <li key={faixa.minimoDePecas} className=" bg-papel p-6 text-center">
+                  <p className="font-titulo text-[44px] leading-none font-medium">{faixa.percentual}%</p>
                   <p className="mt-2 text-[13px] font-bold tracking-[0.16em] text-secundario uppercase">de desconto</p>
                   <p className="mt-4 text-[15px] font-semibold">{descreverFaixa(faixa, faixas[i + 1])}</p>
                 </li>

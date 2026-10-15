@@ -16,17 +16,17 @@ export function Marca({ className }: MarcaProps) {
         y="9"
         width="36"
         height="26"
-        rx="4"
+        rx="3"
         stroke="currentColor"
-        strokeWidth="2.5"
+        strokeWidth="1.8"
       />
       <path
         d="M5 12 L22 26 L39 12"
         stroke="currentColor"
-        strokeWidth="2.5"
+        strokeWidth="1.8"
         strokeLinejoin="round"
       />
-      <circle cx="22" cy="27" r="4.5" className="fill-lacre" />
+      <circle cx="22" cy="27" r="4" className="fill-lacre" />
     </svg>
   );
 }
@@ -40,10 +40,10 @@ type LogoProps = {
 export function Logo({ escuro = false, className = "" }: LogoProps) {
   return (
     <span
-      className={`inline-flex items-center gap-2.5 ${escuro ? "text-papel" : "text-tinta"} ${className}`}
+      className={`inline-flex items-center gap-2.5 ${escuro ? "text-apoio-escuro" : "text-tinta"} ${className}`}
     >
-      <Marca className="size-11 shrink-0" />
-      <span className="font-titulo text-[19px] leading-none font-extrabold tracking-[0.2em]">
+      <Marca className="size-[30px] shrink-0" />
+      <span className="text-[14px] leading-none font-semibold tracking-[0.32em]">
         CARTA VIVA
       </span>
     </span>

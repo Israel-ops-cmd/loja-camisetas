@@ -166,7 +166,7 @@ export function EnvioDeArquivos({
           />
           <label
             htmlFor={id}
-            className="mt-3 inline-flex min-h-12 cursor-pointer items-center gap-2 rounded-full border border-tinta px-6 text-[14px] font-semibold transition hover:bg-tinta hover:text-papel"
+            className="mt-3 inline-flex min-h-12 cursor-pointer items-center gap-2 border border-tinta px-6 text-[14px] font-semibold transition hover:bg-tinta hover:text-papel"
           >
             <Paperclip aria-hidden="true" className="size-4" strokeWidth={1.8} />
             {textoDoBotao ?? (arquivos.length === 0 ? "Escolher arquivo" : "Adicionar outro arquivo")}

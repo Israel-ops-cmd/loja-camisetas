@@ -36,7 +36,7 @@ export async function pagarPedido(numero: unknown): Promise<ResultadoPagar> {
   const expiraEm = prazoDePagamento(pedido.criadoEm);
   if (expiraEm <= new Date()) {
     return {
-      erro: "O prazo para pagar esse pedido terminou. Monte o carrinho de novo para fazer um novo pedido.",
+      erro: "O prazo para pagar esse pedido terminou. Monte a sacola de novo para fazer um novo pedido.",
     };
   }
 

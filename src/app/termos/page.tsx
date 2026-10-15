@@ -93,7 +93,7 @@ export default function PaginaTermos() {
           titulo: "Atacado",
           conteudo: (
             <p>
-              Comprando várias peças, o desconto por quantidade entra sozinho no carrinho, conforme a tabela da página{" "}
+              Comprando várias peças, o desconto por quantidade entra sozinho na sacola, conforme a tabela da página{" "}
               <Link href="/atacado">Atacado</Link> no momento do pedido. Pedidos maiores ou diferentes do que está no site são
               combinados por orçamento, que respondemos em {PRAZO_DE_RESPOSTA_DO_ORCAMENTO}.
             </p>
@@ -111,11 +111,11 @@ export default function PaginaTermos() {
               </li>
               <li>
                 Depois da confirmação do pagamento, despachamos em {PRAZO_DE_DESPACHO} os pedidos com peças prontas e em{" "}
-                {PRAZO_DE_DESPACHO_A_ESTAMPAR} quando alguma peça ainda vai ser estampada para você (a página do produto e o
-                carrinho avisam).
+                {PRAZO_DE_DESPACHO_A_ESTAMPAR} quando alguma peça ainda vai ser estampada para você (a página do produto e a
+                sacola avisam).
               </li>
               <li>
-                O prazo de entrega aparece no carrinho, ao calcular o frete pelo CEP, e conta a partir da postagem. Quando o
+                O prazo de entrega aparece na sacola, ao calcular o frete pelo CEP, e conta a partir da postagem. Quando o
                 pedido sai, você recebe um e-mail com o código de rastreio.
               </li>
               <li>Confira o endereço antes de finalizar: um endereço errado pode atrasar ou impedir a entrega.</li>

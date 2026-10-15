@@ -16,7 +16,7 @@ Passos para pôr o site no ar em **https://lojacartaviva.com.br**, na ordem. Cad
   - despacho em até 2 dias úteis; produção da personalização de 1 a 5 dias úteis depois da confirmação do pagamento;
   - resposta do orçamento em até 2 dias úteis;
   - atendimento todos os dias, das 8h às 18h.
-- [ ] Redesign visual aprovado em protótipo e implementado na `feat/redesign` (sem mudar funcionalidades).
+- [x] Redesign visual aprovado em protótipo e implementado na `feat/redesign` (sem mudar funcionalidades).
 - [ ] Revisão por advogado ou contador da política de troca, da privacidade e dos termos.
 - [ ] Produtos de exemplo trocados pelos reais no painel (preços, fotos, descrições e estoque), e os que não serão vendidos escondidos. **Vale também para o banco de produção, onde o seed já criou os produtos de exemplo.**
 - [ ] Pacote real pesado e medido (peso e medidas de cada produto no painel).
@@ -33,7 +33,7 @@ Passos para pôr o site no ar em **https://lojacartaviva.com.br**, na ordem. Cad
 
 - [x] Projeto de produção criado na região São Paulo (`sa-east-1`) (10/10/2026). O antigo fica para testes.
 - [x] Migrations aplicadas (incluem as pastas do Storage e as regras de acesso).
-- [ ] **Migration nova no banco de produção (obrigatório antes de publicar):** `20261010120000_frete_gratis` (campo `freteDescontoEmCentavos` do pedido), `20261013120000_modelos` (modelos, cores, tamanhos e medidas de lançamento), `20261014120000_estoque_de_lisas` (estoque de peças lisas, prontas e produção; passa o estoque da camiseta lisa para as lisas), `20261015120000_escolha_de_modelo` (preço por modelo, preços de referência, foto por modelo), `20261016120000_referencia_do_produto` (referência bíblica do produto) e as que vierem depois. Rodar `npx prisma migrate deploy` com o `DATABASE_URL` e o `DIRECT_URL` de produção. Sem ela, nenhum pedido é criado no site publicado.
+- [ ] **Migration nova no banco de produção (obrigatório antes de publicar):** `20261010120000_frete_gratis` (campo `freteDescontoEmCentavos` do pedido), `20261013120000_modelos` (modelos, cores, tamanhos e medidas de lançamento), `20261014120000_estoque_de_lisas` (estoque de peças lisas, prontas e produção; passa o estoque da camiseta lisa para as lisas), `20261015120000_escolha_de_modelo` (preço por modelo, preços de referência, foto por modelo), `20261016120000_referencia_do_produto` (referência bíblica do produto), `20261017120000_categoria_colecao` (categoria Coleção Carta Viva; depois dela, rodar o importador, que move as 8 estampas da coleção para ela) e as que vierem depois. Rodar `npx prisma migrate deploy` com o `DATABASE_URL` e o `DIRECT_URL` de produção. Sem ela, nenhum pedido é criado no site publicado.
 - [x] Seed aplicado: categorias, cores, tamanhos, tabela de atacado **e os produtos de exemplo** (preço de teste R$ 1,00, 10 peças por variação). Trocar ou esconder pelo painel antes de abrir a loja.
 - [ ] **Importar o catálogo de lançamento no banco de produção** (depois das migrations acima). No PowerShell, na pasta do projeto, com o `DIRECT_URL` de produção (o mesmo do `admin:promover`):
   1. `$env:DIRECT_URL = "<DIRECT_URL de produção>"`

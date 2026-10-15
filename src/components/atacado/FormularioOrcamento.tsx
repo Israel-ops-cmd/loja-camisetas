@@ -115,7 +115,7 @@ export function FormularioOrcamento({ inicial, hoje }: Props) {
           {ordemDosTipos.map((tipo) => (
             <label
               key={tipo}
-              className={`flex min-h-11 cursor-pointer items-center rounded-full border px-4 text-[14px] font-semibold ${v.tipoDePeca === tipo ? "border-tinta bg-tinta text-papel" : "border-borda hover:border-tinta"}`}
+              className={`flex min-h-11 cursor-pointer items-center border px-4 text-[14px] font-semibold ${v.tipoDePeca === tipo ? "border-tinta bg-tinta text-papel" : "border-borda hover:border-tinta"}`}
             >
               <input type="radio" name="tipoDePeca" checked={v.tipoDePeca === tipo} onChange={() => mudar("tipoDePeca", tipo)} className="sr-only" />
               {rotulosDeTipoDePeca[tipo]}

@@ -1,7 +1,7 @@
 import "server-only";
 
 import type { Prisma } from "@/generated/prisma/client";
-import { ehCamisetaLisa } from "@/lib/estoque-regras";
+import { CATEGORIA_DAS_LISAS, ehCamisetaLisa } from "@/lib/estoque-regras";
 import { paraSlug } from "@/lib/formatacao";
 import { prisma } from "@/lib/prisma";
 import { precoDaVariacao } from "@/lib/produtos-regras";
@@ -30,6 +30,8 @@ export type ProdutoResumo = {
   id: string;
   slug: string;
   nome: string;
+  /** Referência bíblica da estampa. */
+  referencia: string | null;
   /** Menor preço entre as variações ativas, em centavos. */
   precoEmCentavos: number;
   /** As variações têm preços diferentes ("a partir de"). */
@@ -37,6 +39,8 @@ export type ProdutoResumo = {
   esgotado: boolean;
   cores: { nome: string; hex: string }[];
   foto: { url: string; alt: string; enquadramento: string | null } | null;
+  /** Segunda foto (costas), mostrada ao passar o mouse no cartão. */
+  fotoVerso: { url: string; alt: string; enquadramento: string | null } | null;
 };
 
 export type OpcoesDeFiltro = {
@@ -51,12 +55,13 @@ const selecaoResumo = {
   id: true,
   slug: true,
   nome: true,
+  referencia: true,
   precoBaseEmCentavos: true,
   precosDosModelos: { select: { modeloId: true, precoEmCentavos: true } },
   categoria: { select: { slug: true } },
   imagens: {
     orderBy: { ordem: "asc" },
-    take: 1,
+    take: 2,
     select: { url: true, alt: true, enquadramento: true },
   },
   variacoes: {
@@ -93,6 +98,7 @@ function resumir(produto: ProdutoComVariacoes, modelo?: string): ProdutoResumo {
     id: produto.id,
     slug: produto.slug,
     nome: produto.nome,
+    referencia: produto.referencia,
     precoEmCentavos: menorPreco,
     precoVaria: new Set(precos).size > 1,
     // Arte: prontas ou lisas. Camiseta lisa: só as lisas.
@@ -101,6 +107,7 @@ function resumir(produto: ProdutoComVariacoes, modelo?: string): ProdutoResumo {
     ),
     cores: [...cores.values()],
     foto: produto.imagens[0] ?? null,
+    fotoVerso: produto.imagens[1] ?? null,
   };
 }
 
@@ -242,4 +249,72 @@ export function lerFiltros(
         ? (ordem as Ordenacao)
         : "recentes",
   };
+}
+
+/** Categoria da Coleção Carta Viva (migration 20261017120000_categoria_colecao). */
+export const CATEGORIA_DA_COLECAO = "colecao-carta-viva";
+
+/** Estampas da Coleção Carta Viva para a página inicial, destaques primeiro. */
+export async function listarDaColecao(limite = 4) {
+  const [produtos, total] = await Promise.all([
+    prisma.produto.findMany({
+      where: { ativo: true, categoria: { slug: CATEGORIA_DA_COLECAO }, variacoes: { some: { ativo: true } } },
+      orderBy: [{ destaque: "desc" }, { criadoEm: "asc" }],
+      take: limite,
+      select: selecaoResumo,
+    }),
+    prisma.produto.count({
+      where: { ativo: true, categoria: { slug: CATEGORIA_DA_COLECAO }, variacoes: { some: { ativo: true } } },
+    }),
+  ]);
+  return { produtos: produtos.map((p) => resumir(p)), total };
+}
+
+export type ModeloDaVitrine = {
+  slug: string;
+  nome: string;
+  /** Menor preço de estampa à venda neste modelo. */
+  precoEmCentavos: number;
+  foto: { url: string; alt: string } | null;
+};
+
+/**
+ * Modelos à venda para "Escolha o seu modelo", com o menor preço de estampa
+ * e uma foto do modelo (as costas da Coleção Carta Viva, de preferência).
+ */
+export async function listarModelosDaVitrine(limite = 4): Promise<ModeloDaVitrine[]> {
+  const modelos = await prisma.modelo.findMany({
+    where: { ativo: true, variacoes: { some: { ativo: true, produto: { ativo: true } } } },
+    orderBy: { ordem: "asc" },
+    take: limite,
+    select: {
+      id: true,
+      slug: true,
+      nome: true,
+      variacoes: {
+        where: { ativo: true, produto: { ativo: true, categoria: { slug: { not: CATEGORIA_DAS_LISAS } } } },
+        select: {
+          modeloId: true,
+          precoEmCentavos: true,
+          produto: {
+            select: { precoBaseEmCentavos: true, precosDosModelos: { select: { modeloId: true, precoEmCentavos: true } } },
+          },
+        },
+      },
+      imagens: {
+        where: { corId: null, produto: { ativo: true, categoria: { slug: CATEGORIA_DA_COLECAO } } },
+        orderBy: [{ produto: { criadoEm: "asc" } }, { ordem: "asc" }],
+        take: 4,
+        select: { url: true, alt: true },
+      },
+    },
+  });
+  return modelos
+    .filter((m) => m.variacoes.length > 0)
+    .map((m) => ({
+      slug: m.slug,
+      nome: m.nome,
+      precoEmCentavos: Math.min(...m.variacoes.map((v) => precoDaVariacao(v, v.produto))),
+      foto: m.imagens.find((i) => i.url.includes("-costas")) ?? m.imagens[0] ?? null,
+    }));
 }

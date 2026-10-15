@@ -17,7 +17,7 @@ export function CartaoConta({
         {subtitulo && (
           <p className="mt-4 text-center text-apoio">{subtitulo}</p>
         )}
-        <div className="mt-10 rounded-[20px] bg-papel p-6 sm:p-8">
+        <div className="mt-10 bg-papel p-6 sm:p-8">
           {children}
         </div>
       </div>

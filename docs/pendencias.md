@@ -171,7 +171,7 @@ Desde a etapa 12, produtos, preços, cores, tamanhos, descrições e fotos são 
 
 ### Fotos
 
-- [ ] Fotos para os cartões de categoria "Básicas" e "Atacado".
+- [x] Fotos para os cartões de categoria "Básicas" e "Atacado": os cartões de categoria saíram da página inicial no redesign (16/10/2026).
 - [x] Foto do cartão "Personalizadas" e da seção de personalização da página inicial: trabalho real da loja (`personalizacao-pilates-casal.jpg`), sem depoimento e sem nome do cliente.
 - [ ] Pelo menos uma foto da peça real em cada página de produto. As fotos atuais são montagens digitais da estampa sobre modelos.
 - [ ] Fotos da "Camiseta lisa" (uma por cor), pelo painel. Produto sem foto mostra um ícone de camiseta no lugar.
@@ -188,10 +188,13 @@ Desde a etapa 12, produtos, preços, cores, tamanhos, descrições e fotos são 
 
 ### Visual
 
-- [ ] **Redesign visual do site**: mais minimalista, leve e dinâmico, **sem mudar nenhuma funcionalidade**. Primeiro um protótipo do visual para aprovação; depois de aprovado, a implementação numa branch própria, `feat/redesign`, atualizando também `docs/identidade-visual.md`.
+- [x] **Redesign visual do site** (`feat/redesign`, protótipos aprovados em 16/10/2026, `docs/redesign/`): tema, cabeçalho, rodapé, página inicial, página do produto (com barra fixa de compra no celular) e catálogo; "sacola" no lugar de "carrinho" nos textos; categoria "Coleção Carta Viva". `docs/identidade-visual.md` atualizado.
+- [ ] **Redesign, segunda etapa:** as telas do painel do administrador (hoje só herdaram as cores e as fontes novas) e o acabamento das demais telas da loja (sacola, checkout, conta, personalização, atacado), que ganharam o tema novo mas ainda usam cartões brancos no lugar das linhas finas.
+- [ ] Atualizar a imagem de compartilhamento (`src/app/opengraph-image.tsx`) para as cores e a fonte novas.
 
 ### Publicação
 
+- [ ] **Nome na fatura do cartão (depois do redesign, antes de publicar).** Na criação da cobrança do Mercado Pago (Checkout Pro, `criarCobranca` em `src/lib/mercado-pago.ts`), o `statement_descriptor` é "CARTAVIVA", para o cliente reconhecer a compra. O campo já é enviado desde a etapa de pagamento (04/10/2026). A documentação do Mercado Pago aceita até **13 caracteres** ("CARTAVIVA" tem 9). Falta conferir numa compra real com cartão como o nome aparece na fatura (o banco emissor pode acrescentar um prefixo do Mercado Pago) e ajustar se precisar.
 - [ ] Testar uma compra completa de ponta a ponta: cadastro, carrinho, frete, pagamento, e-mail e baixa de estoque.
 - [ ] Testar no celular, de verdade, os fluxos que só foram testados pelo servidor: escolha de cor, tamanho e quantidade, carrinho, cálculo de frete, cadastro e login.
 - [ ] Ver o pai do Israel cadastrar um produto completo pelo celular (dados, cores e tamanhos, fotos), lançar o estoque dele ("Chegaram peças" e "Corrigir contagem") e ajustar textos e botões do painel conforme as dúvidas dele.

@@ -28,6 +28,8 @@ config({ path: ".env.local", quiet: true });
 const ARQUIVO = "docs/catalogo-lancamento.md";
 const PASTA_DAS_FOTOS = "public/fotos/colecao-carta-viva";
 const CATEGORIA_DAS_ESTAMPAS = "estampas-da-casa";
+/** Categoria das 8 estampas da coleção (criada pela migration 20261017120000_categoria_colecao). */
+const CATEGORIA_DA_COLECAO = "colecao-carta-viva";
 const CAMISETA_LISA = "camiseta-lisa";
 /**
  * Fotos de uma cor só, com o nome padrão (sem a cor no fim do nome). As que
@@ -178,8 +180,13 @@ async function importar(tx: Tx, catalogo: ReturnType<typeof lerCatalogo>, relato
     if (!modeloPorNome.has(m.nome)) throw new ErroNoCatalogo(`O modelo "${m.nome}" não existe no banco.`);
   }
   const skus = new Set((await tx.variacao.findMany({ select: { sku: true } })).map((v) => v.sku));
-  const categoria = await tx.categoria.findUnique({ where: { slug: CATEGORIA_DAS_ESTAMPAS }, select: { id: true } });
-  if (!categoria) throw new ErroNoCatalogo(`A categoria "${CATEGORIA_DAS_ESTAMPAS}" não existe no banco.`);
+  const categorias = new Map(
+    (await tx.categoria.findMany({ where: { slug: { in: [CATEGORIA_DAS_ESTAMPAS, CATEGORIA_DA_COLECAO] } } })).map((c) => [c.slug, c.id]),
+  );
+  for (const slug of [CATEGORIA_DAS_ESTAMPAS, CATEGORIA_DA_COLECAO]) {
+    if (!categorias.has(slug)) throw new ErroNoCatalogo(`A categoria "${slug}" não existe no banco. Rode as migrations antes.`);
+  }
+  const categoriaDa = (e: { colecao: boolean }) => categorias.get(e.colecao ? CATEGORIA_DA_COLECAO : CATEGORIA_DAS_ESTAMPAS)!;
 
   /**
    * Garante modelos, cores, tamanhos e preços do produto. Cada modelo usa só
@@ -254,7 +261,7 @@ async function importar(tx: Tx, catalogo: ReturnType<typeof lerCatalogo>, relato
 
     let produto = await tx.produto.findUnique({
       where: { slug: estampa.slug },
-      select: { id: true, slug: true, descricao: true, referencia: true, ativo: true },
+      select: { id: true, slug: true, descricao: true, referencia: true, ativo: true, categoriaId: true },
     });
     if (!produto) {
       produto = await tx.produto.create({
@@ -264,24 +271,32 @@ async function importar(tx: Tx, catalogo: ReturnType<typeof lerCatalogo>, relato
           descricao: estampa.descricao,
           referencia: estampa.referencia,
           precoBaseEmCentavos: Math.min(...precos),
-          categoriaId: categoria.id,
+          categoriaId: categoriaDa(estampa),
           // Sem foto, a estampa do lançamento espera a foto para aparecer.
           ativo: estampa.colecao,
         },
-        select: { id: true, slug: true, descricao: true, referencia: true, ativo: true },
+        select: { id: true, slug: true, descricao: true, referencia: true, ativo: true, categoriaId: true },
       });
       relatorio.push(`+ ${estampa.nome} (/produtos/${estampa.slug}): novo, ${estampa.colecao ? "visível" : "escondido até ter foto"}`);
     } else {
       // Já existe: preenche só o que está vazio.
+      // A coleção sai de "Estampas da Casa" para a categoria dela (decisão de
+      // 16/10/2026); outra categoria escolhida no painel fica como está.
+      const paraColecao = estampa.colecao && produto.categoriaId === categorias.get(CATEGORIA_DAS_ESTAMPAS);
       const vazio = {
         ...(!produto.descricao && { descricao: estampa.descricao }),
         ...(!produto.referencia && estampa.referencia && { referencia: estampa.referencia }),
+        ...(paraColecao && { categoriaId: categorias.get(CATEGORIA_DA_COLECAO) }),
       };
-      const preenchidos = [vazio.descricao && "descrição", vazio.referencia && "referência"].filter(Boolean);
+      const preenchidos = [
+        vazio.descricao && "descrição",
+        vazio.referencia && "referência",
+      ].filter(Boolean);
       if (Object.keys(vazio).length > 0) await tx.produto.update({ where: { id: produto.id }, data: vazio });
       relatorio.push(
         `= ${estampa.nome} (/produtos/${estampa.slug}): já existe, ${produto.ativo ? "visível" : "escondido"}` +
-          (preenchidos.length > 0 ? `; preenchi ${preenchidos.join(" e ")}` : ""),
+          (preenchidos.length > 0 ? `; preenchi ${preenchidos.join(" e ")}` : "") +
+          (paraColecao ? "; movi para a categoria Coleção Carta Viva" : ""),
       );
     }
     if (estampa.referenciaAConfirmar) relatorio.push(`  ! Referência a confirmar: ${estampa.referencia}`);

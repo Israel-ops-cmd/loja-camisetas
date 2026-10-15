@@ -33,6 +33,7 @@ const PRECO_DE_TESTE_EM_CENTAVOS = 100;
 const ESTOQUE_DE_TESTE = 10;
 
 const categorias = [
+  { slug: "colecao-carta-viva", nome: "Coleção Carta Viva", ordem: 0 },
   { slug: "basicas", nome: "Camisetas Básicas", ordem: 1 },
   { slug: "estampas-da-casa", nome: "Estampas da Casa", ordem: 2 },
   { slug: "personalizadas", nome: "Personalizadas", ordem: 3 },

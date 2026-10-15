@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
 import { useState } from "react";
 
+import { IconeFechar, IconeMenu } from "@/components/layout/Icones";
 import { menuPrincipal } from "@/lib/navegacao";
+
+const itens = [...menuPrincipal, { rotulo: "Minha conta", href: "/conta" }];
 
 export function MenuCelular() {
   const [aberto, setAberto] = useState(false);
@@ -17,28 +19,24 @@ export function MenuCelular() {
         aria-expanded={aberto}
         aria-controls="menu-celular"
         onClick={() => setAberto(!aberto)}
-        className="-ml-2.5 inline-flex size-11 items-center justify-center rounded-full transition hover:bg-fundo"
+        className="inline-flex size-11 items-center justify-center transition hover:opacity-70"
       >
-        {aberto ? (
-          <X className="size-6" strokeWidth={1.6} />
-        ) : (
-          <Menu className="size-6" strokeWidth={1.6} />
-        )}
+        {aberto ? <IconeFechar /> : <IconeMenu />}
       </button>
 
       <nav
         id="menu-celular"
         aria-label="Menu principal"
         hidden={!aberto}
-        className="absolute inset-x-0 top-full border-b border-borda bg-papel px-[clamp(20px,5vw,80px)] pb-4"
+        className="absolute inset-x-0 top-full border-b border-borda bg-fundo px-5 pb-4"
       >
         <ul>
-          {menuPrincipal.map((item) => (
+          {itens.map((item) => (
             <li key={item.href} className="border-t border-borda first:border-t-0">
               <Link
                 href={item.href}
                 onClick={() => setAberto(false)}
-                className="texto-menu flex min-h-13 items-center"
+                className="flex min-h-13 items-center text-[15px]"
               >
                 {item.rotulo}
               </Link>
