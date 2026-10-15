@@ -15,7 +15,7 @@ export async function EscolhaDoModelo() {
     <section aria-labelledby="titulo-modelos" className="largura pb-24 lg:pb-26">
       <AoRolar>
         <CabecalhoDaSecao id="titulo-modelos" titulo="Escolha o seu modelo" link={{ href: "/produtos", texto: "Ver todos" }} />
-        <ul className="grid grid-cols-2 gap-5 lg:grid-cols-4">
+        <ul className="grid grid-cols-2 gap-5 md:grid-cols-4">
           {modelos.map((modelo) => (
             <li key={modelo.slug}>
               <Link href={`/produtos?modelo=${modelo.slug}`} className="group flex flex-col gap-3.5">
@@ -25,7 +25,7 @@ export async function EscolhaDoModelo() {
                       src={modelo.foto.url}
                       alt=""
                       fill
-                      sizes="(min-width: 1024px) 25vw, 50vw"
+                      sizes="(min-width: 768px) 25vw, 50vw"
                       className="object-cover transition duration-500 group-hover:scale-[1.02]"
                     />
                   )}

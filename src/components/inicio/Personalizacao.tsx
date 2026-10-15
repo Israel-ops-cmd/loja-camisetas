@@ -12,7 +12,7 @@ const passos = [
 export function Personalizacao() {
   return (
     <section id="personalizacao" aria-labelledby="titulo-personalizacao" className="scroll-mt-20">
-      <AoRolar className="largura grid items-center gap-x-20 gap-y-12 py-24 lg:grid-cols-2 lg:py-28">
+      <AoRolar className="largura grid items-center gap-x-10 gap-y-12 py-24 md:grid-cols-2 lg:gap-x-20 lg:py-28">
         <div className="flex max-w-[520px] flex-col gap-5.5">
           <span className="sobretitulo text-secundario">Personalizadas</span>
           <h2 id="titulo-personalizacao" className="titulo-destaque">
@@ -40,7 +40,7 @@ export function Personalizacao() {
               src="/fotos/personalizacao-pilates-casal.jpg"
               alt="Casal na praia vestindo camisetas cinza personalizadas com a arte de um estúdio de pilates"
               fill
-              sizes="(min-width: 1024px) 45vw, 100vw"
+              sizes="(min-width: 768px) 45vw, 100vw"
               className="object-cover object-[50%_30%]"
             />
           </div>

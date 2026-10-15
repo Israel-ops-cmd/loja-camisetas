@@ -203,6 +203,11 @@ Desde a etapa 12, produtos, preços, cores, tamanhos, descrições e fotos são 
 - [ ] Depois de publicar: medir no PageSpeed Insights (celular) as páginas inicial, listagem e produto. Localmente (06/10/2026) o desempenho variou de 77 a 96 entre rodadas, porque o Lighthouse roda no mesmo computador do servidor; o número que vale é o de produção. O que mais pesa hoje é o JavaScript das páginas interativas (escolha de cor, tamanho e quantidade) num celular lento.
 - [ ] Depois de publicar: mandar um link de produto e o da página inicial no WhatsApp e conferir a prévia (foto, título e descrição). A imagem do produto sai em JPEG (~110 KB) para o WhatsApp mostrar; a das outras páginas é gerada com a marca.
 - [ ] Depois de publicar: verificar o domínio no Google Search Console e enviar o `sitemap.xml`.
+- [x] SEO de conteúdo (`feat/responsividade-e-seo`, 15/10/2026): títulos e descrições com "camisetas cristãs", "com versículos", "personalizadas" e "atacado"; produto como "Camiseta Amém (referência)"; categorias Coleção Carta Viva, Estampas da Casa e Básicas com página própria no Google (texto, título e canonical) e no sitemap; política de devolução nos dados estruturados do produto.
+- [ ] **Google Meu Negócio** (Perfil da Empresa no Google) com o endereço de Natal, horário, fotos e o link do site. É o que faz a loja aparecer em "camisetas cristãs em Natal" e no Maps.
+- [ ] **Google Merchant Center** (grátis): cadastrar a loja e o domínio para os produtos aparecerem na aba Shopping. Os dados estruturados dos produtos já estão no site; se o Merchant Center pedir um feed, criar a rota do feed.
+- [ ] Instagram e outros perfis com o link `https://lojacartaviva.com.br` (depois, `instagram` em `src/lib/loja.ts`). Links de outros sites para a loja (igrejas, parceiros, imprensa local) pesam muito no Google.
+- [ ] Avaliações reais de clientes, quando houver, para os produtos (estrelas no Google).
 
 ## Melhorias para depois
 

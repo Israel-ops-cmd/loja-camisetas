@@ -52,6 +52,12 @@ body {
   line-height: 1.6;
 }
 
+/* O navegador dá ao fieldset a largura mínima do conteúdo: uma linha rolável
+   de opções (modelos, tamanhos) dentro dele esticava a página no celular. */
+fieldset {
+  min-width: 0;
+}
+
 /* Tipografia */
 
 @utility titulo-hero {

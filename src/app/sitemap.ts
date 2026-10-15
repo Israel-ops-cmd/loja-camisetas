@@ -10,6 +10,10 @@ export const revalidate = 3600;
 const PAGINAS: { caminho: string; frequencia: MetadataRoute.Sitemap[number]["changeFrequency"]; prioridade: number }[] = [
   { caminho: "/", frequencia: "daily", prioridade: 1 },
   { caminho: "/produtos", frequencia: "daily", prioridade: 0.9 },
+  // Categorias com texto próprio (TEXTOS_DAS_CATEGORIAS em src/app/produtos/page.tsx).
+  { caminho: "/produtos?categoria=colecao-carta-viva", frequencia: "weekly", prioridade: 0.8 },
+  { caminho: "/produtos?categoria=estampas-da-casa", frequencia: "weekly", prioridade: 0.8 },
+  { caminho: "/produtos?categoria=basicas", frequencia: "weekly", prioridade: 0.7 },
   { caminho: "/personalizacao", frequencia: "monthly", prioridade: 0.7 },
   { caminho: "/atacado", frequencia: "monthly", prioridade: 0.7 },
   { caminho: "/perguntas-frequentes", frequencia: "monthly", prioridade: 0.5 },

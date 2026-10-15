@@ -21,13 +21,16 @@ const manrope = Manrope({
   weight: ["400", "500", "600", "700"],
 });
 
+// Os termos que as pessoas buscam (camiseta cristã, evangélica, com
+// versículo, personalizada, atacado) entram no título e na descrição.
+const TITULO = "Carta Viva | Camisetas cristãs com versículos";
 const DESCRICAO =
-  "Camisetas e personalizados: estampas da casa, peças lisas e produtos com a sua arte. Para usar, presentear ou vestir a sua equipe.";
+  "Camisetas cristãs e evangélicas com versículos, estampadas em Natal e enviadas para todo o Brasil. Estampas próprias, camisetas lisas, personalizadas com a sua arte e atacado para igrejas e eventos.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(enderecoDoSite()),
   title: {
-    default: "Carta Viva",
+    default: TITULO,
     template: "%s | Carta Viva",
   },
   description: DESCRICAO,
@@ -37,7 +40,7 @@ export const metadata: Metadata = {
     type: "website",
     locale: "pt_BR",
     siteName: "Carta Viva",
-    title: "Carta Viva",
+    title: TITULO,
     description: DESCRICAO,
   },
   twitter: { card: "summary_large_image" },
